@@ -122,16 +122,6 @@ public class Swerve extends SwerveDrivetrain implements Subsystem {
     /* The SysId routine to test */
     private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
 
-    /**
-     * Constructs a CTRE SwerveDrivetrain using the specified constants.
-     * <p>
-     * This constructs the underlying hardware devices, so user should not construct
-     * the devices themselves. If they need the devices, they can access them
-     * through getters in the classes.
-     *
-     * @param drivetrainConstants Drivetrain-wide constants for the swerve drive
-     * @param modules             Constants for each specific module
-     */
     public Swerve(SwerveDrivetrainConstants drivetrainConstants, SwerveModuleConstants... modules) {
         super(drivetrainConstants, modules);
         configPathplanner();
