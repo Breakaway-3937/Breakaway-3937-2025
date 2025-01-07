@@ -20,7 +20,7 @@ public class CenterOnAprilTag extends Command {
   private int tag;
   private ProfiledPIDController alignController; //TODO Y axis???
 
-  private final SwerveRequest.FieldCentric swerveRequest = new SwerveRequest.FieldCentric()
+  private final SwerveRequest.FieldCentric swerveRequest = new SwerveRequest.FieldCentric() //TODO maybe needs to be robot centric
   .withDriveRequestType(DriveRequestType.Velocity)
   .withSteerRequestType(SteerRequestType.MotionMagicExpo)
   .withVelocityX(0.0)
@@ -47,7 +47,12 @@ public class CenterOnAprilTag extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    //if vision has targets 
+    //check target for tag id or find best target if tag id zero passed
+    //robot centric y axis. Just make it center
 
+    //if no targets end command??????
+    //Maybe allows default comamnd to take over with its rotation controls from the joysick????
   }
 
   // Called once the command ends or is interrupted.
