@@ -8,18 +8,25 @@ import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Commands.CenterOnAprilTag;
 import frc.robot.Commands.DriveToPose;
+import frc.robot.Commands.Test;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.Swerve.AutoPathLocations;
+import frc.robot.subsystems.Swerve.Swerve;
 
 public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); 
@@ -58,10 +65,13 @@ public class RobotContainer {
 
         //translationButton.onTrue(Commands.runOnce(() -> drivetrain.setGyro(), drivetrain));
 
-        translationButton.whileTrue(new DriveToPose(drivetrain, new Pose2d(7, 7, new Rotation2d(0))));
+        translationButton.onTrue(new Test(ElevatorPositions.CORAL_STATION, vision));
 
+        //translationButton.whileTrue(drivetrain.pathFindThenFollow(AutoPathLocations.CORAL_ONE, new Pose2d(5.774, 1.937, new Rotation2d())))
+        //                 .whileFalse(Commands.none());
 
-        /*joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
+                         
+        /*j
         joystick.b().whileTrue(drivetrain.applyRequest(() ->
             point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
         ));

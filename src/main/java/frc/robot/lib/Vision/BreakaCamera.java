@@ -22,7 +22,6 @@ public class BreakaCamera extends PhotonCamera {
     boolean noPoseEst;
     SimCameraProperties cameraProp;
 
-
     /**
      * Creates a BreakaCamera
      * @param cameraName Name of camera beign created. Get from PV dashboard
@@ -45,6 +44,7 @@ public class BreakaCamera extends PhotonCamera {
     public BreakaCamera(String cameraName, PhotonPoseEstimator poseEstimator) {
         super(cameraName);
         noPoseEst = false;
+        this.poseEstimator = poseEstimator;
 
         if(Robot.isSimulation()) {
           cameraProp = new SimCameraProperties();
@@ -63,7 +63,21 @@ public class BreakaCamera extends PhotonCamera {
       }
     }
 
-    //TODO I think this is how this works. Or just make object public. But i like this more.
+    /**
+     * Gets update pose from camera/coprocesser. 
+     * 
+     * @throws IllegalStateException thrown if no pose estmator is provided. 
+     * @return Latest Pose estimate
+     */
+    public Optional<EstimatedRobotPose> getEstimatedPose() {
+      if(noPoseEst) {
+          throw new IllegalStateException("No pose Estimator provided. Do not call this method or add pose estimtor"); //Maybe change
+      }
+      else {
+          return poseEstimator.update(getLatest());
+      }
+  }
+
     public PhotonPoseEstimator getPhotonPoseEstimator() {
         return poseEstimator;
     }
@@ -91,20 +105,5 @@ public class BreakaCamera extends PhotonCamera {
         DriverStation.reportWarning("Sim Camera not Configed. Not in Simulation", false);
       }
       return new PhotonCameraSim(this, cameraProp);
-    }
-
-    /**
-     * Gets update pose from camera/coprocesser. 
-     * 
-     * @throws IllegalStateException thrown if no pose estmator is provided. 
-     * @return Latest Pose estimate
-     */
-    public Optional<EstimatedRobotPose> getEstimatedPose() {
-        if(noPoseEst) {
-            throw new IllegalStateException("No pose Estimator provided. Do not call this method or add pose estimtor");
-        }
-        else {
-            return poseEstimator.update(getLatest());
-        }
     }
 }

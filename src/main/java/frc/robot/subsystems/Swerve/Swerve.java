@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.Swerve;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.function.Supplier;
 
 import org.json.simple.parser.ParseException;
+import org.littletonrobotics.junction.AutoLogOutput;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
@@ -18,8 +19,10 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.pathfinding.LocalADStar;
 import com.pathplanner.lib.pathfinding.Pathfinding;
+import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -32,6 +35,8 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
@@ -137,7 +142,6 @@ public class Swerve extends SwerveDrivetrain implements Subsystem {
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        
     }
 
     public Swerve(
@@ -215,8 +219,20 @@ public class Swerve extends SwerveDrivetrain implements Subsystem {
         Pathfinding.setPathfinder(new LocalADStar());
     }
 
-    public Command PathFindToPose(Pose2d target) {
+    public Command pathFindToPose(Pose2d target) {
         return AutoBuilder.pathfindToPose(target, constraints);
+    }
+
+    public SequentialCommandGroup pathFindThenFollow(AutoPathLocations location, Pose2d target) {
+        try {
+            System.out.println(PathPlannerPath.fromPathFile("CORAL_ONE").getPoint(0).position + "------Jeffords maybe not sad");
+            return new SequentialCommandGroup(AutoBuilder.pathfindToPose(target, constraints), AutoBuilder.followPath(PathPlannerPath.fromPathFile(location.path)));
+            //return AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile(location.path), constraints);
+        }
+        catch(FileVersionException | IOException | ParseException e) {
+            System.err.println("Error: " + e.getMessage());
+            return new SequentialCommandGroup(Commands.none());
+        }
     }
 
     @Override
