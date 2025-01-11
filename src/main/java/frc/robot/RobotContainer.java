@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 //import frc.robot.commands.Music;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Vision;
@@ -48,6 +49,14 @@ public class RobotContainer {
 
     private final Swerve s_Swerve = TunerConstants.createDrivetrain();
     private final Vision s_Vision = new Vision(s_Swerve);
+
+    AppTriggers triggers = new AppTriggers();
+
+    private Trigger levelOne = triggers.getlevelOneTrigger();
+    private Trigger levelTwo = triggers.getlevelTwoTrigger();
+    private Trigger levelThree = triggers.getlevelThreeTrigger();
+    private Trigger levelFour = triggers.getlevelFourTrigger();
+    private Trigger stop = triggers.stop();
 
     //private final Music c_Music = new Music();
 
@@ -91,6 +100,7 @@ public class RobotContainer {
     //public Command getMusicCommand() {
     //    return c_Music;
     //}
+
 }
 
 //FIXME: Run SysId with robot.
