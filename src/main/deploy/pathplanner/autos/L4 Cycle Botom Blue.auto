@@ -1,0 +1,37 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Leave L4 Botom Blue"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Score 1 L4 Botom Blue"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Score 2 L4 Botom Blue"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Score 3 L4 Botom Blue"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
