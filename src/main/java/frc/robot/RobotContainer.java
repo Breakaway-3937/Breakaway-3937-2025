@@ -13,6 +13,8 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -42,6 +44,7 @@ public class RobotContainer {
     private final int rotationAxis = Constants.Controllers.ROTATION_AXIS;
 
     private final Telemetry logger = new Telemetry(maxSpeed);
+    private final SendableChooser<Command> autoChooser;
 
     private final Vision s_Vision = new Vision();
     private final Swerve s_Swerve = TunerConstants.createDrivetrain();
@@ -75,12 +78,14 @@ public class RobotContainer {
     }
 
     public RobotContainer() {
+        autoChooser = AutoBuilder.buildAutoChooser("DO NOTHING");
+        Shuffleboard.getTab("Auto").add(autoChooser).withPosition(0, 0).withSize(2, 1);
         configureBindings();
     }
 
     //FIXME: Add the return from the auto chooser.
     public Command getAutonomousCommand() {
-        return AutoBuilder.buildAuto("New Auto");
+        return autoChooser.getSelected();
     }
 
     public Command getMusicCommand() {
