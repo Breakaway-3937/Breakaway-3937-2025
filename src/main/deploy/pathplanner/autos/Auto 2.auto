@@ -1,0 +1,37 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "A2 Score L4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "A2 Algae-Barge"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "A2 Algae-Barge2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "A2 Algae-Barge3"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
