@@ -7,25 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "A2 Score L4"
+            "pathName": "Algae #1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "A2 Algae-Barge"
+            "pathName": "Algae #2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "A2 Algae-Barge2"
+            "pathName": "Algae #3"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "A2 Algae-Barge3"
+            "pathName": "Algae #4"
           }
         }
       ]

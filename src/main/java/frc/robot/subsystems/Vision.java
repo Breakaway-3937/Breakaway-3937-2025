@@ -8,14 +8,12 @@ import java.io.IOException;
 
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.targeting.PhotonPipelineResult;
 
 import com.ctre.phoenix6.Utils;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.lib.Vision.BreakaCamera;
@@ -23,37 +21,38 @@ import frc.robot.subsystems.Swerve.Swerve;
 
 public class Vision extends SubsystemBase {
   private AprilTagFieldLayout atfl;
-  private BreakaCamera camera;
-  private Swerve swerve;
-  private Field2d field;
-  public Pose2d result1;
-  public double result2;
+  private final BreakaCamera camera;
+  private final Swerve s_Swerve;
 
   /** Creates a new Vision. */
-  public Vision(Swerve swerve) {
-    this.swerve = swerve;
+  public Vision(Swerve s_Swerve) {
+    this.s_Swerve = s_Swerve;
     try {
       atfl = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025Reefscape.m_resourceFile);
     } catch(IOException e) {
       e.printStackTrace();
     }
 
-    field = new Field2d();
+    camera = new BreakaCamera("FrontCamera", new PhotonPoseEstimator(atfl, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.Vision.FRONT_CAMERA_TRANSFORM));
+  }
 
-    SmartDashboard.putData(field);
+  public double getX() {
+    return camera.getLatest().hasTargets() ? camera.getLatest().getBestTarget().getBestCameraToTarget().getX() : 0;
+  }
 
-    camera = new BreakaCamera("FrontCamera", new PhotonPoseEstimator(atfl, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.Vision.FRONT_CAMERA_TRANSFORM));    
+  public boolean hasTargets() {
+    return camera.getLatest().hasTargets();
+  }
+
+  public PhotonPipelineResult getLatest() {
+    return camera.getLatest();
   }
 
   @Override
   public void periodic() {
     var result = camera.getEstimatedPose();
     if(!result.isEmpty()) {
-      System.out.println("UPDATE");
-      result1 = result.get().estimatedPose.toPose2d();
-      result2 = result.get().timestampSeconds;
-      field.setRobotPose(result.get().estimatedPose.toPose2d());
-      swerve.addVisionMeasurement(result.get().estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(result.get().timestampSeconds), Constants.Vision.TAG_VISION_STDS_FRONT);
+      s_Swerve.addVisionMeasurement(result.get().estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(result.get().timestampSeconds), Constants.Vision.TAG_VISION_STDS_FRONT);
     }
   }
 

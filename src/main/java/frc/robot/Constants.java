@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj.RobotController;
 public final class Constants {
     public static final boolean ROBOT_RELATIVE = false;
     public static final boolean OPEN_LOOP = true;
-    public static final boolean USE_XBOX_CONTROLLER = false;
     //FIXME: Will all change with new robot.
     public static final int CANDLE_ID = 0;
     public static final int PDH_ID = 0;

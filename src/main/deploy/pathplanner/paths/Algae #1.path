@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.093846153846153,
-        "y": 4.344935897435898
+        "x": 7.74813829787234,
+        "y": 4.048337765957446
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.36,
-        "y": 4.365576923076923
+        "x": 6.683849106078865,
+        "y": 4.047173567313884
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.916217948717948,
-        "y": 4.107564102564102
+        "x": 5.916123670212766,
+        "y": 4.048337765957446
       },
       "prevControl": {
-        "x": 6.937948717948718,
-        "y": 4.190128205128206
+        "x": 6.886935688257211,
+        "y": 4.050131682135785
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Algae 1/2"
     }
   ],
   "rotationTargets": [],
@@ -45,7 +45,7 @@
     "rotation": 180.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Algae",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 180.0

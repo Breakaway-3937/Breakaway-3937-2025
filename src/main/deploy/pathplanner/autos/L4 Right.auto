@@ -7,25 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Leave L4 Botom Blue"
+            "pathName": "L4 Right #1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Score 1 L4 Botom Blue"
+            "pathName": "L4 Right #2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Score 2 L4 Botom Blue"
+            "pathName": "L4 Right #3"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Score 3 L4 Botom Blue"
+            "pathName": "L4 Right #4"
           }
         }
       ]

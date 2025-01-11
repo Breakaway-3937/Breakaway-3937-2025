@@ -5,22 +5,16 @@ import java.util.Optional;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
-import org.photonvision.simulation.PhotonCameraSim;
-import org.photonvision.simulation.SimCameraProperties;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
-
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import frc.robot.Robot;
 
 /** 
  * Same as PhotonCamera but adds back in removed methods. Extends PhotonCamera.
  * @see {@link PhotonCamera}
  */
 public class BreakaCamera extends PhotonCamera {
-    PhotonPoseEstimator poseEstimator;
-    boolean noPoseEst;
-    SimCameraProperties cameraProp;
+    private PhotonPoseEstimator poseEstimator;
+    private final boolean noPoseEst;
 
     /**
      * Creates a BreakaCamera
@@ -29,11 +23,6 @@ public class BreakaCamera extends PhotonCamera {
     public BreakaCamera(String cameraName) {
         super(cameraName);
         noPoseEst = true;
-
-        if(Robot.isSimulation()) {
-          cameraProp = new SimCameraProperties();
-          configCameraSimulation();
-        }
     }
     
     /**
@@ -45,11 +34,7 @@ public class BreakaCamera extends PhotonCamera {
         super(cameraName);
         noPoseEst = false;
         this.poseEstimator = poseEstimator;
-
-        if(Robot.isSimulation()) {
-          cameraProp = new SimCameraProperties();
-          configCameraSimulation();
-        }
+        poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
     }
 
     public PhotonPipelineResult getLatest() {
@@ -71,7 +56,7 @@ public class BreakaCamera extends PhotonCamera {
      */
     public Optional<EstimatedRobotPose> getEstimatedPose() {
       if(noPoseEst) {
-          throw new IllegalStateException("No pose estimator provided. Do not call this method or add pose estimator."); //FIXME: Maybe change.
+          throw new IllegalStateException("No pose estimator provided. Do not call this method or add pose estimator.");
       }
       else {
           return poseEstimator.update(getLatest());
@@ -89,21 +74,5 @@ public class BreakaCamera extends PhotonCamera {
       else{
         return false;
       }
-    }
-
-    private void configCameraSimulation() {
-      cameraProp.setCalibration(640, 480, Rotation2d.fromDegrees(100));
-      cameraProp.setCalibError(0.25, 0.25);
-      cameraProp.setFPS(20);
-      cameraProp.setAvgLatencyMs(20);
-      cameraProp.setLatencyStdDevMs(5);
-    }
-
-    public PhotonCameraSim getSimCamera() {
-      if(!Robot.isSimulation()) {
-        System.out.println("Sim Camera not configured. Not in Simulation.");
-        DriverStation.reportWarning("Sim Camera not configured. Not in Simulation.", false);
-      }
-      return new PhotonCameraSim(this, cameraProp);
     }
 }

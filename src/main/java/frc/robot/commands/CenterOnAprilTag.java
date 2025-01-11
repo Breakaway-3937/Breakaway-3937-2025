@@ -6,6 +6,9 @@ package frc.robot.commands;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
+
+import org.photonvision.targeting.PhotonTrackedTarget;
+
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -15,47 +18,59 @@ import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Swerve.Swerve;
 
 /**
- * Pass zero for tag ID to track best 
+ * Pass zero for tag ID to track best target.
  */
 public class CenterOnAprilTag extends Command {
-  private Swerve swerve;
-  private Vision vision;
-  private int tag;
-  private ProfiledPIDController alignController; //TODO Y axis???
+  private final Swerve s_Swerve;
+  private final Vision s_Vision;
+  private final int tag;
+  private final ProfiledPIDController controller;
 
-  private final SwerveRequest.FieldCentric swerveRequest = new SwerveRequest.FieldCentric() //TODO maybe needs to be robot centric
-  .withDriveRequestType(DriveRequestType.Velocity)
-  .withSteerRequestType(SteerRequestType.MotionMagicExpo)
-  .withVelocityX(0.0)
-  .withVelocityY(0.0);
+  private final SwerveRequest.RobotCentric swerveRequest = new SwerveRequest.RobotCentric()
+    .withDriveRequestType(DriveRequestType.Velocity)
+    .withSteerRequestType(SteerRequestType.MotionMagicExpo)
+    .withVelocityX(0.0)
+    .withVelocityY(0.0);
 
   /** Creates a new CenterOnAprilTag. */
-  public CenterOnAprilTag(Swerve swerve, Vision vision, int tag) {
-    this.swerve = swerve;
+  public CenterOnAprilTag(Swerve s_Swerve, Vision s_Vision, int tag) {
+    this.s_Swerve = s_Swerve;
     this.tag = tag;
-    this.vision = vision;
+    this.s_Vision = s_Vision;
 
-    alignController = new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(1, 1));
+    //FIXME: Get the correct PID values.
+    controller = new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(1, 1));
 
-    addRequirements(swerve);
     // Use addRequirements() here to declare subsystem dependencies.
+    addRequirements(s_Swerve, s_Vision);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    alignController.reset(0); //TODO get info from camera
+    var result = s_Vision.getLatest();
+    if(result.hasTargets()) {
+      controller.reset(result.getBestTarget().getBestCameraToTarget().getX());
+    }
+    controller.setGoal(0);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    //if vision has targets 
-    //check target for tag id or find best target if tag id zero passed
-    //robot centric y axis. Just make it center
-
-    //if no targets end command??????
-    //Maybe allows default comamnd to take over with its rotation controls from the joysick????
+    var result = s_Vision.getLatest();
+    if(result.hasTargets()) {
+      if(tag == 0) {
+        s_Swerve.setControl(swerveRequest.withVelocityX(controller.calculate(result.getBestTarget().getBestCameraToTarget().getX())));
+      }
+      else {
+        for(PhotonTrackedTarget target : result.getTargets()) {
+          if(target.getFiducialId() == tag) {
+            s_Swerve.setControl(swerveRequest.withVelocityX(controller.calculate(target.getBestCameraToTarget().getX())));
+          }
+        }
+      }
+    }
   }
 
   // Called once the command ends or is interrupted.
@@ -65,6 +80,7 @@ public class CenterOnAprilTag extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+    //FIXME: Add the correct tolerance.
     return false;
   }
 }

@@ -3,51 +3,51 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 10.0815,
-        "y": 6.27725
+        "x": 1.6569813829787234,
+        "y": 0.7460438829787234
       },
       "prevControl": null,
       "nextControl": {
-        "x": 10.828083220874552,
-        "y": 5.666868708385197
+        "x": 2.0522373508499356,
+        "y": 0.8732202776030308
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "L4 Right"
     },
     {
       "anchor": {
-        "x": 12.353250000000001,
-        "y": 5.08775
+        "x": 3.6523603723404254,
+        "y": 2.8581117021276587
       },
       "prevControl": {
-        "x": 10.426278183285525,
-        "y": 4.700661082358454
+        "x": 2.9211103723404253,
+        "y": 3.2091117021276596
       },
       "nextControl": {
-        "x": 12.598353631125278,
-        "y": 5.13698626721436
+        "x": 4.253733493606887,
+        "y": 2.5694526039197574
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 15.999749999999999,
-        "y": 7.320499999999999
+        "x": 1.6569813829787234,
+        "y": 0.7460438829787234
       },
       "prevControl": {
-        "x": 15.18223296431717,
-        "y": 6.855746282711218
+        "x": 2.416722526909732,
+        "y": 1.4982754025720655
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "L4 Right"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.9877165354330714,
-      "rotationDegrees": 120.12168281896749
+      "waypointRelativePos": 0.984251968503937,
+      "rotationDegrees": 59.99999999999999
     }
   ],
   "constraintZones": [],
@@ -63,13 +63,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -126.65610841596677
+    "rotation": -126.51050914293484
   },
   "reversed": false,
-  "folder": null,
+  "folder": "L4 Right",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -126.51050914293484
   },
   "useDefaultConstraints": true
 }
