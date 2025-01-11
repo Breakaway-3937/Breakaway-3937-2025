@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.commands.Music;
+//import frc.robot.commands.Music;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Swerve.AutoPathLocations;
@@ -43,10 +43,10 @@ public class RobotContainer {
 
     private final Telemetry logger = new Telemetry(maxSpeed);
 
-    private final Vision s_Vision = new Vision();
     private final Swerve s_Swerve = TunerConstants.createDrivetrain();
+    private final Vision s_Vision = new Vision(s_Swerve);
 
-    private final Music c_Music = new Music();
+    //private final Music c_Music = new Music();
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(maxSpeed * Constants.Controllers.STICK_DEADBAND)
@@ -65,7 +65,7 @@ public class RobotContainer {
             )
         );
 
-        translationButton.onTrue(Commands.run(() -> s_Swerve.seedFieldCentric(), s_Swerve));
+        translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
 
         //FIXME: Add full logic for autonomous tracking.
         autoTrackButton.whileTrue(s_Swerve.pathFindThenFollow(AutoPathLocations.CORAL_ONE, new Pose2d(5.774, 1.937, new Rotation2d())))
@@ -83,9 +83,9 @@ public class RobotContainer {
         return AutoBuilder.buildAuto("New Auto");
     }
 
-    public Command getMusicCommand() {
-        return c_Music;
-    }
+    //public Command getMusicCommand() {
+    //    return c_Music;
+    //}
 }
 
 //FIXME: Run SysId with robot.

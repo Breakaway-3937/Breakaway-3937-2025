@@ -34,7 +34,8 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledInit() {
     if(DriverStation.isEStopped() || (DriverStation.isFMSAttached() && DriverStation.getMatchTime() < 3 && teleop)){
-      robotContainer.getMusicCommand().ignoringDisable(true).schedule();
+      //robotContainer.getMusicCommand().ignoringDisable(true).schedule();
+      System.out.print("");
     }
   }
 
