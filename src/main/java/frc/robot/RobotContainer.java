@@ -85,7 +85,7 @@ public class RobotContainer {
 
     //FIXME: Add the return from the auto chooser.
     public Command getAutonomousCommand() {
-        return autoChooser.getSelected();
+        return AutoBuilder.buildAuto("Auto 2");
     }
 
     //public Command getMusicCommand() {

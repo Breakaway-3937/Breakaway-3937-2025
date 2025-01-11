@@ -45,6 +45,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
+    private Field2d feild;
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.fromDegrees(0);
@@ -136,6 +137,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        feild = new Field2d();
+        SmartDashboard.putData("HI", feild);
         configPathplanner();
     }
 
@@ -251,6 +254,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         /* This allows us to correct the perspective in case the robot code restarts mid-match */
         /* Otherwise, only check and apply the operator perspective if the DS is disabled */
         /* This ensures driving behavior doesn't change until an explicit disable event occurs during testing*/
+        feild.setRobotPose(this.getState().Pose);
+
         if (!m_hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
             DriverStation.getAlliance().ifPresent((allianceColor) -> {
                 setOperatorPerspectiveForward(
