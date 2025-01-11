@@ -6,25 +6,37 @@ package frc.robot;
 
 import org.littletonrobotics.junction.LoggedRobot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
+//FIXME: Add full logging functionality.
 public class Robot extends LoggedRobot {
-  private Command m_autonomousCommand;
+  private Command autonomousCommand;
 
-  private final RobotContainer m_robotContainer;
+  private final RobotContainer robotContainer;
+
+  private boolean teleop = false;
 
   public Robot() {
-    m_robotContainer = new RobotContainer();
+    robotContainer = new RobotContainer();
   }
 
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run(); 
+
+    if(DriverStation.isFMSAttached() && DriverStation.isTeleopEnabled()){
+      teleop = true;
+    }
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    if(DriverStation.isEStopped() || (DriverStation.isFMSAttached() && DriverStation.getMatchTime() < 3 && teleop)){
+      robotContainer.getMusicCommand().ignoringDisable(true).schedule();
+    }
+  }
 
   @Override
   public void disabledPeriodic() {}
@@ -34,10 +46,10 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    autonomousCommand = robotContainer.getAutonomousCommand();
 
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
+    if(autonomousCommand != null) {
+      autonomousCommand.schedule();
     }
   }
 
@@ -49,8 +61,8 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopInit() {
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+    if(autonomousCommand != null) {
+      autonomousCommand.cancel();
     }
   }
 
@@ -74,3 +86,258 @@ public class Robot extends LoggedRobot {
   @Override
   public void simulationPeriodic() {}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+ * Beavers to inches = 36 / number of beaver
+ */
+
+
+
+
+// Luke is Coach's Teddy Bear 
+
+
+
+
+
+//smidgen = 0.1
+/*if(DriverStation.isDisabled() && flag && DriverStation.getMatchTime() > 130){
+  //FIX ME Get RoboRandy and Greyson to Approve!
+  flag = false;
+  Shuffleboard.getTab("GREYSON").add("GREYSON", "STRONGER CORE!!  MORE SIX-PACK!! BEST LIFT!!").withPosition(0, 0);
+  Shuffleboard.selectTab("GREYSON");
+}
+if(DriverStation.isEStopped() && flag1){
+  //FIX ME Get RoboRandy to Approve!
+  flag1 = false;
+  Shuffleboard.getTab("Death").add("Death", "We have failed!!! :(").withPosition(0, 0);
+  Shuffleboard.getTab("Death").add("Death2", "MARKKKKKKKK!!!!!!").withPosition(0, 1);
+  Shuffleboard.selectTab("Death");
+}*/
+//This is the life of a programmer. We are under valued and over worked. Everything we get breaks. There are so many mechanical issues with the robot that I have lost count. This will probably never get seen again, but if it does, good luck in your future in Java. I hope that you don't have to use Shuffleboard.
+//Sincerely, 
+//  Jack Left

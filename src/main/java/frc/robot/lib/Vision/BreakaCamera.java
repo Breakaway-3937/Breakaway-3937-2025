@@ -24,7 +24,7 @@ public class BreakaCamera extends PhotonCamera {
 
     /**
      * Creates a BreakaCamera
-     * @param cameraName Name of camera beign created. Get from PV dashboard
+     * @param cameraName Name of camera being created. Get from PV dashboard.
      */
     public BreakaCamera(String cameraName) {
         super(cameraName);
@@ -38,8 +38,8 @@ public class BreakaCamera extends PhotonCamera {
     
     /**
      * Creates a BreakaCamera
-     * @param cameraName Name of camera beign created. Get from PV dashboard
-     * @param poseEstimator Pose estmator to be used for Pose estimation. 
+     * @param cameraName Name of camera being created. Get from PV dashboard.
+     * @param poseEstimator Pose estimator to be used for Pose estimation. 
      */
     public BreakaCamera(String cameraName, PhotonPoseEstimator poseEstimator) {
         super(cameraName);
@@ -64,19 +64,19 @@ public class BreakaCamera extends PhotonCamera {
     }
 
     /**
-     * Gets update pose from camera/coprocesser. 
+     * Gets update pose from camera/coprocessor. 
      * 
      * @throws IllegalStateException thrown if no pose estmator is provided. 
-     * @return Latest Pose estimate
+     * @return Latest Pose Estimate
      */
     public Optional<EstimatedRobotPose> getEstimatedPose() {
       if(noPoseEst) {
-          throw new IllegalStateException("No pose Estimator provided. Do not call this method or add pose estimtor"); //Maybe change
+          throw new IllegalStateException("No pose estimator provided. Do not call this method or add pose estimator."); //FIXME: Maybe change.
       }
       else {
           return poseEstimator.update(getLatest());
       }
-  }
+    }
 
     public PhotonPoseEstimator getPhotonPoseEstimator() {
         return poseEstimator;
@@ -101,8 +101,8 @@ public class BreakaCamera extends PhotonCamera {
 
     public PhotonCameraSim getSimCamera() {
       if(!Robot.isSimulation()) {
-        System.out.println("Sim Camera not Configed. Not in Simulation");
-        DriverStation.reportWarning("Sim Camera not Configed. Not in Simulation", false);
+        System.out.println("Sim Camera not configured. Not in Simulation.");
+        DriverStation.reportWarning("Sim Camera not configured. Not in Simulation.", false);
       }
       return new PhotonCameraSim(this, cameraProp);
     }

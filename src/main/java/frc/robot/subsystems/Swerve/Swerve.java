@@ -226,7 +226,7 @@ public class Swerve extends SwerveDrivetrain implements Subsystem {
     public SequentialCommandGroup pathFindThenFollow(AutoPathLocations location, Pose2d target) {
         try {
             System.out.println(PathPlannerPath.fromPathFile("CORAL_ONE").getPoint(0).position + "------Jeffords maybe not sad");
-            return new SequentialCommandGroup(AutoBuilder.pathfindToPose(target, constraints), AutoBuilder.followPath(PathPlannerPath.fromPathFile(location.path)));
+            return new SequentialCommandGroup(AutoBuilder.pathfindToPose(target, constraints), AutoBuilder.followPath(PathPlannerPath.fromPathFile(location.getPath())));
             //return AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile(location.path), constraints);
         }
         catch(FileVersionException | IOException | ParseException e) {

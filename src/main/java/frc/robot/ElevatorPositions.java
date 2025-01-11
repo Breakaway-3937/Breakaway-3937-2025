@@ -8,9 +8,13 @@ public enum ElevatorPositions {
     L4(0.0),
     CORAL_STATION(0.0);
 
-    public final double position;
+    private final double position;
 
     private ElevatorPositions(double position) {
         this.position = position;
+    }
+
+    public double getPosition() {
+        return position;
     }
 }
