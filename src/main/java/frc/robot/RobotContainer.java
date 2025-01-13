@@ -51,13 +51,11 @@ public class RobotContainer {
     private final Swerve s_Swerve = TunerConstants.createDrivetrain();
     private final Vision s_Vision = new Vision(s_Swerve);
 
-    AppTriggers triggers = new AppTriggers();
-
-    private Trigger levelOne = triggers.getlevelOneTrigger();
-    private Trigger levelTwo = triggers.getlevelTwoTrigger();
-    private Trigger levelThree = triggers.getlevelThreeTrigger();
-    private Trigger levelFour = triggers.getlevelFourTrigger();
-    private Trigger stop = triggers.stop();
+    private Trigger levelOne = OperatorController.getLevelOneTrigger();
+    private Trigger levelTwo = OperatorController.getLevelTwoTrigger();
+    private Trigger levelThree = OperatorController.getLevelThreeTrigger();
+    private Trigger levelFour = OperatorController.getLevelFourTrigger();
+    private Trigger stop = OperatorController.getStopTrigger();
 
     //private final Music c_Music = new Music();
 
