@@ -112,7 +112,7 @@ public class RobotContainer {
         translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
 
         //FIXME: Add full logic for autonomous tracking.
-        coralG.whileTrue(s_Swerve.pathFindThenFollow(AutoPathLocations.L4, new Pose2d(1.657, 0.746, Rotation2d.fromDegrees(14.274))))
+        coralG.whileTrue(s_Swerve.pathFindThenFollow(AutoPathLocations.CORAL_A, new Pose2d(1.657, 0.746, Rotation2d.fromDegrees(14.274))))
                         .whileFalse(Commands.none());
 
         s_Swerve.registerTelemetry(logger::telemeterize);
