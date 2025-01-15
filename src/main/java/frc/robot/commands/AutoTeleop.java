@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.OperatorController;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Swerve.AutoPathLocations;
 import frc.robot.subsystems.Swerve.Swerve;
@@ -17,11 +18,11 @@ public class AutoTeleop extends SequentialCommandGroup {
   private Swerve s_Swerve;
   private Vision s_Vision;
   /** Creates a new AutoTelop. */
-  public AutoTeleop(Swerve s_Swerve, Vision s_Vision, AutoPathLocations paths) {
+  public AutoTeleop(Swerve s_Swerve, Vision s_Vision) {
     this.s_Swerve = s_Swerve;
     this.s_Vision = s_Vision;
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addCommands(s_Swerve.pathFindToPose(paths.getPath()));
+    addCommands(s_Swerve.pathFindToPose(OperatorController.getLocation()));
   }
 }
