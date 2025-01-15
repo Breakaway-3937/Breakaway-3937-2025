@@ -52,24 +52,24 @@ public class RobotContainer {
     private final Swerve s_Swerve = TunerConstants.createDrivetrain();
     private final Vision s_Vision = new Vision(s_Swerve);
 
-    private Trigger levelOne = OperatorController.getLevelOneTrigger();
-    private Trigger levelTwo = OperatorController.getLevelTwoTrigger();
-    private Trigger levelThree = OperatorController.getLevelThreeTrigger();
-    private Trigger levelFour = OperatorController.getLevelFourTrigger();
-    private Trigger noLevel = OperatorController.getNoLevelTrigger();
-    private Trigger coralA = OperatorController.getCoralATrigger();
-    private Trigger coralB = OperatorController.getCoralBTrigger();
-    private Trigger coralC = OperatorController.getCoralCTrigger();
-    private Trigger coralD = OperatorController.getCoralDTrigger();
-    private Trigger coralE = OperatorController.getCoralETrigger();
-    private Trigger coralF = OperatorController.getCoralFTrigger();
-    private Trigger coralG = OperatorController.getCoralGTrigger();
-    private Trigger coralH = OperatorController.getCoralHTrigger();
-    private Trigger coralI = OperatorController.getCoralITrigger();
-    private Trigger coralJ = OperatorController.getCoralJTrigger();
-    private Trigger coralK = OperatorController.getCoralKTrigger();
-    private Trigger coralL = OperatorController.getCoralLTrigger();
-    private Trigger noTarget = OperatorController.getNoTargetTrigger();
+    private final Trigger levelOne = OperatorController.getLevelOneTrigger();
+    private final Trigger levelTwo = OperatorController.getLevelTwoTrigger();
+    private final Trigger levelThree = OperatorController.getLevelThreeTrigger();
+    private final Trigger levelFour = OperatorController.getLevelFourTrigger();
+    private final Trigger noLevel = OperatorController.getNoLevelTrigger();
+    private final Trigger coralA = OperatorController.getCoralATrigger();
+    private final Trigger coralB = OperatorController.getCoralBTrigger();
+    private final Trigger coralC = OperatorController.getCoralCTrigger();
+    private final Trigger coralD = OperatorController.getCoralDTrigger();
+    private final Trigger coralE = OperatorController.getCoralETrigger();
+    private final Trigger coralF = OperatorController.getCoralFTrigger();
+    private final Trigger coralG = OperatorController.getCoralGTrigger();
+    private final Trigger coralH = OperatorController.getCoralHTrigger();
+    private final Trigger coralI = OperatorController.getCoralITrigger();
+    private final Trigger coralJ = OperatorController.getCoralJTrigger();
+    private final Trigger coralK = OperatorController.getCoralKTrigger();
+    private final Trigger coralL = OperatorController.getCoralLTrigger();
+    private final Trigger noTarget = OperatorController.getNoTargetTrigger();
 
     //private final Music c_Music = new Music();
 
@@ -112,7 +112,7 @@ public class RobotContainer {
         translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
 
         //FIXME: Add full logic for autonomous tracking.
-        autoTrackButton.whileTrue(s_Swerve.pathFindThenFollow(AutoPathLocations.CORAL_ONE, new Pose2d(5.774, 1.937, new Rotation2d())))
+        coralG.whileTrue(s_Swerve.pathFindThenFollow(AutoPathLocations.L4, new Pose2d(1.657, 0.746, Rotation2d.fromDegrees(14.274))))
                         .whileFalse(Commands.none());
 
         s_Swerve.registerTelemetry(logger::telemeterize);
