@@ -5,6 +5,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringSubscriber;
 import edu.wpi.first.networktables.StringTopic;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.Swerve.AutoPathLocations;
 
 /** Class for acquiring button triggers from Network Tables */
 public class OperatorController {
@@ -14,6 +15,24 @@ public class OperatorController {
   private static final StringTopic target = table.getStringTopic("target");
   private static final StringSubscriber levelSub = level.subscribe("NO_LEVEL");
   private static final StringSubscriber targetSub = target.subscribe("NO_TARGET");
+
+  public static AutoPathLocations getLocation() {
+    try {
+      return AutoPathLocations.valueOf(targetSub.get());
+    }
+    catch(IllegalArgumentException e) {
+      return AutoPathLocations.valueOf("NO_TARGET");
+    }
+  }
+
+  public static AutoPathLocations getLevel() {
+    try {
+      return AutoPathLocations.valueOf(levelSub.get());
+    }
+    catch(IllegalArgumentException e) {
+      return AutoPathLocations.valueOf("NO_LEVEL");
+    }
+  }
 
   public static Trigger getLevelOneTrigger() {
     return new Trigger(() -> levelSub.get().equals("LEVEL_ONE"));
