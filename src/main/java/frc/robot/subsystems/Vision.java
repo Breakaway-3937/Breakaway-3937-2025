@@ -14,6 +14,8 @@ import com.ctre.phoenix6.Utils;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.lib.Vision.BreakaCamera;
@@ -52,7 +54,11 @@ public class Vision extends SubsystemBase {
   public void periodic() {
     var result = camera.getEstimatedPose();
     if(!result.isEmpty()) {
-      s_Swerve.addVisionMeasurement(result.get().estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(result.get().timestampSeconds), Constants.Vision.TAG_VISION_STDS_FRONT);
+      double x = result.get().estimatedPose.toPose2d().getX();
+      double y = result.get().estimatedPose.toPose2d().getY();
+      Pose2d pose = new Pose2d(x, y, s_Swerve.getState().Pose.getRotation());
+      
+      s_Swerve.addVisionMeasurement(pose, Utils.fpgaToCurrentTime(result.get().timestampSeconds), Constants.Vision.TAG_VISION_STDS_FRONT);
     }
   }
 
