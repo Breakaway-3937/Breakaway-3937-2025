@@ -23,7 +23,7 @@ public enum AutoPathLocations {
         this.coralLocation = coralLocation;
     }
 
-    public Pose2d getPath() {
+    public Pose2d getLocation() {
         return coralLocation;
     }
 }
