@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -55,7 +56,20 @@ public class RobotContainer {
     private Trigger levelTwo = OperatorController.getLevelTwoTrigger();
     private Trigger levelThree = OperatorController.getLevelThreeTrigger();
     private Trigger levelFour = OperatorController.getLevelFourTrigger();
-    private Trigger stop = OperatorController.getStopTrigger();
+    private Trigger noLevel = OperatorController.getNoLevelTrigger();
+    private Trigger coralA = OperatorController.getCoralATrigger();
+    private Trigger coralB = OperatorController.getCoralBTrigger();
+    private Trigger coralC = OperatorController.getCoralCTrigger();
+    private Trigger coralD = OperatorController.getCoralDTrigger();
+    private Trigger coralE = OperatorController.getCoralETrigger();
+    private Trigger coralF = OperatorController.getCoralFTrigger();
+    private Trigger coralG = OperatorController.getCoralGTrigger();
+    private Trigger coralH = OperatorController.getCoralHTrigger();
+    private Trigger coralI = OperatorController.getCoralITrigger();
+    private Trigger coralJ = OperatorController.getCoralJTrigger();
+    private Trigger coralK = OperatorController.getCoralKTrigger();
+    private Trigger coralL = OperatorController.getCoralLTrigger();
+    private Trigger noTarget = OperatorController.getNoTargetTrigger();
 
     //private final Music c_Music = new Music();
 
@@ -75,6 +89,25 @@ public class RobotContainer {
                     .withRotationalRate(rotationController.getRawAxis(rotationAxis)  * maxAngularRate)
             )
         );
+
+        levelOne.onTrue(new PrintCommand("Level One"));
+        levelTwo.onTrue(new PrintCommand("Level Two"));
+        levelThree.onTrue(new PrintCommand("Level Three"));
+        levelFour.onTrue(new PrintCommand("Level Four"));
+        noLevel.onTrue(new PrintCommand("No Level"));
+        coralA.onTrue(new PrintCommand("Coral A"));
+        coralB.onTrue(new PrintCommand("Coral B"));
+        coralC.onTrue(new PrintCommand("Coral C"));
+        coralD.onTrue(new PrintCommand("Coral D"));
+        coralE.onTrue(new PrintCommand("Coral E"));
+        coralF.onTrue(new PrintCommand("Coral F"));
+        coralG.onTrue(new PrintCommand("Coral G"));
+        coralH.onTrue(new PrintCommand("Coral H"));
+        coralI.onTrue(new PrintCommand("Coral I"));
+        coralJ.onTrue(new PrintCommand("Coral J"));
+        coralK.onTrue(new PrintCommand("Coral K"));
+        coralL.onTrue(new PrintCommand("Coral L"));
+        noTarget.onTrue(new PrintCommand("No Target"));
 
         translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
 
