@@ -229,13 +229,14 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         Pathfinding.setPathfinder(new LocalADStar());
     }
 
-    public Command pathFindToPose(Pose2d target) {
-        return AutoBuilder.pathfindToPose(target, constraints);
+    public Command pathFindToPose(AutoPathLocations target) {
+        return AutoBuilder.pathfindToPose(target.getLocation(), constraints);
     }
 
+    //FIXME I(Jeffords) broke this. 
     public Command pathFindThenFollow(AutoPathLocations location, Pose2d target) {
         try {
-            return AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile(location.getPath()), constraints);
+            return AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("path"), constraints);
             //return new SequentialCommandGroup(AutoBuilder.pathfindToPose(target, constraints), AutoBuilder.followPath(PathPlannerPath.fromPathFile(location.getPath())));
         }
         catch(FileVersionException | IOException | ParseException e) {
