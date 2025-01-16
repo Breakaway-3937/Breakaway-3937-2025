@@ -3,7 +3,6 @@ package frc.robot;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringEntry;
-import edu.wpi.first.networktables.StringSubscriber;
 import edu.wpi.first.networktables.StringTopic;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.Swerve.AutoPathLocations;
@@ -12,17 +11,30 @@ import frc.robot.subsystems.Swerve.AutoPathLocations;
 public class OperatorController {
   private static final NetworkTableInstance inst = NetworkTableInstance.getDefault();
   private static final NetworkTable table = inst.getTable("OperatorController");
-  private static final StringTopic level = table.getStringTopic("level");
-  private static final StringTopic target = table.getStringTopic("target");
-  private static final StringEntry levelEntry= level.getEntry("NO_LEVEL");
-  private static final StringEntry targeEntry = target.getEntry("NO_TARGET");
 
-  public static AutoPathLocations getLocation() {
+  private static final StringTopic levelTopic = table.getStringTopic("level");
+  private static final StringTopic scoringLocationTopic = table.getStringTopic("target");
+  private static final StringTopic pickupLocationTopic = table.getStringTopic("station");
+
+  private static final StringEntry levelEntry = levelTopic.getEntry("NO_LEVEL");
+  private static final StringEntry scoringLocation = scoringLocationTopic.getEntry("NO_TARGET");
+  private static final StringEntry pickupLocation = pickupLocationTopic.getEntry("NO_STATION");
+
+  public static AutoPathLocations getScoringLocation() {
     try {
-      return AutoPathLocations.valueOf(targeEntry.get());
+      return AutoPathLocations.valueOf(scoringLocation.get());
     }
     catch(IllegalArgumentException e) {
       return AutoPathLocations.valueOf("NO_TARGET");
+    }
+  }
+
+  public static AutoPathLocations getPickUpLocation() {
+    try {
+      return AutoPathLocations.valueOf(pickupLocation.get());
+    }
+    catch(IllegalArgumentException e) {
+      return AutoPathLocations.valueOf("NO_LEVEL");
     }
   }
 
@@ -56,54 +68,54 @@ public class OperatorController {
   }
 
   public static Trigger getCoralATrigger() {
-    return new Trigger(() -> targeEntry.get().equals("CORAL_A"));
+    return new Trigger(() -> scoringLocation.get().equals("CORAL_A"));
   }
 
   public static Trigger getCoralBTrigger() {
-    return new Trigger(() -> targeEntry.get().equals("CORAL_B"));
+    return new Trigger(() -> scoringLocation.get().equals("CORAL_B"));
   }
 
   public static Trigger getCoralCTrigger() {
-    return new Trigger(() -> targeEntry.get().equals("CORAL_C"));
+    return new Trigger(() -> scoringLocation.get().equals("CORAL_C"));
   }
 
   public static Trigger getCoralDTrigger() {
-    return new Trigger(() -> targeEntry.get().equals("CORAL_D"));
+    return new Trigger(() -> scoringLocation.get().equals("CORAL_D"));
   }
 
   public static Trigger getCoralETrigger() {
-    return new Trigger(() -> targeEntry.get().equals("CORAL_E"));
+    return new Trigger(() -> scoringLocation.get().equals("CORAL_E"));
   }
 
   public static Trigger getCoralFTrigger() {
-    return new Trigger(() -> targeEntry.get().equals("CORAL_F"));
+    return new Trigger(() -> scoringLocation.get().equals("CORAL_F"));
   }
 
   public static Trigger getCoralGTrigger() {
-    return new Trigger(() -> targeEntry.get().equals("CORAL_G"));
+    return new Trigger(() -> scoringLocation.get().equals("CORAL_G"));
   }
 
   public static Trigger getCoralHTrigger() {
-    return new Trigger(() -> targeEntry.get().equals("CORAL_H"));
+    return new Trigger(() -> scoringLocation.get().equals("CORAL_H"));
   }
 
   public static Trigger getCoralITrigger() {
-    return new Trigger(() -> targeEntry.get().equals("CORAL_I"));
+    return new Trigger(() -> scoringLocation.get().equals("CORAL_I"));
   }
 
   public static Trigger getCoralJTrigger() {
-    return new Trigger(() -> targeEntry.get().equals("CORAL_J"));
+    return new Trigger(() -> scoringLocation.get().equals("CORAL_J"));
   }
 
   public static Trigger getCoralKTrigger() {
-    return new Trigger(() -> targeEntry.get().equals("CORAL_K"));
+    return new Trigger(() -> scoringLocation.get().equals("CORAL_K"));
   }
 
   public static Trigger getCoralLTrigger() {
-    return new Trigger(() -> targeEntry.get().equals("CORAL_L"));
+    return new Trigger(() -> scoringLocation.get().equals("CORAL_L"));
   }
 
   public static Trigger getNoTargetTrigger() {
-    return new Trigger(() -> targeEntry.get().equals("NO_TARGET"));
+    return new Trigger(() -> scoringLocation.get().equals("NO_TARGET"));
   }
 }
