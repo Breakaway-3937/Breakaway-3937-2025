@@ -50,7 +50,7 @@ public class CenterOnAprilTag extends Command {
   public void initialize() {
     var result = s_Vision.getLatest();
     if(result.hasTargets()) {
-      controller.reset(result.getBestTarget().getBestCameraToTarget().getX());
+      controller.reset(result.getBestTarget().getBestCameraToTarget().getY());
     }
     controller.setGoal(0);
   }
@@ -61,12 +61,12 @@ public class CenterOnAprilTag extends Command {
     var result = s_Vision.getLatest();
     if(result.hasTargets()) {
       if(tag == 0) {
-        s_Swerve.setControl(swerveRequest.withVelocityX(controller.calculate(result.getBestTarget().getBestCameraToTarget().getX())));
+        s_Swerve.setControl(swerveRequest.withVelocityY(controller.calculate(result.getBestTarget().getBestCameraToTarget().getY())));
       }
       else {
         for(PhotonTrackedTarget target : result.getTargets()) {
           if(target.getFiducialId() == tag) {
-            s_Swerve.setControl(swerveRequest.withVelocityX(controller.calculate(target.getBestCameraToTarget().getX())));
+            s_Swerve.setControl(swerveRequest.withVelocityY(controller.calculate(target.getBestCameraToTarget().getY())));
           }
         }
       }
