@@ -31,14 +31,14 @@ public class OperatorController {
     }
   }
 
-  public static AutoPathLocations getPickUpLocation() {
+  public static Supplier<AutoPathLocations> getPickUpLocation() {
     System.out.println("I am in the pick up location method");
     try {
       //System.out.println(AutoPathLocations.valueOf(pickupLocation.get()).getLocation());
-      return AutoPathLocations.valueOf(pickupLocation.get());
+      return () -> AutoPathLocations.valueOf(pickupLocation.get());
     }
     catch(IllegalArgumentException e) {
-      return AutoPathLocations.valueOf("NO_LEVEL");
+      return () -> AutoPathLocations.valueOf("NO_LEVEL");
     }
   }
 

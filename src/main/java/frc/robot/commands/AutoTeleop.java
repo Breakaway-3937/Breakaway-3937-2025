@@ -4,8 +4,16 @@
 
 package frc.robot.commands;
 
+import java.util.Set;
 import java.util.function.Supplier;
 
+import com.pathplanner.lib.pathfinding.Pathfinder;
+import com.pathplanner.lib.pathfinding.Pathfinding;
+import com.pathplanner.lib.util.GeometryUtil;
+
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -17,15 +25,40 @@ import frc.robot.subsystems.Swerve.Swerve;
 public class AutoTeleop extends SequentialCommandGroup {
   private Swerve s_Swerve;
   private Vision s_Vision;
+  private Supplier<AutoPathLocations> pickup, score;
 
   /** Creates a new AutoTelop. */
   public AutoTeleop(Swerve s_Swerve, Vision s_Vision, Supplier<AutoPathLocations> pickup, Supplier<AutoPathLocations> score) {
     this.s_Swerve = s_Swerve;
     this.s_Vision = s_Vision;
+    this.pickup = pickup;
+    this.score = score;
 
-   addCommands(s_Swerve.pathFindToPose(pickup), 
-                new WaitCommand(5),
-                s_Swerve.pathFindToPose(score),
-                new PrintCommand("done")); //TODO Add additional unselected cases*/
+    addRequirements(s_Swerve, s_Vision);
+
+    addCommands(pathFindPickup(), pathFindScore());
+
+   //addCommands(s_Swerve.pathFindToPose(pickup), 
+   ///             new WaitCommand(5),
+   ///             s_Swerve.pathFindToPose(score),
+    //            new PrintCommand("done")); //TODO Add additional unselected cases*/
+  }
+
+  private Command pathFindPickup() {
+    return Commands.defer(
+      () -> {
+        return s_Swerve.pathFindToPose(pickup);
+      },
+      Set.of(s_Swerve)
+    );
+  }
+
+  private Command pathFindScore() {
+    return Commands.defer(
+      () -> {
+        return s_Swerve.pathFindToPose(score);
+      },
+      Set.of(s_Swerve)
+    );
   }
 }
