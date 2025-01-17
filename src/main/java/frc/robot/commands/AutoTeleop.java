@@ -7,17 +7,10 @@ package frc.robot.commands;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import com.pathplanner.lib.pathfinding.Pathfinder;
-import com.pathplanner.lib.pathfinding.Pathfinding;
-import com.pathplanner.lib.util.GeometryUtil;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.OperatorController;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Swerve.AutoPathLocations;
 import frc.robot.subsystems.Swerve.Swerve;
