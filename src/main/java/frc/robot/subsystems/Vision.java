@@ -28,6 +28,7 @@ public class Vision extends SubsystemBase {
   /** Creates a new Vision. */
   public Vision(Swerve s_Swerve) {
     this.s_Swerve = s_Swerve;
+    
     try {
       atfl = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025Reefscape.m_resourceFile);
     } catch(IOException e) {
