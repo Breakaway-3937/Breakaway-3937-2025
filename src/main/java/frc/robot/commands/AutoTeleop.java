@@ -30,11 +30,6 @@ public class AutoTeleop extends SequentialCommandGroup {
     addRequirements(s_Swerve, s_Vision);
 
     addCommands(pathFindPickup(), pathFindScore());
-
-   //addCommands(s_Swerve.pathFindToPose(pickup), 
-   ///             new WaitCommand(5),
-   ///             s_Swerve.pathFindToPose(score),
-    //            new PrintCommand("done")); //TODO Add additional unselected cases*/
   }
 
   private Command pathFindPickup() {
