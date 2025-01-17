@@ -6,7 +6,8 @@ import java.io.IOException;
 import java.util.function.Supplier;
 
 import org.json.simple.parser.ParseException;
- 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
@@ -19,6 +20,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.pathfinding.LocalADStar;
+import com.pathplanner.lib.pathfinding.Pathfinder;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.FileVersionException;
 
@@ -230,10 +232,12 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     public Command pathFindToPose(Supplier<AutoPathLocations> target) {
         if(target.get() != null && target.get().getLocation() != null){
-            System.out.println(target.get().getLocation().toString());
+            Logger.recordOutput("Path Finder Location", target.get().getLocation());
+            //System.out.println(target.get().getLocation().toString());
             return AutoBuilder.pathfindToPose(target.get().getLocation(), constraints);
         }
         else {
+            Logger.recordOutput("Path Finder Location", "No location");
             System.out.println("NONE");
             return Commands.none();
         }

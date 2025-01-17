@@ -5,10 +5,15 @@
 package frc.robot;
 
 import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import com.pathplanner.lib.commands.PathfindingCommand;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -18,6 +23,8 @@ public class Robot extends LoggedRobot {
 
   private final RobotContainer robotContainer;
 
+  private PowerDistribution powerDistribution;
+
   private boolean teleop = false;
 
   public Robot() {
@@ -26,6 +33,22 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotInit() {
+    Logger.recordMetadata("ProjectName", "MyProject");
+    if(isReal()){
+      Logger.addDataReceiver(new WPILOGWriter());
+      Logger.addDataReceiver(new NT4Publisher());
+      powerDistribution = new PowerDistribution(Constants.PDH_ID, ModuleType.kRev);
+    }
+    else{
+      powerDistribution = new PowerDistribution(Constants.PDH_ID, ModuleType.kRev);
+    }
+    if(Constants.DEBUG){
+      Logger.start();
+    }
+
+    powerDistribution.setSwitchableChannel(true);
+    powerDistribution.clearStickyFaults();
+
     PathfindingCommand.warmupCommand().schedule();
   }
 
