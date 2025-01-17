@@ -19,9 +19,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.AutoTeleop;
 //import frc.robot.commands.Music;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Vision;
@@ -112,9 +114,14 @@ public class RobotContainer {
         translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
 
         //FIXME: Add full logic for autonomous tracking.
-        coralG.whileTrue(s_Swerve.pathFindThenFollow(AutoPathLocations.CORAL_A, new Pose2d(1.657, 0.746, Rotation2d.fromDegrees(14.274))))
-                        .whileFalse(Commands.none());
+        //coralG.whileTrue(s_Swerve.pathFindThenFollow(AutoPathLocations.CORAL_A, new Pose2d(1.657, 0.746, Rotation2d.fromDegrees(14.274))))
+        //                .whileFalse(Commands.none());
 
+        autoTrackButton.whileTrue(new AutoTeleop(s_Swerve, s_Vision, () -> OperatorController.getPickUpLocation(), () -> OperatorController.getScoringLocation()).alongWith(new PrintCommand("PRESSED")));
+        /*autoTrackButton.whileTrue(s_Swerve.pathFindToPose(() -> OperatorController.getPickUpLocation())
+                         .andThen(new WaitCommand(5))
+                         .andThen(s_Swerve.pathFindToPose(OperatorController.getScoringLocation())).alongWith(new PrintCommand("Pressed")));
+*/
         s_Swerve.registerTelemetry(logger::telemeterize);
     }
 

@@ -4,10 +4,14 @@
 
 package frc.robot.commands;
 
+import java.util.function.Supplier;
+
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.OperatorController;
 import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.Swerve.AutoPathLocations;
 import frc.robot.subsystems.Swerve.Swerve;
 
 public class AutoTeleop extends SequentialCommandGroup {
@@ -15,12 +19,13 @@ public class AutoTeleop extends SequentialCommandGroup {
   private Vision s_Vision;
 
   /** Creates a new AutoTelop. */
-  public AutoTeleop(Swerve s_Swerve, Vision s_Vision) {
+  public AutoTeleop(Swerve s_Swerve, Vision s_Vision, Supplier<AutoPathLocations> pickup, Supplier<AutoPathLocations> score) {
     this.s_Swerve = s_Swerve;
     this.s_Vision = s_Vision;
 
-    addCommands(s_Swerve.pathFindToPose(OperatorController.getPickUpLocation()), 
+   addCommands(s_Swerve.pathFindToPose(pickup), 
                 new WaitCommand(5),
-                s_Swerve.pathFindToPose(OperatorController.getScoringLocation()));
+                s_Swerve.pathFindToPose(score),
+                new PrintCommand("done")); //TODO Add additional unselected cases*/
   }
 }

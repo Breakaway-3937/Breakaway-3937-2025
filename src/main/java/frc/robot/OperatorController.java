@@ -1,5 +1,7 @@
 package frc.robot;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringEntry;
@@ -30,7 +32,9 @@ public class OperatorController {
   }
 
   public static AutoPathLocations getPickUpLocation() {
+    System.out.println("I am in the pick up location method");
     try {
+      //System.out.println(AutoPathLocations.valueOf(pickupLocation.get()).getLocation());
       return AutoPathLocations.valueOf(pickupLocation.get());
     }
     catch(IllegalArgumentException e) {
