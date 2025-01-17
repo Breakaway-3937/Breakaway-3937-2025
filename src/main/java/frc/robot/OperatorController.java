@@ -22,12 +22,12 @@ public class OperatorController {
   private static final StringEntry scoringLocation = scoringLocationTopic.getEntry("NO_TARGET");
   private static final StringEntry pickupLocation = pickupLocationTopic.getEntry("NO_STATION");
 
-  public static AutoPathLocations getScoringLocation() {
+  public static Supplier<AutoPathLocations> getScoringLocation() {
     try {
-      return AutoPathLocations.valueOf(scoringLocation.get());
+      return () -> AutoPathLocations.valueOf(scoringLocation.get());
     }
     catch(IllegalArgumentException e) {
-      return AutoPathLocations.valueOf("NO_TARGET");
+      return () -> AutoPathLocations.valueOf("NO_TARGET");
     }
   }
 
