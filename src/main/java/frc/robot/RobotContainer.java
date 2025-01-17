@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutoTeleop;
+import frc.robot.commands.CenterOnAprilTag;
 //import frc.robot.commands.Music;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Vision;
@@ -113,8 +114,10 @@ public class RobotContainer {
         //coralG.whileTrue(s_Swerve.pathFindThenFollow(AutoPathLocations.CORAL_A, new Pose2d(1.657, 0.746, Rotation2d.fromDegrees(14.274))))
         //                 .whileFalse(Commands.none());
 
-       autoTrackButton.whileTrue(new AutoTeleop(s_Swerve, s_Vision, OperatorController.getPickUpLocation(), () -> OperatorController.getScoringLocation()).alongWith(new PrintCommand("PRESSED")));
-       
+       autoTrackButton.whileTrue(new AutoTeleop(s_Swerve, s_Vision, OperatorController.getPickUpLocation(), OperatorController.getScoringLocation()).alongWith(new PrintCommand("PRESSED")));
+       //autoTrackButton.whileTrue(new CenterOnAprilTag(s_Swerve, s_Vision, 0));
+
+
         s_Swerve.registerTelemetry(logger::telemeterize);
     }
 
