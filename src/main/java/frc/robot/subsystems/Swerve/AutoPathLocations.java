@@ -1,7 +1,10 @@
 package frc.robot.subsystems.Swerve;
 
+import com.pathplanner.lib.util.FlippingUtil;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 
 public enum AutoPathLocations {
     CORAL_A(new Pose2d(3.062, 4.2, Rotation2d.fromDegrees(0))),
@@ -32,6 +35,21 @@ public enum AutoPathLocations {
     }
 
     public Pose2d getLocation() {
-        return coralLocation;
+        if(!DriverStation.getAlliance().isEmpty()) {
+            if(DriverStation.getAlliance().get().equals(DriverStation.Alliance.Red)) {
+                if(coralLocation != null) {
+                    return FlippingUtil.flipFieldPose(coralLocation);
+                }
+                else {
+                    return coralLocation;
+                }
+            }
+            else {
+                return coralLocation;
+            }
+        }
+        else{
+            return coralLocation;
+        }
     }
 }
