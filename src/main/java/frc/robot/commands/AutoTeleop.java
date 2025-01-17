@@ -5,27 +5,22 @@
 package frc.robot.commands;
 
 import java.util.Set;
-import java.util.function.Supplier;
-
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.OperatorController;
 import frc.robot.subsystems.Vision;
-import frc.robot.subsystems.Swerve.AutoPathLocations;
 import frc.robot.subsystems.Swerve.Swerve;
 
 public class AutoTeleop extends SequentialCommandGroup {
   private Swerve s_Swerve;
   private Vision s_Vision;
-  private Supplier<AutoPathLocations> pickup, score;
 
   /** Creates a new AutoTelop. */
-  public AutoTeleop(Swerve s_Swerve, Vision s_Vision, Supplier<AutoPathLocations> pickup, Supplier<AutoPathLocations> score) {
+  public AutoTeleop(Swerve s_Swerve, Vision s_Vision) {
     this.s_Swerve = s_Swerve;
     this.s_Vision = s_Vision;
-    this.pickup = pickup;
-    this.score = score;
 
     addRequirements(s_Swerve, s_Vision);
 
@@ -35,7 +30,7 @@ public class AutoTeleop extends SequentialCommandGroup {
   private Command pathFindPickup() {
     return Commands.defer(
       () -> {
-        return s_Swerve.pathFindToPose(pickup);
+        return s_Swerve.pathFindToPose(OperatorController.getPickUpLocation());
       },
       Set.of(s_Swerve)
     );
@@ -44,7 +39,7 @@ public class AutoTeleop extends SequentialCommandGroup {
   private Command pathFindScore() {
     return Commands.defer(
       () -> {
-        return s_Swerve.pathFindToPose(score);
+        return s_Swerve.pathFindToPose(OperatorController.getScoringLocation());
       },
       Set.of(s_Swerve)
     );

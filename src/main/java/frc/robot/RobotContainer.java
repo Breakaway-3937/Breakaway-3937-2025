@@ -114,7 +114,7 @@ public class RobotContainer {
         //coralG.whileTrue(s_Swerve.pathFindThenFollow(AutoPathLocations.CORAL_A, new Pose2d(1.657, 0.746, Rotation2d.fromDegrees(14.274))))
         //                 .whileFalse(Commands.none());
 
-       autoTrackButton.whileTrue(new AutoTeleop(s_Swerve, s_Vision, OperatorController.getPickUpLocation(), OperatorController.getScoringLocation()).alongWith(new PrintCommand("PRESSED")));
+       autoTrackButton.whileTrue(new AutoTeleop(s_Swerve, s_Vision).alongWith(new PrintCommand("PRESSED")));
        //autoTrackButton.whileTrue(new CenterOnAprilTag(s_Swerve, s_Vision, 0));
 
 
