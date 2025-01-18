@@ -246,7 +246,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     //FIXME I(Jeffords) broke this. 
     public Command pathFindThenFollow(AutoPathLocations location, Pose2d target) {
         try {
-            return AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("path"), constraints);
+            return AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Test 2"), constraints);
             //return new SequentialCommandGroup(AutoBuilder.pathfindToPose(target, constraints), AutoBuilder.followPath(PathPlannerPath.fromPathFile(location.getPath())));
         }
         catch(FileVersionException | IOException | ParseException e) {
