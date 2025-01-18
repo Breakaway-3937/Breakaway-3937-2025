@@ -55,6 +55,7 @@ public final class Constants {
         public static final int WRIST_CAN_ID = 0; //TODO 
         public static final int LOADER_CAN_ID = 0; //TODO
     }
+    
     public static final class ClimbAvator {
         public static final int SHOULDER_CAN_ID = 0;//TODO
         public static final int SHOULDER_FOLLOWER_CAN_ID = 0;//TODO

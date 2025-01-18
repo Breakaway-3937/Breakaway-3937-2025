@@ -33,10 +33,6 @@ public class ClimbAvator extends SubsystemBase {
     configElevatorMotors();
   }
 
-  private void runElevator(double position) {
-    elevatorMotor.setControl(elevatorRequest.withPosition(position));
-  }
-
   public Command runElevator() {
     return runOnce(() -> elevatorMotor.setControl(elevatorRequest.withPosition(climbAvatorState.getHeight())));
   }
