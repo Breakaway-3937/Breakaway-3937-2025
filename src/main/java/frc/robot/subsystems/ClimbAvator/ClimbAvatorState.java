@@ -5,7 +5,7 @@
 package frc.robot.subsystems.ClimbAvator;
 
 /** Add your docs here. */
-public enum ClimbAvatorPositions {
+public enum ClimbAvatorState {
     STATION(0,0),
     L1(0,0),
     L2(0,0),
@@ -14,7 +14,7 @@ public enum ClimbAvatorPositions {
 
     private double height, angle;
 
-    private ClimbAvatorPositions(double height, double angle) {
+    private ClimbAvatorState(double height, double angle) {
         this.height = height;
         this.angle = angle;
     }

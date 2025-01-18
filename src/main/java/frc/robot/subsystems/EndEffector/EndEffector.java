@@ -16,6 +16,7 @@ import frc.robot.Constants;
 public class EndEffector extends SubsystemBase {
   private final TalonFX wrist, loader;
   private final MotionMagicExpoVoltage wristRequest;
+  private EndEffectorState endEffectorState;
 
   /** Creates a new EndEffector. */
   public EndEffector() {
@@ -29,12 +30,8 @@ public class EndEffector extends SubsystemBase {
 
   }
 
-  private void runWrist(double position) {
-   wrist.setControl(wristRequest.withPosition(position));
-  }
-
   public Command runWrist() {
-    return runOnce(() -> runWrist(0));
+    return runOnce(() -> wrist.setControl(wristRequest.withPosition(endEffectorState.getAngle())));
   }
 
   public Command stopWrist() {
@@ -42,7 +39,7 @@ public class EndEffector extends SubsystemBase {
   }
 
   public Command runLoader() {
-    return runOnce(() -> loader.set(0));
+    return runOnce(() -> loader.set(endEffectorState.getSpeed()));
   }
 
   public Command stopLoader() {
@@ -63,6 +60,10 @@ public class EndEffector extends SubsystemBase {
 
   public TalonFX getLoaderMotor() {
     return loader;
+  }
+
+  public void setEndEffectorState(EndEffectorState endEffectorState) {
+    this.endEffectorState = endEffectorState;
   }
 
   public void configLoader() {

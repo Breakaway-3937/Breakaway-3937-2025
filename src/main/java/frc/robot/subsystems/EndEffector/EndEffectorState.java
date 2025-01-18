@@ -5,7 +5,7 @@
 package frc.robot.subsystems.EndEffector;
 
 /** Add your docs here. */
-public enum EndEffectorPositions {
+public enum EndEffectorState {
     STATION(0, 0),
     L1(0, 0),
     L2(0, 0),
@@ -14,7 +14,7 @@ public enum EndEffectorPositions {
 
     private double angle, speed;
 
-    private EndEffectorPositions(double angle, double speed) {
+    private EndEffectorState(double angle, double speed) {
         this.angle = angle;
         this.speed = speed;
     } 

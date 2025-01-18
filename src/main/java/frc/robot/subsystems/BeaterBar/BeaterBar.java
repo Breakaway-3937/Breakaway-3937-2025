@@ -18,6 +18,7 @@ public class BeaterBar extends SubsystemBase {
   private final TalonFX ankle, intake; 
   private final MotionMagicExpoVoltage magicRequest;
   private GenericEntry anklePos; 
+  private BeaterBarState beaterState;
 
   /** Creates a new BeaterBar. */
   public BeaterBar() {
@@ -30,12 +31,8 @@ public class BeaterBar extends SubsystemBase {
     magicRequest = new MotionMagicExpoVoltage(0).withEnableFOC(true);
   }
 
-  private void runAnkle(double position) {
-    ankle.setControl(magicRequest.withPosition(position));
-  }
-
   public Command runAnkle() {
-    return runOnce(() -> runAnkle(0));
+    return runOnce(() -> ankle.setControl(magicRequest.withPosition(beaterState.getPosition())));
   }
 
   public Command stopAnkle() {
@@ -43,7 +40,7 @@ public class BeaterBar extends SubsystemBase {
   }
 
   public Command runIntake() {
-    return runOnce(() -> intake.set(0));
+    return runOnce(() -> intake.set(beaterState.getSpeed()));
   }
 
   public Command stopIntake() {
@@ -64,6 +61,10 @@ public class BeaterBar extends SubsystemBase {
 
   public TalonFX getIntakeMotor() {
     return intake;
+  }
+
+  public void setBeaterState(BeaterBarState beaterState) {
+    this.beaterState = beaterState;
   }
 
   public void configAnkle() {

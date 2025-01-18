@@ -20,6 +20,8 @@ public class ClimbAvator extends SubsystemBase {
   private final Follower followerElevatorRequest = new Follower(Constants.ClimbAvator.ELEVATOR_CAN_ID, false);//FIXME Check direction
   private final MotionMagicExpoTorqueCurrentFOC shoulderRequest = new MotionMagicExpoTorqueCurrentFOC(0);
   private final MotionMagicExpoTorqueCurrentFOC elevatorRequest = new MotionMagicExpoTorqueCurrentFOC(0);
+  private ClimbAvatorState climbAvatorState;
+
   /** Creates a new ClimbAvator.*/
   public ClimbAvator() {
     shoulderMotor = new TalonFX(Constants.ClimbAvator.SHOULDER_CAN_ID);
@@ -36,7 +38,7 @@ public class ClimbAvator extends SubsystemBase {
   }
 
   public Command runElevator() {
-    return runOnce(() -> runElevator(0));
+    return runOnce(() -> elevatorMotor.setControl(elevatorRequest.withPosition(climbAvatorState.getHeight())));
   }
 
   public Command stopElevator() {
@@ -44,7 +46,7 @@ public class ClimbAvator extends SubsystemBase {
   }
 
   public Command runShoulder() {
-    return runOnce(() -> shoulderMotor.stopMotor());
+    return runOnce(() -> shoulderMotor.setControl(shoulderRequest.withPosition(climbAvatorState.getAngle())));
   }
 
   public Command stopShoulder(){
@@ -73,6 +75,10 @@ public class ClimbAvator extends SubsystemBase {
 
   public TalonFX getElevatorFollowerMotor() {
     return elevatorFollowerMotor;
+  }
+
+    public void setClimbAvatorState(ClimbAvatorState climbAvatorState) {
+    this.climbAvatorState = climbAvatorState;
   }
 
   public void configShoulderMotors() {
