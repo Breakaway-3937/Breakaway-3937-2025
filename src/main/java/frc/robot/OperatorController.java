@@ -32,9 +32,7 @@ public class OperatorController {
   }
 
   public static Supplier<AutoPathLocations> getPickUpLocation() {
-    System.out.println("I am in the pick up location method");
     try {
-      //System.out.println(AutoPathLocations.valueOf(pickupLocation.get()).getLocation());
       return () -> AutoPathLocations.valueOf(pickupLocation.get());
     }
     catch(IllegalArgumentException e) {

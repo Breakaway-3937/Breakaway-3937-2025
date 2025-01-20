@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems.EndEffector;
 
-/** Add your docs here. */
 public enum EndEffectorStates {
     STATION(0, 0),
     L1(0, 0),

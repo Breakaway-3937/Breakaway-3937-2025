@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems.BeaterBar;
 
-/** Add your docs here. */
 public enum BeaterBarStates {
     GROUND_PICKUP(0, 0),
     STORE(0, 0),

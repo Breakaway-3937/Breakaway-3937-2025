@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems.ClimbAvator;
 
-/** Add your docs here. */
 public enum ClimbAvatorStates {
     STATION(0,0),
     L1(0,0),

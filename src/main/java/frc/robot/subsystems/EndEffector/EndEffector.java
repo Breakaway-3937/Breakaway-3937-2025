@@ -5,7 +5,6 @@
 package frc.robot.subsystems.EndEffector;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -111,7 +110,7 @@ public class EndEffector extends SubsystemBase {
 
   @Override
   public void periodic() {
-   wrist.set(getWristPosition());
+   wristPosition.setDouble(getWristPosition());
   }
 
 }

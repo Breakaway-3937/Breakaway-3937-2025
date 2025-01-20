@@ -231,13 +231,9 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     public Command pathFindToPose(Supplier<AutoPathLocations> target) {
         if(target.get() != null && target.get().getLocation() != null){
-            Logger.recordOutput("Path Finder Location", target.get().getLocation());
-            //System.out.println(target.get().getLocation().toString());
             return AutoBuilder.pathfindToPose(target.get().getLocation(), constraints);
         }
         else {
-            Logger.recordOutput("Path Finder Location", "No location");
-            System.out.println("NONE");
             return Commands.none();
         }
         
