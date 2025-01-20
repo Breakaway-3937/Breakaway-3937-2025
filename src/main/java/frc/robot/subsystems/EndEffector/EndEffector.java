@@ -4,6 +4,10 @@
 
 package frc.robot.subsystems.EndEffector;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -14,14 +18,15 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class EndEffector extends SubsystemBase {
-  private final TalonFX wrist, loader;
+  private final TalonFX wrist;
+  private final TalonSRX loader;
   private final MotionMagicExpoVoltage wristRequest;
   private EndEffectorState endEffectorState;
 
   /** Creates a new EndEffector. */
   public EndEffector() {
     wrist = new TalonFX(Constants.EndEffector.WRIST_CAN_ID);
-    loader = new TalonFX(Constants.EndEffector.LOADER_CAN_ID);
+    loader = new TalonSRX(Constants.EndEffector.LOADER_CAN_ID);
 
     configLoader();
     configWrist();
@@ -39,15 +44,15 @@ public class EndEffector extends SubsystemBase {
   }
 
   public Command runLoader() {
-    return runOnce(() -> loader.set(endEffectorState.getSpeed()));
+    return runOnce(() -> loader.set(ControlMode.PercentOutput, endEffectorState.getSpeed()));
   }
 
   public Command stopLoader() {
-    return runOnce(() -> loader.stopMotor());
+    return runOnce(() -> loader.set(ControlMode.PercentOutput, 0));
   }
 
   public double getSpeed() {
-    return loader.get();
+    return loader.getMotorOutputPercent();
   }
 
   public double getWristPosition(){
@@ -58,27 +63,21 @@ public class EndEffector extends SubsystemBase {
     return wrist;
   }
 
-  public TalonFX getLoaderMotor() {
-    return loader;
-  }
-
   public void setEndEffectorState(EndEffectorState endEffectorState) {
     this.endEffectorState = endEffectorState;
   }
 
   public void configLoader() {
-    loader.getConfigurator().apply(new TalonFXConfiguration());
+    loader.configFactoryDefault();
 
-    TalonFXConfiguration config = new TalonFXConfiguration();
+    TalonSRXConfiguration config = new TalonSRXConfiguration();
 
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    config.peakCurrentDuration = 100;
+    config.peakCurrentLimit = 40;
+    config.continuousCurrentLimit = 30;
 
-    config.CurrentLimits.SupplyCurrentLimit = 35; //FIXME
-    config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLowerLimit = 50;
-    config.CurrentLimits.SupplyCurrentLowerTime = 0.1;
-
-    loader.getConfigurator().apply(config);
+    loader.configAllSettings(config);
+    loader.enableCurrentLimit(true);
   }
 
   public void configWrist() {
