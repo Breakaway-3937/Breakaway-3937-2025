@@ -92,10 +92,10 @@ public class ClimbAvator extends SubsystemBase {
     config.Slot0.kI = 0; // no output for integrated error
     config.Slot0.kD = 0; // no output for error derivative
 
-    config.CurrentLimits.SupplyCurrentLimit = 35;
-    config.CurrentLimits.SupplyCurrentLimitEnable = true; //FIXME
-    config.CurrentLimits.SupplyCurrentLowerLimit = 50;
-    config.CurrentLimits.SupplyCurrentLowerTime = 0.1;
+    config.CurrentLimits.SupplyCurrentLimit = 70;
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLowerLimit = 40;
+    config.CurrentLimits.SupplyCurrentLowerTime = 1;
 
     config.MotionMagic.MotionMagicAcceleration = 2500;
     config.MotionMagic.MotionMagicCruiseVelocity = 5000;
@@ -121,10 +121,10 @@ public class ClimbAvator extends SubsystemBase {
     config.Slot0.kI = 0; // no output for integrated error
     config.Slot0.kD = 0; // no output for error derivative
 
-    config.CurrentLimits.SupplyCurrentLimit = 35;
-    config.CurrentLimits.SupplyCurrentLimitEnable = true; //FIXME
-    config.CurrentLimits.SupplyCurrentLowerLimit = 50;
-    config.CurrentLimits.SupplyCurrentLowerTime = 0.1;
+    config.CurrentLimits.SupplyCurrentLimit = 70;
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLowerLimit = 40;
+    config.CurrentLimits.SupplyCurrentLowerTime = 1;
 
     config.MotionMagic.MotionMagicAcceleration = 2500;
     config.MotionMagic.MotionMagicCruiseVelocity = 5000;
