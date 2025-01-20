@@ -23,7 +23,7 @@ public class ClimbAvator extends SubsystemBase {
   private final MotionMagicExpoTorqueCurrentFOC shoulderRequest = new MotionMagicExpoTorqueCurrentFOC(0);
   private final MotionMagicExpoTorqueCurrentFOC elevatorRequest = new MotionMagicExpoTorqueCurrentFOC(0);
   private final GenericEntry elevatorPosition, shoulderPosition;
-  private ClimbAvatorState climbAvatorState;
+  private ClimbAvatorStates climbAvatorState;
 
   /** Creates a new ClimbAvator.*/
   public ClimbAvator() {
@@ -79,7 +79,7 @@ public class ClimbAvator extends SubsystemBase {
     return elevatorFollowerMotor;
   }
 
-    public void setClimbAvatorState(ClimbAvatorState climbAvatorState) {
+    public void setClimbAvatorState(ClimbAvatorStates climbAvatorState) {
     this.climbAvatorState = climbAvatorState;
   }
 

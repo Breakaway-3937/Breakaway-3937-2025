@@ -19,7 +19,7 @@ public class BeaterBar extends SubsystemBase {
   private final TalonFX ankle, intake; 
   private final MotionMagicExpoVoltage magicRequest;
   private final GenericEntry anklePos; 
-  private BeaterBarState beaterState;
+  private BeaterBarStates beaterState;
 
   /** Creates a new BeaterBar. */
   public BeaterBar() {
@@ -66,7 +66,7 @@ public class BeaterBar extends SubsystemBase {
     return intake;
   }
 
-  public void setBeaterState(BeaterBarState beaterState) {
+  public void setBeaterState(BeaterBarStates beaterState) {
     this.beaterState = beaterState;
   }
 

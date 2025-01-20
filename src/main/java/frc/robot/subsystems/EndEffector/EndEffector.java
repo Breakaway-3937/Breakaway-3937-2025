@@ -24,7 +24,7 @@ public class EndEffector extends SubsystemBase {
   private final TalonSRX loader;
   private final MotionMagicExpoVoltage wristRequest;
   private final GenericEntry wristPosition;
-  private EndEffectorState endEffectorState;
+  private EndEffectorStates endEffectorState;
 
   /** Creates a new EndEffector. */
   public EndEffector() {
@@ -67,7 +67,7 @@ public class EndEffector extends SubsystemBase {
     return wrist;
   }
 
-  public void setEndEffectorState(EndEffectorState endEffectorState) {
+  public void setEndEffectorState(EndEffectorStates endEffectorState) {
     this.endEffectorState = endEffectorState;
   }
 
