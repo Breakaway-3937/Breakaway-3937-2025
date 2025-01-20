@@ -13,6 +13,8 @@ import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -21,6 +23,7 @@ public class EndEffector extends SubsystemBase {
   private final TalonFX wrist;
   private final TalonSRX loader;
   private final MotionMagicExpoVoltage wristRequest;
+  private final GenericEntry wristPosition;
   private EndEffectorState endEffectorState;
 
   /** Creates a new EndEffector. */
@@ -33,6 +36,7 @@ public class EndEffector extends SubsystemBase {
 
     wristRequest = new MotionMagicExpoVoltage(0).withEnableFOC(true);
 
+    wristPosition = Shuffleboard.getTab("EndEffector").add("Wrist", getWristPosition()).withPosition(0, 0).getEntry();
   }
 
   public Command runWrist() {
@@ -107,7 +111,7 @@ public class EndEffector extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+   wrist.set(getWristPosition());
   }
 
 }

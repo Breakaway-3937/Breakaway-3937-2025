@@ -10,6 +10,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -17,7 +18,7 @@ import frc.robot.Constants;
 public class BeaterBar extends SubsystemBase {
   private final TalonFX ankle, intake; 
   private final MotionMagicExpoVoltage magicRequest;
-  private GenericEntry anklePos; 
+  private final GenericEntry anklePos; 
   private BeaterBarState beaterState;
 
   /** Creates a new BeaterBar. */
@@ -29,6 +30,8 @@ public class BeaterBar extends SubsystemBase {
     configAnkle();
 
     magicRequest = new MotionMagicExpoVoltage(0).withEnableFOC(true);
+
+    anklePos = Shuffleboard.getTab("Beater Bar").add("Ankle", getAnklePosition()).withPosition(1, 0).getEntry();
   }
 
   public Command runAnkle() {
@@ -109,6 +112,6 @@ public class BeaterBar extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    anklePos.setDouble(getAnklePosition());
   }
 }

@@ -10,6 +10,8 @@ import com.ctre.phoenix6.controls.MotionMagicExpoTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -20,6 +22,7 @@ public class ClimbAvator extends SubsystemBase {
   private final Follower followerElevatorRequest = new Follower(Constants.ClimbAvator.ELEVATOR_CAN_ID, false);//FIXME Check direction
   private final MotionMagicExpoTorqueCurrentFOC shoulderRequest = new MotionMagicExpoTorqueCurrentFOC(0);
   private final MotionMagicExpoTorqueCurrentFOC elevatorRequest = new MotionMagicExpoTorqueCurrentFOC(0);
+  private final GenericEntry elevatorPosition, shoulderPosition;
   private ClimbAvatorState climbAvatorState;
 
   /** Creates a new ClimbAvator.*/
@@ -31,6 +34,9 @@ public class ClimbAvator extends SubsystemBase {
 
     configShoulderMotors();
     configElevatorMotors();
+
+    elevatorPosition = Shuffleboard.getTab("ClimbAvator").add("Elevator", getElevatorMotorPosition()).withPosition(0, 0).getEntry();
+    shoulderPosition = Shuffleboard.getTab("ClimbAvator").add("Climber", getShoulderMotorPosition()).withPosition(0, 1).getEntry();
   }
 
   public Command runElevator() {
@@ -136,6 +142,7 @@ public class ClimbAvator extends SubsystemBase {
   }
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    elevatorPosition.setDouble(getElevatorMotorPosition());
+    shoulderPosition.setDouble(getShoulderMotorPosition());
   }
 }
