@@ -5,12 +5,14 @@
 package frc.robot.subsystems.EndEffector;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.pathplanner.lib.commands.FollowPathCommand;
 
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -20,7 +22,7 @@ import frc.robot.Constants;
 
 public class EndEffector extends SubsystemBase {
   private final TalonFX wrist;
-  private final TalonSRX loader;
+  private final TalonSRX loader, loader1;
   private final MotionMagicExpoVoltage wristRequest;
   private final GenericEntry wristPosition;
   private EndEffectorStates endEffectorState;
@@ -29,6 +31,7 @@ public class EndEffector extends SubsystemBase {
   public EndEffector() {
     wrist = new TalonFX(Constants.EndEffector.WRIST_CAN_ID);
     loader = new TalonSRX(Constants.EndEffector.LOADER_CAN_ID);
+    loader1 = new TalonSRX(Constants.EndEffector.LOADER1_CAN_ID);
 
     configLoader();
     configWrist();
@@ -72,6 +75,7 @@ public class EndEffector extends SubsystemBase {
 
   public void configLoader() {
     loader.configFactoryDefault();
+    loader1.configFactoryDefault();
 
     TalonSRXConfiguration config = new TalonSRXConfiguration();
 
@@ -81,6 +85,10 @@ public class EndEffector extends SubsystemBase {
 
     loader.configAllSettings(config);
     loader.enableCurrentLimit(true);
+    loader1.configAllSettings(config);
+    loader1.enableCurrentLimit(true);
+
+    loader1.follow(loader, FollowerType.PercentOutput);
   }
 
   public void configWrist() {
