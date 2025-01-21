@@ -39,7 +39,7 @@ public class ClimbAvator extends SubsystemBase {
     shoulderPosition = Shuffleboard.getTab("ClimbAvator").add("Climber", getShoulderMotorPosition()).withPosition(0, 1).getEntry();
   }
 
-  public Command runElevator() {
+  public Command setElevator() {
     return runOnce(() -> elevatorMotor.setControl(elevatorRequest.withPosition(climbAvatorState.getHeight())));
   }
 
@@ -47,7 +47,7 @@ public class ClimbAvator extends SubsystemBase {
     return runOnce(() -> elevatorMotor.stopMotor());
   }
 
-  public Command runShoulder() {
+  public Command setShoulder() {
     return runOnce(() -> shoulderMotor.setControl(shoulderRequest.withPosition(climbAvatorState.getAngle())));
   }
 

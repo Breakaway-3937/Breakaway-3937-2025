@@ -34,7 +34,7 @@ public class BeaterBar extends SubsystemBase {
     anklePos = Shuffleboard.getTab("Beater Bar").add("Ankle", getAnklePosition()).withPosition(1, 0).getEntry();
   }
 
-  public Command runAnkle() {
+  public Command setAnkle() {
     return runOnce(() -> ankle.setControl(magicRequest.withPosition(beaterState.getPosition())));
   }
 

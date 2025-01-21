@@ -41,7 +41,7 @@ public class EndEffector extends SubsystemBase {
     wristPosition = Shuffleboard.getTab("EndEffector").add("Wrist", getWristPosition()).withPosition(0, 0).getEntry();
   }
 
-  public Command runWrist() {
+  public Command setWrist() {
     return runOnce(() -> wrist.setControl(wristRequest.withPosition(endEffectorState.getAngle())));
   }
 
