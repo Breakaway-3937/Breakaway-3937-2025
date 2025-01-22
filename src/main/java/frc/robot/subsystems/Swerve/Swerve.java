@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.function.Supplier;
 
 import org.json.simple.parser.ParseException;
-import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
@@ -18,13 +17,10 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.pathfinding.LocalADStar;
 import com.pathplanner.lib.pathfinding.Pathfinding;
-import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -58,7 +54,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     private final SwerveRequest.ApplyRobotSpeeds pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
-    //FIXME: Add the correct max speed and max angular rate.
+    //TODO: Add the correct max speed and max angular rate.
     PathConstraints constraints = new PathConstraints(
         0.5, 4.0,
         Units.degreesToRadians(540), Units.degreesToRadians(720));
@@ -212,7 +208,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                         .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
                         .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
                 ),
-                //FIXME: Add the correct PID constants.
+                //TODO: Add the correct PID constants.
                 new PPHolonomicDriveController(
                     new PIDConstants(10, 0, 0),
                     new PIDConstants(7, 0, 0)
@@ -237,19 +233,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             return Commands.none();
         }
         
-    }
-
-    //FIXME I(Jeffords) broke this. 
-    public Command pathFindThenFollow(AutoPathLocations location, Pose2d target) {
-        try {
-            return AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Test 2"), constraints);
-            //return new SequentialCommandGroup(AutoBuilder.pathfindToPose(target, constraints), AutoBuilder.followPath(PathPlannerPath.fromPathFile(location.getPath())));
-        }
-        catch(FileVersionException | IOException | ParseException e) {
-            System.err.println("Error: " + e.getMessage());
-            return Commands.none();
-            //return new SequentialCommandGroup(Commands.none());
-        }
     }
 
     @Override

@@ -9,9 +9,10 @@ public enum EndEffectorStates {
     L1(0, 0),
     L2(0, 0),
     L3(0, 0),
-    L4(0,0 );
+    L4(0, 0),
+    PROTECT(0, 0);
 
-    private double angle, speed;
+    private final double angle, speed;
 
     private EndEffectorStates(double angle, double speed) {
         this.angle = angle;

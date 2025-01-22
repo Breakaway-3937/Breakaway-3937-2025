@@ -11,17 +11,26 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import com.pathplanner.lib.commands.PathfindingCommand;
 
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.shuffleboard.ComplexWidget;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
-//FIXME: Add full logging functionality.
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
 
   private final RobotContainer robotContainer;
 
-  private boolean teleop = false;
+  private boolean teleop, deathToMarkFlag, deathToJackFlag = false;
+
+  private PowerDistribution pdh;
+
+  private GenericEntry canUtil = Shuffleboard.getTab("System").add("CAN", 0).withPosition(0, 0).getEntry();
 
   public Robot() {
     robotContainer = new RobotContainer();
@@ -33,9 +42,13 @@ public class Robot extends LoggedRobot {
     if(isReal()){
       Logger.addDataReceiver(new WPILOGWriter());
       Logger.addDataReceiver(new NT4Publisher());
+      pdh = new PowerDistribution(Constants.PDH_ID, ModuleType.kRev);
+      pdh.setSwitchableChannel(true);
+      pdh.clearStickyFaults();
+      ComplexWidget pdhWidget = Shuffleboard.getTab("System").add("PDH", pdh).withPosition(1, 0);
+      pdhWidget.hashCode();
     }
-    else{
-    }
+    
     if(Constants.DEBUG){
       Logger.start();
     }
@@ -47,6 +60,23 @@ public class Robot extends LoggedRobot {
   public void robotPeriodic() {
     CommandScheduler.getInstance().run(); 
 
+    canUtil.setDouble(RobotController.getCANStatus().percentBusUtilization * 100);
+    Logger.recordOutput("CAN", RobotController.getCANStatus().percentBusUtilization * 100);
+
+    if(DriverStation.isEStopped() && !deathToMarkFlag){
+      deathToMarkFlag = true;
+      Shuffleboard.getTab("Death").add("Death", "We have failed!!! :(").withPosition(0, 0);
+      Shuffleboard.getTab("Death").add("Death2", "MARKKKKKKKK!!!!!!").withPosition(0, 1);
+      Shuffleboard.selectTab("Death");
+    }
+
+    if(DriverStation.isAutonomous() && DriverStation.isFMSAttached() && DriverStation.getMatchTime() < 10 && DriverStation.isDisabled() && !deathToJackFlag) {
+      deathToJackFlag = true;
+      Shuffleboard.getTab("Death").add("Death", "We have failed!!! :(").withPosition(1, 0);
+      Shuffleboard.getTab("Death").add("Death2", "JACKKKKKKKK!!!!!!").withPosition(1, 1);
+      Shuffleboard.selectTab("Death");
+    }
+
     if(DriverStation.isFMSAttached() && DriverStation.isTeleopEnabled()){
       teleop = true;
     }
@@ -55,7 +85,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledInit() {
     if(DriverStation.isEStopped() || (DriverStation.isFMSAttached() && DriverStation.getMatchTime() < 3 && teleop)){
-      //robotContainer.getMusicCommand().ignoringDisable(true).schedule();
+      robotContainer.getMusicCommand().ignoringDisable(true).schedule();
     }
   }
 

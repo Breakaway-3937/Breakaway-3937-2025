@@ -9,16 +9,16 @@ import edu.wpi.first.wpilibj.DriverStation;
 public enum AutoPathLocations {
     CORAL_A(new Pose2d(3.062, 4.2, Rotation2d.fromDegrees(0))),
     CORAL_B(new Pose2d(3.05, 3.85, Rotation2d.fromDegrees(0))),
-    CORAL_C(new Pose2d(3.55, 2.8, Rotation2d.fromDegrees(57))),
-    CORAL_D(new Pose2d(3.95, 2.65, Rotation2d.fromDegrees(57))),
-    CORAL_E(new Pose2d(5.1, 2.7, Rotation2d.fromDegrees(118))),
-    CORAL_F(new Pose2d(5.4, 2.85, Rotation2d.fromDegrees(118))),
+    CORAL_C(new Pose2d(3.55, 2.8, Rotation2d.fromDegrees(60))),
+    CORAL_D(new Pose2d(3.95, 2.65, Rotation2d.fromDegrees(60))),
+    CORAL_E(new Pose2d(5.1, 2.7, Rotation2d.fromDegrees(120))),
+    CORAL_F(new Pose2d(5.4, 2.85, Rotation2d.fromDegrees(120))),
     CORAL_G(new Pose2d(6.05, 3.85, Rotation2d.fromDegrees(180))),
     CORAL_H(new Pose2d(5.928, 4.181, Rotation2d.fromDegrees(180))),
-    CORAL_I(new Pose2d(5.353, 5.224, Rotation2d.fromDegrees(-123))),
-    CORAL_J(new Pose2d(5.06, 5.37, Rotation2d.fromDegrees(-123))),
-    CORAL_K(new Pose2d(3.92, 5.361, Rotation2d.fromDegrees(-62))),
-    CORAL_L(new Pose2d(3.627, 5.166, Rotation2d.fromDegrees(-62))),
+    CORAL_I(new Pose2d(5.353, 5.224, Rotation2d.fromDegrees(-120))),
+    CORAL_J(new Pose2d(5.06, 5.37, Rotation2d.fromDegrees(-120))),
+    CORAL_K(new Pose2d(3.92, 5.361, Rotation2d.fromDegrees(-60))),
+    CORAL_L(new Pose2d(3.627, 5.166, Rotation2d.fromDegrees(-60))),
     NO_TARGET(null),
     STATION_ONE(new Pose2d(1.772, 7.343, Rotation2d.fromDegrees(128))),
     STATION_TWO(new Pose2d(1.254, 7.018, Rotation2d.fromDegrees(128))),
@@ -48,7 +48,7 @@ public enum AutoPathLocations {
                 return coralLocation;
             }
         }
-        else{
+        else {
             return coralLocation;
         }
     }

@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.BeaterBar;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -31,7 +33,7 @@ public class BeaterBar extends SubsystemBase {
 
     magicRequest = new MotionMagicExpoVoltage(0).withEnableFOC(true);
 
-    anklePos = Shuffleboard.getTab("Beater Bar").add("Ankle", getAnklePosition()).withPosition(1, 0).getEntry();
+    anklePos = Shuffleboard.getTab("Beater Bar").add("Ankle", getAnklePosition()).withPosition(0, 0).getEntry();
   }
 
   public Command setAnkle() {
@@ -77,6 +79,7 @@ public class BeaterBar extends SubsystemBase {
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
+    //TODO: Tune these values.
     config.Slot0.kS = 0.4; // Add 0.4 V output to overcome static friction
     config.Slot0.kV = 0.13; // A velocity target of 1 rps results in 0.13 V output
     config.Slot0.kA = 0.1; // An acceleration of 1 rps/s requires 0.1 V output
@@ -102,6 +105,7 @@ public class BeaterBar extends SubsystemBase {
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
+    //TODO: Tune these values.
     config.CurrentLimits.SupplyCurrentLimit = 35;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLowerLimit = 50;
@@ -113,5 +117,6 @@ public class BeaterBar extends SubsystemBase {
   @Override
   public void periodic() {
     anklePos.setDouble(getAnklePosition());
+    Logger.recordOutput("Ankle", getAnklePosition());
   }
 }

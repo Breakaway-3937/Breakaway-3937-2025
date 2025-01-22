@@ -13,9 +13,9 @@ import edu.wpi.first.wpilibj.RobotController;
 public final class Constants {
     public static final boolean ROBOT_RELATIVE = false;
     public static final boolean OPEN_LOOP = true;
-    //FIXME: Will all change with new robot.
+    //TODO: Will all change with new robot.
     public static final int CANDLE_ID = 0;
-    public static final int PDH_ID = 0;
+    public static final int PDH_ID = 63;
     public static final int NUM_LEDS = 0;
     public static final String CANIVORE_BUS = "CANivore";
     public static final String PRACTICE_SERIAL_NUM = "0324152B";
@@ -36,7 +36,7 @@ public final class Constants {
     }
 
     public static final class Vision {
-        //FIXME: Will all change with new robot.
+        //TODO: Will all change with new robot.
         public static final String FRONT_CAMERA_NAME = "Front Camera";
         public static final String BACK_CAMERA_NAME = "Global_Shutter_Camera";
         public static final String NOTE_CAMERA_NAME = "HD_USB_Camera";
@@ -47,20 +47,20 @@ public final class Constants {
     }
 
     public static final class BeaterBar {
-        public static final int ANKLE_CAN_ID = 0; //TODO 
-        public static final int INTAKE_CAN_ID = 0; //TODO
+        public static final int ANKLE_CAN_ID = 0; //TODO: Add correct CAN ID. 
+        public static final int INTAKE_CAN_ID = 0; //TODO: Add correct CAN ID. 
     }
 
     public static final class EndEffector {
-        public static final int WRIST_CAN_ID = 0; //TODO 
-        public static final int LOADER_CAN_ID = 0; //TODO
-        public static final int LOADER1_CAN_ID = 0; //TODO
+        public static final int WRIST_CAN_ID = 0; //TODO: Add correct CAN ID. 
+        public static final int LOADER_CAN_ID = 0; //TODO: Add correct CAN ID. 
+        public static final int CODER_CAN_ID = 0; //TODO: Add correct CAN ID. 
     }
     
     public static final class ClimbAvator {
-        public static final int SHOULDER_CAN_ID = 0;//TODO
-        public static final int SHOULDER_FOLLOWER_CAN_ID = 0;//TODO
-        public static final int ELEVATOR_CAN_ID = 0;//TODO
-        public static final int ELEVATOR_FOLLOWER_CAN_ID = 0;//TODO
+        public static final int SHOULDER_CAN_ID = 0; //TODO: Add correct CAN ID. 
+        public static final int BOULDER_CAN_ID = 0; //TODO: Add correct CAN ID. 
+        public static final int ELEVATOR_CAN_ID = 0; //TODO: Add correct CAN ID. 
+        public static final int DETONATOR_CAN_ID = 0; //TODO: Add correct CAN ID. 
     }
 }

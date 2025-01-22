@@ -6,11 +6,11 @@ package frc.robot.subsystems.BeaterBar;
 
 public enum BeaterBarStates {
     GROUND_PICKUP(0, 0),
-    STORE(0, 0),
+    PROTECT(0, 0),
     REST(0, 0);
 
-    private double position;
-    private double speed;
+    private final double position;
+    private final double speed;
 
     private BeaterBarStates(double position, double speed) {
         this.position = position;

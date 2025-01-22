@@ -6,6 +6,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -16,19 +18,17 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutoTeleop;
 import frc.robot.commands.CenterOnAprilTag;
-//import frc.robot.commands.Music;
+import frc.robot.commands.Music;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Swerve.Swerve;
 
 public class RobotContainer {
-    //FIXME: Add the correct max speed and max angular rate.
+    //TODO: Add the correct max speed and max angular rate.
     private final double maxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); 
     private final double maxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
 
@@ -40,6 +40,7 @@ public class RobotContainer {
     private final JoystickButton translationButton = new JoystickButton(translationController, Constants.Controllers.TRANSLATION_BUTTON);
     private final JoystickButton rotationButton = new JoystickButton(rotationController, Constants.Controllers.ROTATION_BUTTON);
     private final JoystickButton autoTrackButton = new JoystickButton(buttons, 1);
+    private final JoystickButton alignButton = new JoystickButton(buttons, 8);
 
     private final int translationAxis = Constants.Controllers.TRANSLATION_AXIS;
     private final int strafeAxis = Constants.Controllers.STRAFE_AXIS;
@@ -51,32 +52,16 @@ public class RobotContainer {
     private final Swerve s_Swerve = TunerConstants.createDrivetrain();
     private final Vision s_Vision = new Vision(s_Swerve);
 
-    private final Trigger levelOne = OperatorController.getLevelOneTrigger();
-    private final Trigger levelTwo = OperatorController.getLevelTwoTrigger();
-    private final Trigger levelThree = OperatorController.getLevelThreeTrigger();
-    private final Trigger levelFour = OperatorController.getLevelFourTrigger();
-    private final Trigger noLevel = OperatorController.getNoLevelTrigger();
-    private final Trigger coralA = OperatorController.getCoralATrigger();
-    private final Trigger coralB = OperatorController.getCoralBTrigger();
-    private final Trigger coralC = OperatorController.getCoralCTrigger();
-    private final Trigger coralD = OperatorController.getCoralDTrigger();
-    private final Trigger coralE = OperatorController.getCoralETrigger();
-    private final Trigger coralF = OperatorController.getCoralFTrigger();
-    private final Trigger coralG = OperatorController.getCoralGTrigger();
-    private final Trigger coralH = OperatorController.getCoralHTrigger();
-    private final Trigger coralI = OperatorController.getCoralITrigger();
-    private final Trigger coralJ = OperatorController.getCoralJTrigger();
-    private final Trigger coralK = OperatorController.getCoralKTrigger();
-    private final Trigger coralL = OperatorController.getCoralLTrigger();
-    private final Trigger noTarget = OperatorController.getNoTargetTrigger();
-
-    //private final Music c_Music = new Music();
+    private final Music c_Music = new Music(s_Swerve);
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(maxSpeed * Constants.Controllers.STICK_DEADBAND)
             .withRotationalDeadband(maxAngularRate * Constants.Controllers.STICK_DEADBAND) 
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+    
+    @SuppressWarnings("unused")
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    @SuppressWarnings("unused")
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
     private void configureBindings() {
@@ -89,46 +74,26 @@ public class RobotContainer {
             )
         );
 
-        levelOne.onTrue(new PrintCommand("Level One"));
-        levelTwo.onTrue(new PrintCommand("Level Two"));
-        levelThree.onTrue(new PrintCommand("Level Three"));
-        levelFour.onTrue(new PrintCommand("Level Four"));
-        noLevel.onTrue(new PrintCommand("No Level"));
-        coralA.onTrue(new PrintCommand("Coral A"));
-        coralB.onTrue(new PrintCommand("Coral B"));
-        coralC.onTrue(new PrintCommand("Coral C"));
-        coralD.onTrue(new PrintCommand("Coral D"));
-        coralE.onTrue(new PrintCommand("Coral E"));
-        coralF.onTrue(new PrintCommand("Coral F"));
-        coralG.onTrue(new PrintCommand("Coral G"));
-        coralH.onTrue(new PrintCommand("Coral H"));
-        coralI.onTrue(new PrintCommand("Coral I"));
-        coralJ.onTrue(new PrintCommand("Coral J"));
-        coralK.onTrue(new PrintCommand("Coral K"));
-        coralL.onTrue(new PrintCommand("Coral L"));
-        noTarget.onTrue(new PrintCommand("No Target"));
-
         translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
 
-        //FIXME: Add full logic for autonomous tracking.
-        //coralG.whileTrue(s_Swerve.pathFindThenFollow(AutoPathLocations.CORAL_A, new Pose2d(1.657, 0.746, Rotation2d.fromDegrees(14.274))))
-        //                 .whileFalse(Commands.none());
-
-       autoTrackButton.whileTrue(new AutoTeleop(s_Swerve, s_Vision).alongWith(new PrintCommand("PRESSED")));
-       //autoTrackButton.whileTrue(new CenterOnAprilTag(s_Swerve, s_Vision, 0));
+        autoTrackButton.whileTrue(new AutoTeleop(s_Swerve, s_Vision));
+        alignButton.or(rotationButton).whileTrue(new CenterOnAprilTag(s_Swerve, s_Vision, 0));
 
 
         s_Swerve.registerTelemetry(logger::telemeterize);
     }
 
     public RobotContainer() {
-        autoChooser = AutoBuilder.buildAutoChooser("DO NOTHING");
+        autoChooser = AutoBuilder.buildAutoChooser();
+        autoChooser.setDefaultOption("DO NOTHING", Commands.none());
         autoChooser.addOption("L4 Left", new PathPlannerAuto("L4 Right", true));
+        autoChooser.addOption("L4 Left CAC DS", new PathPlannerAuto("L4 Right CAC DS", true));
         Shuffleboard.getTab("Auto").add(autoChooser).withPosition(0, 0).withSize(2, 1);
         configureBindings();
     }
 
     public Command getAutonomousCommand() {
+        Logger.recordOutput("Selected Auto", autoChooser.getSelected().getName());
         return autoChooser.getSelected();
     }
 
@@ -140,10 +105,9 @@ public class RobotContainer {
         return s_Swerve;
     }
 
-    //FIXME: Fix music.
-    //public Command getMusicCommand() {
-    //    return c_Music;
-    //}
+    public Command getMusicCommand() {
+        return c_Music;
+    }
 
 }
 

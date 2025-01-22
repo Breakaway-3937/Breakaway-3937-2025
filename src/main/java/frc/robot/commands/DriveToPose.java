@@ -29,7 +29,7 @@ public class DriveToPose extends Command {
 
   /** Creates a new DriveToPose. */
   public DriveToPose(Swerve s_Swerve, Pose2d targetPose) {
-    //FIXME: Get the correct PID values.
+    //TODO: Get the correct PID values.
     xController = new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(1, .5));
     yController = new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(1, .5));
 

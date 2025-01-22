@@ -38,7 +38,7 @@ public class CenterOnAprilTag extends Command {
     this.tag = tag;
     this.s_Vision = s_Vision;
 
-    //FIXME: Get the correct PID values.
+    //TODO: Get the correct PID values.
     controller = new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(1, 1));
 
     // Use addRequirements() here to declare subsystem dependencies.
@@ -80,7 +80,7 @@ public class CenterOnAprilTag extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    //FIXME: Add the correct tolerance.
+    //TODO: Add the correct tolerance.
     return false;
   }
 }

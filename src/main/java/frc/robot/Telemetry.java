@@ -1,5 +1,7 @@
 package frc.robot;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
@@ -114,5 +116,8 @@ public class Telemetry {
 
         SignalLogger.writeDoubleArray("odometry", poseArray);
         SignalLogger.writeDouble("odom period", state.OdometryPeriod, "seconds");
+
+        Logger.recordOutput("Pose", pose);
+        Logger.recordOutput("Speed", velocities.getNorm());
     }
 }

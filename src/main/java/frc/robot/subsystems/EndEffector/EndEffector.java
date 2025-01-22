@@ -4,6 +4,10 @@
 
 package frc.robot.subsystems.EndEffector;
 
+import java.util.function.BooleanSupplier;
+
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
@@ -12,17 +16,17 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.pathplanner.lib.commands.FollowPathCommand;
 
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class EndEffector extends SubsystemBase {
   private final TalonFX wrist;
-  private final TalonSRX loader, loader1;
+  private final TalonSRX loader, coder;
   private final MotionMagicExpoVoltage wristRequest;
   private final GenericEntry wristPosition;
   private EndEffectorStates endEffectorState;
@@ -31,7 +35,7 @@ public class EndEffector extends SubsystemBase {
   public EndEffector() {
     wrist = new TalonFX(Constants.EndEffector.WRIST_CAN_ID);
     loader = new TalonSRX(Constants.EndEffector.LOADER_CAN_ID);
-    loader1 = new TalonSRX(Constants.EndEffector.LOADER1_CAN_ID);
+    coder = new TalonSRX(Constants.EndEffector.CODER_CAN_ID);
 
     configLoader();
     configWrist();
@@ -57,6 +61,15 @@ public class EndEffector extends SubsystemBase {
     return runOnce(() -> loader.set(ControlMode.PercentOutput, 0));
   }
 
+  public Command runUntilFull() {
+    return runLoader().andThen(Commands.waitUntil(botFull())).andThen(stopLoader());
+  }
+
+  //TODO: Write this method.
+  public BooleanSupplier botFull() {
+    return () -> false;
+  }
+
   public double getSpeed() {
     return loader.getMotorOutputPercent();
   }
@@ -75,20 +88,21 @@ public class EndEffector extends SubsystemBase {
 
   public void configLoader() {
     loader.configFactoryDefault();
-    loader1.configFactoryDefault();
+    coder.configFactoryDefault();
 
     TalonSRXConfiguration config = new TalonSRXConfiguration();
 
+    //TODO: Tune these values.
     config.peakCurrentDuration = 100;
     config.peakCurrentLimit = 40;
     config.continuousCurrentLimit = 30;
 
     loader.configAllSettings(config);
     loader.enableCurrentLimit(true);
-    loader1.configAllSettings(config);
-    loader1.enableCurrentLimit(true);
+    coder.configAllSettings(config);
+    coder.enableCurrentLimit(true);
 
-    loader1.follow(loader, FollowerType.PercentOutput);
+    coder.follow(loader, FollowerType.PercentOutput);
   }
 
   public void configWrist() {
@@ -98,6 +112,7 @@ public class EndEffector extends SubsystemBase {
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
+    //TODO: Tune these values.
     config.Slot0.kS = 0.4; // Add 0.4 V output to overcome static friction
     config.Slot0.kV = 0.13; // A velocity target of 1 rps results in 0.13 V output
     config.Slot0.kA = 0.1; // An acceleration of 1 rps/s requires 0.1 V output
@@ -118,7 +133,8 @@ public class EndEffector extends SubsystemBase {
 
   @Override
   public void periodic() {
-   wristPosition.setDouble(getWristPosition());
+    wristPosition.setDouble(getWristPosition());
+    Logger.recordOutput("Wrist", getWristPosition());
   }
 
 }

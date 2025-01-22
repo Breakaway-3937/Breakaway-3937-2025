@@ -14,9 +14,10 @@ import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Swerve.Swerve;
 
 public class AutoTeleop extends SequentialCommandGroup {
-  private Swerve s_Swerve;
-  private Vision s_Vision;
+  private final Swerve s_Swerve;
+  private final Vision s_Vision;
 
+  //TODO: Add the aligning command.
   /** Creates a new AutoTelop. */
   public AutoTeleop(Swerve s_Swerve, Vision s_Vision) {
     this.s_Swerve = s_Swerve;

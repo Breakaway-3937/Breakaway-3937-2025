@@ -5,13 +5,14 @@
 package frc.robot.subsystems.ClimbAvator;
 
 public enum ClimbAvatorStates {
-    STATION(0,0),
-    L1(0,0),
-    L2(0,0),
-    L3(0,0),
-    L4(0,0);
+    STATION(0, 0),
+    L1(0, 0),
+    L2(0, 0),
+    L3(0, 0),
+    L4(0, 0),
+    PROTECT(0, 0);
 
-    private double height, angle;
+    private final double height, angle;
 
     private ClimbAvatorStates(double height, double angle) {
         this.height = height;
