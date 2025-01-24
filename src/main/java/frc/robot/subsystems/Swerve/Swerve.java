@@ -56,7 +56,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     //TODO: Add the correct max speed and max angular rate.
     PathConstraints constraints = new PathConstraints(
-        0.5, 4.0,
+        4, 4.0,
         Units.degreesToRadians(540), Units.degreesToRadians(720));
 
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */

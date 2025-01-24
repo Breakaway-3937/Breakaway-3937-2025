@@ -14,7 +14,6 @@ import com.ctre.phoenix6.Utils;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.lib.Vision.BreakaCamera;
@@ -23,6 +22,7 @@ import frc.robot.subsystems.Swerve.Swerve;
 public class Vision extends SubsystemBase {
   private AprilTagFieldLayout atfl;
   private final BreakaCamera camera;
+  private final BreakaCamera otherCamera;
   private final Swerve s_Swerve;
 
   /** Creates a new Vision. */
@@ -36,6 +36,7 @@ public class Vision extends SubsystemBase {
     }
 
     camera = new BreakaCamera("FrontCamera", new PhotonPoseEstimator(atfl, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.Vision.FRONT_CAMERA_TRANSFORM));
+    otherCamera = new BreakaCamera("3937", new PhotonPoseEstimator(atfl, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.Vision.BACK_CAMERA_TRANSFORM));
   }
 
   public double getX() {
@@ -53,12 +54,12 @@ public class Vision extends SubsystemBase {
   @Override
   public void periodic() {
     var result = camera.getEstimatedPose();
+    var otherResult = otherCamera.getEstimatedPose();
     if(!result.isEmpty()) {
-      double x = result.get().estimatedPose.toPose2d().getX();
-      double y = result.get().estimatedPose.toPose2d().getY();
-      Pose2d pose = new Pose2d(x, y, s_Swerve.getState().Pose.getRotation());
-      
-      s_Swerve.addVisionMeasurement(pose, Utils.fpgaToCurrentTime(result.get().timestampSeconds), Constants.Vision.TAG_VISION_STDS_FRONT);
+      s_Swerve.addVisionMeasurement(result.get().estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(result.get().timestampSeconds), Constants.Vision.TAG_VISION_STDS_FRONT);
+    }
+    if(!otherResult.isEmpty()) {
+      s_Swerve.addVisionMeasurement(otherResult.get().estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(otherResult.get().timestampSeconds), Constants.Vision.TAG_VISION_STDS_FRONT);
     }
   }
 
