@@ -46,15 +46,11 @@ public final class Constants {
         public static final Vector<N3> TAG_VISION_STDS_BACK = VecBuilder.fill(1.294, 0.086, Units.degreesToRadians(10));
     }
 
-    public static final class BeaterBar {
-        public static final int ANKLE_CAN_ID = 0; //TODO: Add correct CAN ID. 
-        public static final int INTAKE_CAN_ID = 0; //TODO: Add correct CAN ID. 
-    }
-
-    public static final class EndEffector {
+    public static final class MrPibb {
         public static final int WRIST_CAN_ID = 0; //TODO: Add correct CAN ID. 
+        public static final int TURRET_CAN_ID = 0; //TODO: Add correct CAN ID.
         public static final int LOADER_CAN_ID = 0; //TODO: Add correct CAN ID. 
-        public static final int CODER_CAN_ID = 0; //TODO: Add correct CAN ID. 
+        public static final int THUMB_CAN_ID = 0; //TODO: Add correct CAN ID. 
     }
     
     public static final class ClimbAvator {

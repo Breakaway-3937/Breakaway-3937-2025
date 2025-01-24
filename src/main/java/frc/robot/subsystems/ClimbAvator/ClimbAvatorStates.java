@@ -5,6 +5,12 @@
 package frc.robot.subsystems.ClimbAvator;
 
 public enum ClimbAvatorStates {
+    FLOOR_INTAKE_CORAL(0, 0),
+    FLOOR_INTAKE_ALGAE(0, 0),
+    STOW_MODE(0, 0),
+    PROCESSOR(0, 0),
+    BARGE(0, 0),
+    CLIMB(0, 0),
     STATION(0, 0),
     L1(0, 0),
     L2(0, 0),
