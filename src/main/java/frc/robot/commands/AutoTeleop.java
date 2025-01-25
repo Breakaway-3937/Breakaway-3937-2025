@@ -25,13 +25,15 @@ public class AutoTeleop extends SequentialCommandGroup {
 
     addRequirements(s_Swerve, s_Vision);
 
-    addCommands(pathFindPickup(), pathFindScore());
+    //Change the until at pose
+    addCommands(pathFindPickup().until(() -> false), pathFindScore());
   }
 
   private Command pathFindPickup() {
     return Commands.defer(
       () -> {
-        return s_Swerve.pathFindToPose(OperatorController.getPickUpLocation());
+        //change the unless to bot full
+        return s_Swerve.pathFindToPose(OperatorController.getPickUpLocation()).unless(() -> false);
       },
       Set.of(s_Swerve)
     );
