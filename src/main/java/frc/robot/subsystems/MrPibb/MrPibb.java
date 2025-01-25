@@ -16,6 +16,8 @@ import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import au.grapplerobotics.ConfigurationFailedException;
+import au.grapplerobotics.LaserCan;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -29,6 +31,7 @@ public class MrPibb extends SubsystemBase {
   private final MotionMagicExpoVoltage wristRequest, turretRequest;
   private final GenericEntry wristPosition, turretPosition;
   private MrPibbStates mrPibbState;
+  private LaserCan lc;
 
   /** Creates a new MrPibb.
    *  @since Ankle is no longer with us.
@@ -38,6 +41,16 @@ public class MrPibb extends SubsystemBase {
     turret = new TalonFX(Constants.MrPibb.TURRET_CAN_ID);
     loader = new TalonSRX(Constants.MrPibb.LOADER_CAN_ID);
     thumb = new TalonSRX(Constants.MrPibb.THUMB_CAN_ID);
+    lc = new LaserCan(0);
+
+    try {
+      lc.setRangingMode(LaserCan.RangingMode.SHORT);
+      lc.setRegionOfInterest(new LaserCan.RegionOfInterest(8, 8, 16, 16));
+      lc.setTimingBudget(LaserCan.TimingBudget.TIMING_BUDGET_33MS);
+    } catch (ConfigurationFailedException e) {
+      System.out.println("Configuration failed! " + e);
+    }
+
 
     configLoader();
     configWrist();
@@ -187,6 +200,14 @@ public class MrPibb extends SubsystemBase {
     Logger.recordOutput("Wrist", getWristPosition());
     turretPosition.setDouble(getTurretPosition());
     Logger.recordOutput("Turret", getTurretPosition());
+
+    LaserCan.Measurement measurement = lc.getMeasurement();
+    if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
+      System.out.println("The target is " + measurement.distance_mm + "mm away!");
+    } else {
+      System.out.println("Oh no! The target is out of range, or we can't get a reliable measurement!");
+      // You can still use distance_mm in here, if you're ok tolerating a clamped value or an unreliable measurement.
+    }
   }
 
 }
