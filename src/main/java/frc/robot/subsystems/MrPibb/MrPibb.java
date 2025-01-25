@@ -41,7 +41,7 @@ public class MrPibb extends SubsystemBase {
     turret = new TalonFX(Constants.MrPibb.TURRET_CAN_ID);
     loader = new TalonSRX(Constants.MrPibb.LOADER_CAN_ID);
     thumb = new TalonSRX(Constants.MrPibb.THUMB_CAN_ID);
-    lc = new LaserCan(0);
+    lc = new LaserCan(33);
 
     try {
       lc.setRangingMode(LaserCan.RangingMode.SHORT);
