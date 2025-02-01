@@ -33,7 +33,6 @@ public class Robot extends LoggedRobot {
   private GenericEntry canUtil = Shuffleboard.getTab("System").add("CAN", 0).withPosition(0, 0).getEntry();
 
   public Robot() {
-    CanBridge.runTCP();
     robotContainer = new RobotContainer();
   }
 
