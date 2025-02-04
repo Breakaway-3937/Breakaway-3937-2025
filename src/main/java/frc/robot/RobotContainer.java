@@ -23,13 +23,14 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.AutoTeleop;
 import frc.robot.commands.CenterOnAprilTag;
 import frc.robot.commands.Music;
-import frc.robot.generated.TunerConstants;
+import frc.robot.generated.CompTunerConstants;
+import frc.robot.generated.PracticeTunerConstants;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Swerve.Swerve;
 
 public class RobotContainer {
     //TODO: Add the correct max speed and max angular rate.
-    private final double maxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); 
+    private final double maxSpeed = PracticeTunerConstants.kSpeedAt12Volts.in(MetersPerSecond); 
     private final double maxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
 
     private final Joystick translationController = new Joystick(Constants.Controllers.TRANSLATION_CONTROLLER.getPort());
@@ -49,7 +50,7 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(maxSpeed);
     private final SendableChooser<Command> autoChooser;
 
-    private final Swerve s_Swerve = TunerConstants.createDrivetrain();
+    private final Swerve s_Swerve = createSwerve();
     private final Vision s_Vision = new Vision(s_Swerve);
 
     private final Music c_Music = new Music(s_Swerve);
@@ -109,6 +110,9 @@ public class RobotContainer {
         return c_Music;
     }
 
+    public Swerve createSwerve() {
+        return (Constants.PRACTICE_BOT) ? PracticeTunerConstants.createDrivetrain() : CompTunerConstants.createDrivetrain();
+    }
 }
 
 //FIXME: Run SysId with robot.
