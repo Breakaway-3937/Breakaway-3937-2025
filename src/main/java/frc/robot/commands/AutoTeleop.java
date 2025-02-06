@@ -5,8 +5,11 @@
 package frc.robot.commands;
 
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.OperatorController;
@@ -23,10 +26,11 @@ public class AutoTeleop extends SequentialCommandGroup {
     this.s_Swerve = s_Swerve;
     this.s_Vision = s_Vision;
 
+    setName("AutoTelop");
     addRequirements(s_Swerve, s_Vision);
 
     //Change the until at pose
-    addCommands(pathFindPickup().until(() -> false), pathFindScore());
+    addCommands(pathFindPickup().until(robotAtPickUp()), pathFindScore().until(robotAtScoring()));
   }
 
   private Command pathFindPickup() {
@@ -46,5 +50,25 @@ public class AutoTeleop extends SequentialCommandGroup {
       },
       Set.of(s_Swerve)
     );
+  }
+
+  private BooleanSupplier robotAtPickUp() {
+    var location = OperatorController.getScoringLocation();
+    if(location.get() != null && location.get().getLocation() != null) {
+      return () -> s_Swerve.getState().Pose == location.get().getLocation();
+    }
+    else {
+      return () -> true;
+    }
+  }
+
+  private BooleanSupplier robotAtScoring() {
+    var location = OperatorController.getScoringLocation();
+    if(location.get() != null && location.get().getLocation() != null) {
+      return () -> s_Swerve.getState().Pose == location.get().getLocation();
+    }
+    else {
+      return () -> true;
+    }
   }
 }
