@@ -11,12 +11,13 @@ public enum MrPibbStates {
     PROCESSOR(0, 0, 0),
     BARGE(0, 0, 0),
     CLIMB(0, 0, 0),
-    STATION(0, 0, 0),
-    L1(0, 0, 0),
-    L2(0, 0, 0),
+    STATION(-2.715, -3.598, 0),
+    L1(13.648, 0, 0),
+    L2(9.490, -1.891, 0),
     L3(0, 0, 0),
     L4(0, 0, 0),
-    PROTECT(0, 0, 0);
+    PROTECT(0, 0, 0),
+    CORAL_PRESTAGE(9.788, -1.824, 0);
 
     private final double wrist, turret, speed;
 

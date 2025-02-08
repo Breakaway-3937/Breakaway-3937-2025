@@ -25,7 +25,10 @@ import frc.robot.commands.CenterOnAprilTag;
 import frc.robot.commands.Music;
 import frc.robot.generated.CompTunerConstants;
 import frc.robot.generated.PracticeTunerConstants;
+import frc.robot.subsystems.SuperSubsystem;
 import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.ClimbAvator.ClimbAvator;
+import frc.robot.subsystems.MrPibb.MrPibb;
 import frc.robot.subsystems.Swerve.Swerve;
 
 public class RobotContainer {
@@ -52,6 +55,9 @@ public class RobotContainer {
 
     private final Swerve s_Swerve = createSwerve();
     private final Vision s_Vision = new Vision(s_Swerve);
+    private final MrPibb s_MrPibb = new MrPibb();
+    private final ClimbAvator s_ClimbAvator = new ClimbAvator();
+    private final SuperSubsystem s_SuperSubsystem = new SuperSubsystem(s_ClimbAvator, s_MrPibb);
 
     private final Music c_Music = new Music(s_Swerve);
 
