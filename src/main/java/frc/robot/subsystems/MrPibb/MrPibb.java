@@ -13,11 +13,12 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import au.grapplerobotics.ConfigurationFailedException;
-import au.grapplerobotics.LaserCan;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -28,10 +29,9 @@ import frc.robot.Constants;
 public class MrPibb extends SubsystemBase {
   private final TalonFX wrist, turret;
   private final TalonSRX loader, thumb;
-  private final MotionMagicExpoVoltage wristRequest, turretRequest;
+  private final MotionMagicVoltage wristRequest, turretRequest;
   private final GenericEntry wristPosition, turretPosition;
   private MrPibbStates mrPibbState;
-  private LaserCan lc;
 
   /** Creates a new MrPibb.
    *  @since Ankle is no longer with us.
@@ -41,23 +41,13 @@ public class MrPibb extends SubsystemBase {
     turret = new TalonFX(Constants.MrPibb.TURRET_CAN_ID);
     loader = new TalonSRX(Constants.MrPibb.LOADER_CAN_ID);
     thumb = new TalonSRX(Constants.MrPibb.THUMB_CAN_ID);
-    lc = new LaserCan(33);
-
-    try {
-      lc.setRangingMode(LaserCan.RangingMode.SHORT);
-      lc.setRegionOfInterest(new LaserCan.RegionOfInterest(8, 8, 16, 16));
-      lc.setTimingBudget(LaserCan.TimingBudget.TIMING_BUDGET_33MS);
-    } catch (ConfigurationFailedException e) {
-      System.out.println("Configuration failed! " + e);
-    }
-
 
     configLoader();
     configWrist();
     configTurret();
 
-    wristRequest = new MotionMagicExpoVoltage(0).withEnableFOC(true);
-    turretRequest = new MotionMagicExpoVoltage(0).withEnableFOC(true);
+    wristRequest = new MotionMagicVoltage(0).withEnableFOC(true);
+    turretRequest = new MotionMagicVoltage(0).withEnableFOC(true);
 
     wristPosition = Shuffleboard.getTab("MrPibb").add("Wrist", getWristPosition()).withPosition(0, 0).getEntry();
     turretPosition = Shuffleboard.getTab("MrPibb").add("Turret", getTurretPosition()).withPosition(0, 0).getEntry();
@@ -65,6 +55,10 @@ public class MrPibb extends SubsystemBase {
 
   public Command setWrist() {
     return runOnce(() -> wrist.setControl(wristRequest.withPosition(mrPibbState.getWrist())));
+  }
+
+  public Command setWristNeutral() {
+    return runOnce(() -> wrist.setControl(wristRequest.withPosition(MrPibbStates.getNeutralWrist())));
   }
 
   public Command stopWrist() {
@@ -112,6 +106,14 @@ public class MrPibb extends SubsystemBase {
     return wrist.getPosition().getValueAsDouble();
   }
 
+  public Command waitUntilWristSafe() {
+    return Commands.waitUntil(() -> MathUtil.isNear(mrPibbState.getWrist(), getWristPosition(), 0.1));
+  }
+
+  public Command waitUntilTurretSafe() {
+    return Commands.waitUntil(() -> MathUtil.isNear(mrPibbState.getTurret(), getTurretPosition(), 0.1));
+  }
+
   public TalonFX getWristMotor() {
     return wrist;
   }
@@ -148,24 +150,27 @@ public class MrPibb extends SubsystemBase {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     //TODO: Tune these values.
-    config.Slot0.kS = 0.4; // Add 0.4 V output to overcome static friction
-    config.Slot0.kV = 0.13; // A velocity target of 1 rps results in 0.13 V output
-    config.Slot0.kA = 0.1; // An acceleration of 1 rps/s requires 0.1 V output
-    config.Slot0.kP = 0; // An error of 1 rps results in 0.2 V output
-    config.Slot0.kI = 0; // no output for integrated error
-    config.Slot0.kD = 0; // no output for error derivative
+    config.Slot0.kS = 0.25;
+    config.Slot0.kV = 0.12;
+    config.Slot0.kA = 0.01;
+    config.Slot0.kP = 4.45;
+    config.Slot0.kI = 0;
+    config.Slot0.kD = 0.18;
 
-    config.CurrentLimits.SupplyCurrentLimit = 70;
+    /*config.CurrentLimits.SupplyCurrentLimit = 70;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLowerLimit = 40;
-    config.CurrentLimits.SupplyCurrentLowerTime = 1;
+    config.CurrentLimits.SupplyCurrentLowerTime = 1;*/
 
-    config.MotionMagic.MotionMagicAcceleration = 2500;
-    config.MotionMagic.MotionMagicCruiseVelocity = 5000;
+    config.MotionMagic.MotionMagicAcceleration = 175;
+    config.MotionMagic.MotionMagicCruiseVelocity = 200;
+    config.MotionMagic.MotionMagicJerk = 1600;
 
     wrist.getConfigurator().apply(config);
+    wrist.setPosition(0);
   }
 
   public void configTurret() {
@@ -176,22 +181,24 @@ public class MrPibb extends SubsystemBase {
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
     //TODO: Tune these values.
-    config.Slot0.kS = 0.4; // Add 0.4 V output to overcome static friction
-    config.Slot0.kV = 0.13; // A velocity target of 1 rps results in 0.13 V output
-    config.Slot0.kA = 0.1; // An acceleration of 1 rps/s requires 0.1 V output
-    config.Slot0.kP = 0; // An error of 1 rps results in 0.2 V output
-    config.Slot0.kI = 0; // no output for integrated error
-    config.Slot0.kD = 0; // no output for error derivative
+    config.Slot0.kS = 0.25;
+    config.Slot0.kV = 0.12;
+    config.Slot0.kA = 0.01;
+    config.Slot0.kP = 2.89;
+    config.Slot0.kI = 0;
+    config.Slot0.kD = 0.24;
 
-    config.CurrentLimits.SupplyCurrentLimit = 70;
+    /*config.CurrentLimits.SupplyCurrentLimit = 70;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLowerLimit = 40;
-    config.CurrentLimits.SupplyCurrentLowerTime = 1;
+    config.CurrentLimits.SupplyCurrentLowerTime = 1;*/
 
-    config.MotionMagic.MotionMagicAcceleration = 2500;
-    config.MotionMagic.MotionMagicCruiseVelocity = 5000;
+    config.MotionMagic.MotionMagicAcceleration = 155;
+    config.MotionMagic.MotionMagicCruiseVelocity = 170;
+    config.MotionMagic.MotionMagicJerk = 1600;
 
     turret.getConfigurator().apply(config);
+    turret.setPosition(0);
   }
 
   @Override
@@ -200,14 +207,6 @@ public class MrPibb extends SubsystemBase {
     Logger.recordOutput("Wrist", getWristPosition());
     turretPosition.setDouble(getTurretPosition());
     Logger.recordOutput("Turret", getTurretPosition());
-
-    LaserCan.Measurement measurement = lc.getMeasurement();
-    if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
-      System.out.println("The target is " + measurement.distance_mm + "mm away!");
-    } else {
-      System.out.println("Oh no! The target is out of range, or we can't get a reliable measurement!");
-      // You can still use distance_mm in here, if you're ok tolerating a clamped value or an unreliable measurement.
-    }
   }
 
 }

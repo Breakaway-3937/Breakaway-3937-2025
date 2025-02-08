@@ -20,6 +20,8 @@ public enum MrPibbStates {
 
     private final double wrist, turret, speed;
 
+    public static final double NEUTRAL_WRIST = 0;
+
     private MrPibbStates(double wrist, double turret, double speed) {
         this.wrist = wrist;
         this.turret = turret;
@@ -36,5 +38,9 @@ public enum MrPibbStates {
 
     public double getSpeed() {
         return speed;
+    }
+
+    public static double getNeutralWrist() {
+        return NEUTRAL_WRIST;
     }
 }

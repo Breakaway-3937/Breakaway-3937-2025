@@ -30,8 +30,30 @@ public class SuperSubsystem extends SubsystemBase {
 
   public Command runToProtect() {
     protectState();
-    //TODO: Add safety check and actual code. Look at MrPibb.java for example.
-    return Commands.none();
+    
+    return condense();
+  }
+
+  public Command runToBarge() {
+    bargeState();
+
+    return disperse();
+  }
+
+  public Command condense() {
+    return s_MrPibb.setWristNeutral().andThen(s_MrPibb.waitUntilWristSafe())
+                              .andThen(s_MrPibb.setTurret()).andThen(s_MrPibb.waitUntilTurretSafe())
+                              .andThen(s_ClimbAvator.setElevator()).andThen(s_ClimbAvator.waitUntilElevatorSafe())
+                              .andThen(s_ClimbAvator.setShoulder()).andThen(s_ClimbAvator.waitUntilShoulderSafe())
+                              .andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.waitUntilWristSafe());
+  }
+
+  public Command disperse() {
+    return s_MrPibb.setWristNeutral().andThen(s_MrPibb.waitUntilWristSafe())
+                              .andThen(s_ClimbAvator.setShoulder()).andThen(s_ClimbAvator.waitUntilShoulderSafe())
+                              .andThen(s_ClimbAvator.setElevator()).andThen(s_ClimbAvator.waitUntilElevatorSafe())
+                              .andThen(s_MrPibb.setTurret()).andThen(s_MrPibb.waitUntilTurretSafe())
+                              .andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.waitUntilWristSafe());
   }
 
   public void loadState() {
@@ -42,6 +64,11 @@ public class SuperSubsystem extends SubsystemBase {
   public void protectState() {
     s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.PROTECT);
     s_MrPibb.setMrPibbState(MrPibbStates.PROTECT);
+  }
+
+  public void bargeState() {
+    s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.BARGE);
+    s_MrPibb.setMrPibbState(MrPibbStates.BARGE);
   }
 
   @Override

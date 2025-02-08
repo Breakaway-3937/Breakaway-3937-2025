@@ -14,7 +14,7 @@ public final class Constants {
     public static final boolean ROBOT_RELATIVE = false;
     public static final boolean OPEN_LOOP = true;
     //TODO: Will all change with new robot.
-    public static final int CANDLE_ID = 0;
+    public static final int CANDLE_ID = 45;
     public static final int PDH_ID = 63;
     public static final int NUM_LEDS = 0;
     public static final String CANIVORE_BUS = "CANivore";
@@ -47,16 +47,16 @@ public final class Constants {
     }
 
     public static final class MrPibb {
-        public static final int WRIST_CAN_ID = 0; //TODO: Add correct CAN ID. 
-        public static final int TURRET_CAN_ID = 0; //TODO: Add correct CAN ID.
-        public static final int LOADER_CAN_ID = 0; //TODO: Add correct CAN ID. 
-        public static final int THUMB_CAN_ID = 0; //TODO: Add correct CAN ID. 
+        public static final int WRIST_CAN_ID = 3; //TODO: Add correct CAN ID. 
+        public static final int TURRET_CAN_ID = 4; //TODO: Add correct CAN ID.
+        public static final int LOADER_CAN_ID = 51; //TODO: Add correct CAN ID. 
+        public static final int THUMB_CAN_ID = 52; //TODO: Add correct CAN ID. 
     }
     
     public static final class ClimbAvator {
-        public static final int SHOULDER_CAN_ID = 0; //TODO: Add correct CAN ID. 
-        public static final int BOULDER_CAN_ID = 0; //TODO: Add correct CAN ID. 
-        public static final int ELEVATOR_CAN_ID = 0; //TODO: Add correct CAN ID. 
-        public static final int DETONATOR_CAN_ID = 0; //TODO: Add correct CAN ID. 
+        public static final int SHOULDER_CAN_ID = 12; //TODO: Add correct CAN ID. 
+        public static final int BOULDER_CAN_ID = 13; //TODO: Add correct CAN ID. 
+        public static final int ELEVATOR_CAN_ID = 14; //TODO: Add correct CAN ID. 
+        public static final int DETONATOR_CAN_ID = 15; //TODO: Add correct CAN ID. 
     }
 }

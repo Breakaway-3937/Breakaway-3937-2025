@@ -4,26 +4,31 @@
 
 package frc.robot.subsystems.ClimbAvator;
 
+import java.util.function.BooleanSupplier;
+
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.MotionMagicExpoTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class ClimbAvator extends SubsystemBase {
   private final TalonFX shoulderMotor, boulderMotor, elevatorMotor, detonatorMotor;
-  private final Follower followerShoulderRequest = new Follower(Constants.ClimbAvator.SHOULDER_CAN_ID, false);//TODO: Check direction.
-  private final Follower followerElevatorRequest = new Follower(Constants.ClimbAvator.ELEVATOR_CAN_ID, false);//TODO: Check direction.
-  private final MotionMagicExpoTorqueCurrentFOC shoulderRequest = new MotionMagicExpoTorqueCurrentFOC(0);
-  private final MotionMagicExpoTorqueCurrentFOC elevatorRequest = new MotionMagicExpoTorqueCurrentFOC(0);
+  private final Follower followerShoulderRequest;
+  private final Follower followerElevatorRequest;
+  private final MotionMagicVoltage shoulderRequest;
+  private final MotionMagicVoltage elevatorRequest;
   private final GenericEntry elevatorPosition, shoulderPosition;
   private ClimbAvatorStates climbAvatorState;
 
@@ -33,6 +38,12 @@ public class ClimbAvator extends SubsystemBase {
     boulderMotor = new TalonFX(Constants.ClimbAvator.BOULDER_CAN_ID);
     elevatorMotor = new TalonFX(Constants.ClimbAvator.ELEVATOR_CAN_ID);
     detonatorMotor = new TalonFX(Constants.ClimbAvator.DETONATOR_CAN_ID);
+
+    followerShoulderRequest = new Follower(Constants.ClimbAvator.SHOULDER_CAN_ID, true);//TODO: Check direction.
+    followerElevatorRequest = new Follower(Constants.ClimbAvator.ELEVATOR_CAN_ID, true);//TODO: Check direction.
+
+    shoulderRequest = new MotionMagicVoltage(0);
+    elevatorRequest = new MotionMagicVoltage(0);
 
     configShoulderMotors();
     configElevatorMotors();
@@ -65,6 +76,14 @@ public class ClimbAvator extends SubsystemBase {
     return elevatorMotor.getPosition().getValueAsDouble();
   }
 
+  public Command waitUntilShoulderSafe() {
+    return Commands.waitUntil(() -> MathUtil.isNear(climbAvatorState.getAngle(), getShoulderMotorPosition(), 0.1));
+  }
+
+  public Command waitUntilElevatorSafe() {
+    return Commands.waitUntil(() -> MathUtil.isNear(climbAvatorState.getHeight(), getElevatorMotorPosition(), 0.1));
+  }
+
   public TalonFX getShoulderMotor() {
     return shoulderMotor;
   }
@@ -94,23 +113,27 @@ public class ClimbAvator extends SubsystemBase {
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
     //TODO: Tune these values.
-    config.Slot0.kS = 0.4; // Add 0.4 V output to overcome static friction
-    config.Slot0.kV = 0.13; // A velocity target of 1 rps results in 0.13 V output
-    config.Slot0.kA = 0.1; // An acceleration of 1 rps/s requires 0.1 V output
-    config.Slot0.kP = 0; // An error of 1 rps results in 0.2 V output
-    config.Slot0.kI = 0; // no output for integrated error
-    config.Slot0.kD = 0; // no output for error derivative
+    config.Slot0.kS = 0.25;
+    config.Slot0.kV = 0.2;
+    config.Slot0.kA = 0.03;
+    config.Slot0.kP = 67.2;
+    config.Slot0.kI = 0;
+    config.Slot0.kD = 0;
 
-    config.CurrentLimits.SupplyCurrentLimit = 70;
+    /*config.CurrentLimits.SupplyCurrentLimit = 70;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLowerLimit = 40;
-    config.CurrentLimits.SupplyCurrentLowerTime = 1;
+    config.CurrentLimits.SupplyCurrentLowerTime = 1;*/
 
-    config.MotionMagic.MotionMagicAcceleration = 2500;
-    config.MotionMagic.MotionMagicCruiseVelocity = 5000;
+    config.MotionMagic.MotionMagicAcceleration = 2880;
+    config.MotionMagic.MotionMagicCruiseVelocity = 2880;
+    config.MotionMagic.MotionMagicJerk = 4000;
 
     shoulderMotor.getConfigurator().apply(config);
     boulderMotor.getConfigurator().apply(config);
+
+    shoulderMotor.setPosition(0);
+    boulderMotor.setPosition(0);
 
     boulderMotor.setControl(followerShoulderRequest);
   }
@@ -122,25 +145,30 @@ public class ClimbAvator extends SubsystemBase {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     //TODO: Tune these values.
-    config.Slot0.kS = 0.4; // Add 0.4 V output to overcome static friction
-    config.Slot0.kV = 0.13; // A velocity target of 1 rps results in 0.13 V output
-    config.Slot0.kA = 0.1; // An acceleration of 1 rps/s requires 0.1 V output
-    config.Slot0.kP = 0; // An error of 1 rps results in 0.2 V output
-    config.Slot0.kI = 0; // no output for integrated error
-    config.Slot0.kD = 0; // no output for error derivative
+    config.Slot0.kS = 0.25;
+    config.Slot0.kV = 0.12;
+    config.Slot0.kA = 0.01;
+    config.Slot0.kP = 4.8;
+    config.Slot0.kI = 0;
+    config.Slot0.kD = 0.1;
 
-    config.CurrentLimits.SupplyCurrentLimit = 70;
+    /*config.CurrentLimits.SupplyCurrentLimit = 70;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLowerLimit = 40;
-    config.CurrentLimits.SupplyCurrentLowerTime = 1;
+    config.CurrentLimits.SupplyCurrentLowerTime = 1;*/
 
-    config.MotionMagic.MotionMagicAcceleration = 2500;
-    config.MotionMagic.MotionMagicCruiseVelocity = 5000;
+    config.MotionMagic.MotionMagicAcceleration = 200;
+    config.MotionMagic.MotionMagicCruiseVelocity = 280;
+    config.MotionMagic.MotionMagicJerk = 1600;
 
     elevatorMotor.getConfigurator().apply(config);
     detonatorMotor.getConfigurator().apply(config);
+
+    elevatorMotor.setPosition(0);
+    detonatorMotor.setPosition(0);
 
     detonatorMotor.setControl(followerElevatorRequest);
   }
