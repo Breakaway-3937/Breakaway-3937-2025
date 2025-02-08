@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.subsystems.MrPibb.MrPibbStates;
 
 public class ClimbAvator extends SubsystemBase {
   private final TalonFX shoulderMotor, boulderMotor, elevatorMotor, detonatorMotor;
@@ -60,12 +61,25 @@ public class ClimbAvator extends SubsystemBase {
     return runOnce(() -> elevatorMotor.stopMotor());
   }
 
+  public Command setElevatorNeutral() {
+    return runOnce(() -> elevatorMotor.setControl(elevatorRequest.withPosition(ClimbAvatorStates.getNeutralElevator())));
+  }
+
   public Command setShoulder() {
     return runOnce(() -> shoulderMotor.setControl(shoulderRequest.withPosition(climbAvatorState.getAngle())));
   }
 
   public Command stopShoulder(){
     return runOnce(() -> shoulderMotor.stopMotor());
+  }
+
+  public boolean isShoulderPrimeLocation() {
+    if(getShoulderMotorPosition() >= 45 && getShoulderMotorPosition() <= 90) {
+      return true;
+    } 
+    else {
+      return false;
+    }
   }
 
   public double getShoulderMotorPosition() {

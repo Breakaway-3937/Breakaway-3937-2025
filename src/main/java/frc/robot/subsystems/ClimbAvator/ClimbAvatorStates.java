@@ -26,6 +26,8 @@ public enum ClimbAvatorStates {
 
     private final double height, angle;
 
+    public static final double NEUTRAL_ELEVATOR = 0;
+
     private ClimbAvatorStates(double height, double angle) {
         this.height = height;
         this.angle = angle;
@@ -37,5 +39,9 @@ public enum ClimbAvatorStates {
 
     public double getAngle() {
         return angle;
+    }
+
+    public static double getNeutralElevator() {
+        return NEUTRAL_ELEVATOR;
     }
 }

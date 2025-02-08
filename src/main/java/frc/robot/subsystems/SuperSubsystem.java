@@ -31,15 +31,45 @@ public class SuperSubsystem extends SubsystemBase {
   public Command runToProtect() {
     protectState();
     
-    return condense();
+    if(s_ClimbAvator.isShoulderPrimeLocation()) {
+      return handleRetractAndExtend();
+    }
+    else {
+      return handleRetractAndExtendFromGround();
+    }
+
   }
 
   public Command runToBarge() {
     bargeState();
 
-    return disperse();
+    if(s_ClimbAvator.isShoulderPrimeLocation()) {
+      return handleRetractAndExtend();
+    }
+    else {
+      return handleRetractAndExtendFromGround();
+    }
+    
   }
 
+  public Command handleRetractAndExtend() {
+    return s_MrPibb.setWristNeutral().andThen(s_MrPibb.waitUntilWristSafe())
+                              .andThen(s_MrPibb.setTurret()).andThen(s_MrPibb.waitUntilTurretSafe())
+                              .andThen(s_ClimbAvator.setElevatorNeutral()).andThen(s_ClimbAvator.waitUntilElevatorSafe())
+                              .andThen(s_ClimbAvator.setShoulder()).andThen(s_ClimbAvator.waitUntilShoulderSafe())
+                              .andThen(s_ClimbAvator.setElevator()).andThen(s_ClimbAvator.waitUntilElevatorSafe())
+                              .andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.waitUntilWristSafe());
+  }
+
+  public Command handleRetractAndExtendFromGround() {
+    return s_MrPibb.setWristNeutral().andThen(s_MrPibb.waitUntilWristSafe())
+                              .andThen(s_ClimbAvator.setShoulder()).andThen(s_ClimbAvator.waitUntilShoulderSafe())
+                              .andThen(s_ClimbAvator.setElevator()).andThen(s_ClimbAvator.waitUntilElevatorSafe())
+                              .andThen(s_MrPibb.setTurret()).andThen(s_MrPibb.waitUntilTurretSafe())
+                              .andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.waitUntilWristSafe());
+  }
+
+  /* 
   public Command condense() {
     return s_MrPibb.setWristNeutral().andThen(s_MrPibb.waitUntilWristSafe())
                               .andThen(s_MrPibb.setTurret()).andThen(s_MrPibb.waitUntilTurretSafe())
@@ -55,6 +85,7 @@ public class SuperSubsystem extends SubsystemBase {
                               .andThen(s_MrPibb.setTurret()).andThen(s_MrPibb.waitUntilTurretSafe())
                               .andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.waitUntilWristSafe());
   }
+  */
 
   public void loadState() {
     s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.STATION);
