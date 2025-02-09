@@ -61,6 +61,8 @@ public class Vision extends SubsystemBase {
     if(!otherResult.isEmpty()) {
       s_Swerve.addVisionMeasurement(otherResult.get().estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(otherResult.get().timestampSeconds), Constants.Vision.TAG_VISION_STDS_FRONT);
     }
+
+    //System.out.println("Hi photon22222324543645674334354545");
   }
 
 }

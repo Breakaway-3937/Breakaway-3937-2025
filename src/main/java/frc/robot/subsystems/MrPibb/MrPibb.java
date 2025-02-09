@@ -18,11 +18,13 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.hal.util.BoundaryException;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -32,6 +34,7 @@ public class MrPibb extends SubsystemBase {
   private final MotionMagicVoltage wristRequest, turretRequest;
   private final GenericEntry wristPosition, turretPosition;
   private MrPibbStates mrPibbState;
+  private double maxValue = -0.197200, minValue = 0; //TODO
 
   /** Creates a new MrPibb.
    *  @since Ankle is no longer with us.
@@ -107,11 +110,19 @@ public class MrPibb extends SubsystemBase {
   }
 
   public Command waitUntilWristSafe() {
-    return Commands.waitUntil(() -> MathUtil.isNear(mrPibbState.getWrist(), getWristPosition(), 0.1));
+
+    return Commands.waitUntil(() -> {
+      if(getWristPosition() < 11.2 && getWristPosition() > 6.35) {
+        return true;
+      }
+      else {
+        return false;
+      }
+    }).alongWith(new PrintCommand("Wrist unsafe"));
   }
 
   public Command waitUntilTurretSafe() {
-    return Commands.waitUntil(() -> MathUtil.isNear(mrPibbState.getTurret(), getTurretPosition(), 0.1));
+    return Commands.waitUntil(() -> MathUtil.isNear(mrPibbState.getTurret(), getTurretPosition(), 0.2)).alongWith(new PrintCommand("turret unsafe"));
   }
 
   public TalonFX getWristMotor() {
@@ -208,5 +219,4 @@ public class MrPibb extends SubsystemBase {
     turretPosition.setDouble(getTurretPosition());
     Logger.recordOutput("Turret", getTurretPosition());
   }
-
 }

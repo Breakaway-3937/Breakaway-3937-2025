@@ -11,13 +11,13 @@ public enum ClimbAvatorStates {
     PROCESSOR(0, 0),
     BARGE(0, 0),
     CLIMB(0, 0),
-    STATION(0, -49.061),
-    L1(0, -20.917),
-    L2(0, -37.417),
-    L3(0, 0),
+    STATION(0, -49.0/250.0),
+    L1(0, -0.079590),
+    L2(6.2, -0.139),
+    L3(24.5, -0.1689),
     L4(0, 0),
     PROTECT(0, 0),
-    CORAL_PRESTAGE(0, -40);
+    CORAL_PRESTAGE(0, -40.0/250.0);
 
     //MAX FOR 0-100 ON TURRET = 14.283 ON WRIST
     //MAX FOR 100-180 ON TURRET = 9.503

@@ -18,16 +18,19 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.AutoTeleop;
 import frc.robot.commands.CenterOnAprilTag;
+import frc.robot.commands.MovementCommand;
 import frc.robot.commands.Music;
 import frc.robot.generated.CompTunerConstants;
 import frc.robot.generated.PracticeTunerConstants;
 import frc.robot.subsystems.SuperSubsystem;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.ClimbAvator.ClimbAvator;
+import frc.robot.subsystems.ClimbAvator.ClimbAvatorStates;
 import frc.robot.subsystems.MrPibb.MrPibb;
 import frc.robot.subsystems.Swerve.Swerve;
 
@@ -57,7 +60,7 @@ public class RobotContainer {
     private final Vision s_Vision = new Vision(s_Swerve);
     private final MrPibb s_MrPibb = new MrPibb();
     private final ClimbAvator s_ClimbAvator = new ClimbAvator();
-    private final SuperSubsystem s_SuperSubsystem = new SuperSubsystem(s_ClimbAvator, s_MrPibb);
+   private final SuperSubsystem s_SuperSubsystem = new SuperSubsystem(s_ClimbAvator, s_MrPibb);
 
     private final Music c_Music = new Music(s_Swerve);
 
@@ -83,9 +86,14 @@ public class RobotContainer {
 
         translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
 
+        xboxController.a().onTrue(Commands.runOnce(()->s_SuperSubsystem.loadState()).alongWith(s_SuperSubsystem.runToStation()));
+        xboxController.b().onTrue(Commands.runOnce(()->s_SuperSubsystem.preStageState()).alongWith(s_SuperSubsystem.runToPreStage()));
+        xboxController.x().onTrue(Commands.runOnce(()->s_SuperSubsystem.level1State()).alongWith(s_SuperSubsystem.runToL1()));
+        xboxController.y().onTrue(Commands.runOnce(()->s_SuperSubsystem.level2State()).alongWith(s_SuperSubsystem.runToL2()));
+        xboxController.start().onTrue(Commands.runOnce(()->s_SuperSubsystem.level3State()).alongWith(s_SuperSubsystem.runToL3()));
+        xboxController.back().onTrue(Commands.runOnce(()->s_SuperSubsystem.zeroState()).alongWith(s_SuperSubsystem.runtToZero()));
         autoTrackButton.whileTrue(new AutoTeleop(s_Swerve, s_Vision));
         alignButton.or(rotationButton).whileTrue(new CenterOnAprilTag(s_Swerve, s_Vision, 0));
-
 
         s_Swerve.registerTelemetry(logger::telemeterize);
     }

@@ -37,7 +37,72 @@ public class SuperSubsystem extends SubsystemBase {
     else {
       return handleRetractAndExtendFromGround();
     }
+  }
 
+  public Command runToL1() {
+    level1State();
+    
+    if(s_ClimbAvator.isShoulderPrimeLocation()) {
+      return handleRetractAndExtend();
+    }
+    else {
+      return handleRetractAndExtendFromGround();
+    }
+  }
+
+  public Command runToL2() {
+    level2State();
+    
+    if(s_ClimbAvator.isShoulderPrimeLocation()) {
+      return handleRetractAndExtend();
+    }
+    else {
+      return handleRetractAndExtendFromGround();
+    }
+  }
+
+  public Command runToL3() {
+    level3State();
+    
+    if(s_ClimbAvator.isShoulderPrimeLocation()) {
+      return handleRetractAndExtend();
+    }
+    else {
+      return handleRetractAndExtendFromGround();
+    }
+  }
+
+  public Command runToStation() {
+    loadState();
+    
+    if(s_ClimbAvator.isShoulderPrimeLocation()) {
+      return handleRetractAndExtend();
+    }
+    else {
+      return handleRetractAndExtendFromGround();
+    }
+  }
+
+  public Command runToPreStage() {
+    preStageState();
+    
+    if(s_ClimbAvator.isShoulderPrimeLocation()) {
+      return handleRetractAndExtend();
+    }
+    else {
+      return handleRetractAndExtendFromGround();
+    }
+  }
+
+  public Command runtToZero() {
+    zeroState();
+    
+    if(s_ClimbAvator.isShoulderPrimeLocation()) {
+      return handleRetractAndExtend();
+    }
+    else {
+      return handleRetractAndExtendFromGround();
+    }
   }
 
   public Command runToBarge() {
@@ -49,7 +114,6 @@ public class SuperSubsystem extends SubsystemBase {
     else {
       return handleRetractAndExtendFromGround();
     }
-    
   }
 
   public Command handleRetractAndExtend() {
@@ -62,30 +126,11 @@ public class SuperSubsystem extends SubsystemBase {
   }
 
   public Command handleRetractAndExtendFromGround() {
-    return s_MrPibb.setWristNeutral().andThen(s_MrPibb.waitUntilWristSafe())
-                              .andThen(s_ClimbAvator.setShoulder()).andThen(s_ClimbAvator.waitUntilShoulderSafe())
-                              .andThen(s_ClimbAvator.setElevator()).andThen(s_ClimbAvator.waitUntilElevatorSafe())
-                              .andThen(s_MrPibb.setTurret()).andThen(s_MrPibb.waitUntilTurretSafe())
-                              .andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.waitUntilWristSafe());
+    return s_ClimbAvator.setShoulder().andThen(s_ClimbAvator.waitUntilShoulderSafe())
+                        .andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.waitUntilWristSafe())
+                        .andThen(s_MrPibb.setTurret()).andThen(s_MrPibb.waitUntilTurretSafe())
+                        .andThen(s_ClimbAvator.setElevator()).andThen(s_ClimbAvator.waitUntilElevatorSafe());
   }
-
-  /* 
-  public Command condense() {
-    return s_MrPibb.setWristNeutral().andThen(s_MrPibb.waitUntilWristSafe())
-                              .andThen(s_MrPibb.setTurret()).andThen(s_MrPibb.waitUntilTurretSafe())
-                              .andThen(s_ClimbAvator.setElevator()).andThen(s_ClimbAvator.waitUntilElevatorSafe())
-                              .andThen(s_ClimbAvator.setShoulder()).andThen(s_ClimbAvator.waitUntilShoulderSafe())
-                              .andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.waitUntilWristSafe());
-  }
-
-  public Command disperse() {
-    return s_MrPibb.setWristNeutral().andThen(s_MrPibb.waitUntilWristSafe())
-                              .andThen(s_ClimbAvator.setShoulder()).andThen(s_ClimbAvator.waitUntilShoulderSafe())
-                              .andThen(s_ClimbAvator.setElevator()).andThen(s_ClimbAvator.waitUntilElevatorSafe())
-                              .andThen(s_MrPibb.setTurret()).andThen(s_MrPibb.waitUntilTurretSafe())
-                              .andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.waitUntilWristSafe());
-  }
-  */
 
   public void loadState() {
     s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.STATION);
@@ -97,9 +142,34 @@ public class SuperSubsystem extends SubsystemBase {
     s_MrPibb.setMrPibbState(MrPibbStates.PROTECT);
   }
 
+  public void level1State() {
+    s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.L1);
+    s_MrPibb.setMrPibbState(MrPibbStates.L1);
+  }
+
+  public void level2State() {
+    s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.L2);
+    s_MrPibb.setMrPibbState(MrPibbStates.L2);
+  }
+
+  public void level3State() {
+    s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.L3);
+    s_MrPibb.setMrPibbState(MrPibbStates.L3);
+  }
+
   public void bargeState() {
     s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.BARGE);
     s_MrPibb.setMrPibbState(MrPibbStates.BARGE);
+  }
+
+  public void zeroState() {
+    s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.CLIMB);
+    s_MrPibb.setMrPibbState(MrPibbStates.CLIMB);
+  }
+
+  public void preStageState() {
+    s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.CORAL_PRESTAGE);
+    s_MrPibb.setMrPibbState(MrPibbStates.CORAL_PRESTAGE);
   }
 
   @Override

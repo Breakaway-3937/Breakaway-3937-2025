@@ -50,7 +50,7 @@ public class Robot extends LoggedRobot {
     }
     
     if(Constants.DEBUG){
-      Logger.start();
+      //Logger.start();
     }
 
     PathfindingCommand.warmupCommand().schedule();
@@ -58,6 +58,9 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotPeriodic() {
+
+    //System.out.println("Hi");
+
     CommandScheduler.getInstance().run(); 
 
     canUtil.setDouble(RobotController.getCANStatus().percentBusUtilization * 100);

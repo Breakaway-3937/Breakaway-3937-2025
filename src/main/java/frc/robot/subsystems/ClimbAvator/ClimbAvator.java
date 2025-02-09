@@ -4,7 +4,9 @@
 
 package frc.robot.subsystems.ClimbAvator;
 
+import java.util.Set;
 import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -20,6 +22,7 @@ import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.MrPibb.MrPibbStates;
@@ -69,12 +72,16 @@ public class ClimbAvator extends SubsystemBase {
     return runOnce(() -> shoulderMotor.setControl(shoulderRequest.withPosition(climbAvatorState.getAngle())));
   }
 
+  public void setShoulderTest() {
+    shoulderMotor.setControl(shoulderRequest.withPosition(-0.020996*4));
+  }
+
   public Command stopShoulder(){
     return runOnce(() -> shoulderMotor.stopMotor());
   }
 
   public boolean isShoulderPrimeLocation() {
-    if(getShoulderMotorPosition() >= 45 && getShoulderMotorPosition() <= 90) {
+    if(getShoulderMotorPosition() <= -0.114 && getShoulderMotorPosition() >= -0.228) {
       return true;
     } 
     else {
@@ -91,11 +98,11 @@ public class ClimbAvator extends SubsystemBase {
   }
 
   public Command waitUntilShoulderSafe() {
-    return Commands.waitUntil(() -> MathUtil.isNear(climbAvatorState.getAngle(), getShoulderMotorPosition(), 0.1));
+    return Commands.waitUntil(() -> MathUtil.isNear(climbAvatorState.getAngle(), getShoulderMotorPosition(), .75)).alongWith(new PrintCommand("shoulder unsafe"));
   }
 
   public Command waitUntilElevatorSafe() {
-    return Commands.waitUntil(() -> MathUtil.isNear(climbAvatorState.getHeight(), getElevatorMotorPosition(), 0.1));
+    return Commands.waitUntil(() -> MathUtil.isNear(climbAvatorState.getHeight(), getElevatorMotorPosition(), .75)).alongWith(new PrintCommand("ele unsafe"));
   }
 
   public TalonFX getShoulderMotor() {
@@ -125,6 +132,8 @@ public class ClimbAvator extends SubsystemBase {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+    config.Feedback.SensorToMechanismRatio = 250;
 
     //TODO: Tune these values.
     config.Slot0.kS = 0.25;
@@ -191,6 +200,9 @@ public class ClimbAvator extends SubsystemBase {
   public void periodic() {
     elevatorPosition.setDouble(getElevatorMotorPosition());
     shoulderPosition.setDouble(getShoulderMotorPosition());
+    System.out.println(getShoulderMotorPosition());
+    //System.out.println("closed Hello: Hello agian " + shoulderMotor.getClosedLoopReference().getValueAsDouble());
+    //System.out.println(shoulderRequest.Position);
     Logger.recordOutput("Elevator", getElevatorMotorPosition());
     Logger.recordOutput("Shoulder", getShoulderMotorPosition());
   }
