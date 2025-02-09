@@ -16,7 +16,7 @@ public class SuperSubsystem extends SubsystemBase {
   private final ClimbAvator s_ClimbAvator;
   private final MrPibb s_MrPibb;
 
-  /** Creates a new SuperSubsystem. */
+  /** Creates a new SuperSubsystem. */ //TODO discuss rewrite of this
   public SuperSubsystem(ClimbAvator s_ClimbAvator, MrPibb s_MrPibb) {
     this.s_ClimbAvator = s_ClimbAvator; 
     this.s_MrPibb = s_MrPibb;
@@ -63,6 +63,50 @@ public class SuperSubsystem extends SubsystemBase {
 
   public Command runToL3() {
     level3State();
+    
+    if(s_ClimbAvator.isShoulderPrimeLocation()) {
+      return handleRetractAndExtend();
+    }
+    else {
+      return handleRetractAndExtendFromGround();
+    }
+  }
+
+  public Command runToL4() {
+    level4State();
+    
+    if(s_ClimbAvator.isShoulderPrimeLocation()) {
+      return handleRetractAndExtend();
+    }
+    else {
+      return handleRetractAndExtendFromGround();
+    }
+  }
+
+  public Command runToLowerAlgea() {
+    lowerAlgeaState();
+    
+    if(s_ClimbAvator.isShoulderPrimeLocation()) {
+      return handleRetractAndExtend();
+    }
+    else {
+      return handleRetractAndExtendFromGround();
+    }
+  }
+
+  public Command runToClimb() {
+    climbState();
+    
+    if(s_ClimbAvator.isShoulderPrimeLocation()) {
+      return handleRetractAndExtend();
+    }
+    else {
+      return handleRetractAndExtendFromGround();
+    }
+  }
+
+  public Command runToUpperAlgea() {
+    upperAlgeaState();
     
     if(s_ClimbAvator.isShoulderPrimeLocation()) {
       return handleRetractAndExtend();
@@ -137,6 +181,21 @@ public class SuperSubsystem extends SubsystemBase {
     s_MrPibb.setMrPibbState(MrPibbStates.STATION);
   }
 
+  public void climbState() {
+    s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.CLIMB_TEST);
+    s_MrPibb.setMrPibbState(MrPibbStates.CLIMB_TEST);
+  }
+
+  public void lowerAlgeaState() {
+    s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.LOWER_ALGEA);
+    s_MrPibb.setMrPibbState(MrPibbStates.LOWER_ALGEA);;
+  }
+
+  public void upperAlgeaState() {
+    s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.UPPER_ALGEA);
+    s_MrPibb.setMrPibbState(MrPibbStates.UPPER_ALGEA);;
+  }
+
   public void protectState() {
     s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.PROTECT);
     s_MrPibb.setMrPibbState(MrPibbStates.PROTECT);
@@ -155,6 +214,11 @@ public class SuperSubsystem extends SubsystemBase {
   public void level3State() {
     s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.L3);
     s_MrPibb.setMrPibbState(MrPibbStates.L3);
+  }
+
+  public void level4State() {
+    s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.L4);
+    s_MrPibb.setMrPibbState(MrPibbStates.L4);
   }
 
   public void bargeState() {

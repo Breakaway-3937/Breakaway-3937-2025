@@ -92,6 +92,10 @@ public class RobotContainer {
         xboxController.y().onTrue(Commands.runOnce(()->s_SuperSubsystem.level2State()).alongWith(s_SuperSubsystem.runToL2()));
         xboxController.start().onTrue(Commands.runOnce(()->s_SuperSubsystem.level3State()).alongWith(s_SuperSubsystem.runToL3()));
         xboxController.back().onTrue(Commands.runOnce(()->s_SuperSubsystem.zeroState()).alongWith(s_SuperSubsystem.runtToZero()));
+        xboxController.leftBumper().onTrue(Commands.runOnce(()->s_SuperSubsystem.level4State()).alongWith(s_SuperSubsystem.runToL4()));
+        xboxController.rightBumper().onTrue(Commands.runOnce(()->s_SuperSubsystem.lowerAlgeaState()).alongWith(s_SuperSubsystem.runToLowerAlgea()));
+        xboxController.leftStick().onTrue(Commands.runOnce(()->s_SuperSubsystem.upperAlgeaState()).alongWith(s_SuperSubsystem.runToUpperAlgea()));
+        xboxController.rightStick().onTrue(Commands.runOnce(()->s_SuperSubsystem.climbState()).alongWith(s_SuperSubsystem.runToClimb()));
         autoTrackButton.whileTrue(new AutoTeleop(s_Swerve, s_Vision));
         alignButton.or(rotationButton).whileTrue(new CenterOnAprilTag(s_Swerve, s_Vision, 0));
 
