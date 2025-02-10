@@ -38,8 +38,8 @@ public class ClimbAvator extends SubsystemBase {
     elevatorMotor = new TalonFX(Constants.ClimbAvator.ELEVATOR_CAN_ID);
     detonatorMotor = new TalonFX(Constants.ClimbAvator.DETONATOR_CAN_ID);
 
-    followerShoulderRequest = new Follower(Constants.ClimbAvator.SHOULDER_CAN_ID, true);//TODO: Check direction.
-    followerElevatorRequest = new Follower(Constants.ClimbAvator.ELEVATOR_CAN_ID, true);//TODO: Check direction.
+    followerShoulderRequest = new Follower(Constants.ClimbAvator.SHOULDER_CAN_ID, true);
+    followerElevatorRequest = new Follower(Constants.ClimbAvator.ELEVATOR_CAN_ID, true);
 
     shoulderRequest = new MotionMagicVoltage(0);
     elevatorRequest = new MotionMagicVoltage(0);
