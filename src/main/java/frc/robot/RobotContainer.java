@@ -86,16 +86,16 @@ public class RobotContainer {
 
         translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
 
-        xboxController.a().onTrue(Commands.runOnce(()->s_SuperSubsystem.loadState()).alongWith(s_SuperSubsystem.runToStation()));
-        xboxController.b().onTrue(Commands.runOnce(()->s_SuperSubsystem.preStageState()).alongWith(s_SuperSubsystem.runToPreStage()));
-        xboxController.x().onTrue(Commands.runOnce(()->s_SuperSubsystem.level1State()).alongWith(s_SuperSubsystem.runToL1()));
-        xboxController.y().onTrue(Commands.runOnce(()->s_SuperSubsystem.level2State()).alongWith(s_SuperSubsystem.runToL2()));
-        xboxController.start().onTrue(Commands.runOnce(()->s_SuperSubsystem.level3State()).alongWith(s_SuperSubsystem.runToL3()));
-        xboxController.back().onTrue(Commands.runOnce(()->s_SuperSubsystem.zeroState()).alongWith(s_SuperSubsystem.runtToZero()));
-        xboxController.leftBumper().onTrue(Commands.runOnce(()->s_SuperSubsystem.level4State()).alongWith(s_SuperSubsystem.runToL4()));
-        xboxController.rightBumper().onTrue(Commands.runOnce(()->s_SuperSubsystem.lowerAlgeaState()).alongWith(s_SuperSubsystem.runToLowerAlgea()));
-        xboxController.leftStick().onTrue(Commands.runOnce(()->s_SuperSubsystem.upperAlgeaState()).alongWith(s_SuperSubsystem.runToUpperAlgea()));
-        xboxController.rightStick().onTrue(Commands.runOnce(()->s_SuperSubsystem.climbState()).alongWith(s_SuperSubsystem.runToClimb()));
+        xboxController.a().onTrue(Commands.runOnce(() -> s_SuperSubsystem.loadState()).alongWith(s_SuperSubsystem.runSubsystems()));
+        xboxController.b().onTrue(Commands.runOnce(() -> s_SuperSubsystem.preStageState()).alongWith(s_SuperSubsystem.runSubsystems()));
+        xboxController.x().onTrue(Commands.runOnce(() -> s_SuperSubsystem.level1State()).alongWith(s_SuperSubsystem.runSubsystems()));
+        xboxController.y().onTrue(Commands.runOnce(() -> s_SuperSubsystem.level2State()).alongWith(s_SuperSubsystem.runSubsystems()));
+        xboxController.start().onTrue(Commands.runOnce(() -> s_SuperSubsystem.level3State()).alongWith(s_SuperSubsystem.runSubsystems()));
+        xboxController.back().onTrue(Commands.runOnce(() -> s_SuperSubsystem.zeroState()).alongWith(s_SuperSubsystem.runSubsystems()));
+        xboxController.leftBumper().onTrue(Commands.runOnce(() -> s_SuperSubsystem.level4State()).alongWith(s_SuperSubsystem.runSubsystems()));
+        xboxController.rightBumper().onTrue(Commands.runOnce(() -> s_SuperSubsystem.lowerAlgeaState()).alongWith(s_SuperSubsystem.runSubsystems()));
+        xboxController.leftStick().onTrue(Commands.runOnce(() -> s_SuperSubsystem.upperAlgeaState()).alongWith(s_SuperSubsystem.runSubsystems()));
+        xboxController.rightStick().onTrue(Commands.runOnce(() -> s_SuperSubsystem.climbState()).alongWith(s_SuperSubsystem.runSubsystems()));
         autoTrackButton.whileTrue(new AutoTeleop(s_Swerve, s_Vision));
         alignButton.or(rotationButton).whileTrue(new CenterOnAprilTag(s_Swerve, s_Vision, 0));
 

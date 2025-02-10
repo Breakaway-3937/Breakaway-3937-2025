@@ -33,7 +33,7 @@ public class ClimbAvator extends SubsystemBase {
   private final Follower followerElevatorRequest;
   private final MotionMagicVoltage shoulderRequest;
   private final MotionMagicVoltage elevatorRequest;
-  private final GenericEntry elevatorPosition, shoulderPosition;
+  private final GenericEntry elevatorPosition, shoulderPosition, currentState;
   private ClimbAvatorStates climbAvatorState;
 
   /** Creates a new ClimbAvator.*/
@@ -54,6 +54,7 @@ public class ClimbAvator extends SubsystemBase {
 
     elevatorPosition = Shuffleboard.getTab("ClimbAvator").add("Elevator", getElevatorMotorPosition()).withPosition(0, 0).getEntry();
     shoulderPosition = Shuffleboard.getTab("ClimbAvator").add("Climber", getShoulderMotorPosition()).withPosition(1, 0).getEntry();
+    currentState = Shuffleboard.getTab("ClimbAvator").add("State", getState()).withPosition(2, 0).getEntry();
   }
 
   public Command setElevator() {
@@ -96,6 +97,10 @@ public class ClimbAvator extends SubsystemBase {
 
   public double getElevatorMotorPosition() {
     return elevatorMotor.getPosition().getValueAsDouble();
+  }
+
+  public String getState() {
+    return climbAvatorState.toString();
   }
 
   public Command waitUntilShoulderSafe() {
@@ -201,6 +206,7 @@ public class ClimbAvator extends SubsystemBase {
   public void periodic() {
     elevatorPosition.setDouble(getElevatorMotorPosition());
     shoulderPosition.setDouble(getShoulderMotorPosition());
+    currentState.setString(getState());
     System.out.println(getShoulderMotorPosition());
     //System.out.println("closed Hello: Hello agian " + shoulderMotor.getClosedLoopReference().getValueAsDouble());
     //System.out.println(shoulderRequest.Position);

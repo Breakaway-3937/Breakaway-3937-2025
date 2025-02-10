@@ -12,13 +12,11 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.hal.util.BoundaryException;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -32,7 +30,7 @@ public class MrPibb extends SubsystemBase {
   private final TalonFX wrist, turret;
   private final TalonSRX loader, thumb;
   private final MotionMagicVoltage wristRequest, turretRequest;
-  private final GenericEntry wristPosition, turretPosition;
+  private final GenericEntry wristPosition, turretPosition, currentState;
   private MrPibbStates mrPibbState;
   private double maxValue = -0.197200, minValue = 0; //TODO
 
@@ -54,6 +52,7 @@ public class MrPibb extends SubsystemBase {
 
     wristPosition = Shuffleboard.getTab("MrPibb").add("Wrist", getWristPosition()).withPosition(0, 0).getEntry();
     turretPosition = Shuffleboard.getTab("MrPibb").add("Turret", getTurretPosition()).withPosition(0, 0).getEntry();
+    currentState = Shuffleboard.getTab("MrPibb").add("State", getState()).withPosition(0, 0).getEntry();
   }
 
   public Command setWrist() {
@@ -131,6 +130,10 @@ public class MrPibb extends SubsystemBase {
 
   public double getTurretPosition(){
     return turret.getPosition().getValueAsDouble();
+  }
+
+  public String getState() {
+    return mrPibbState.toString();
   }
 
   public TalonFX getTurretMotor() {
@@ -218,5 +221,6 @@ public class MrPibb extends SubsystemBase {
     Logger.recordOutput("Wrist", getWristPosition());
     turretPosition.setDouble(getTurretPosition());
     Logger.recordOutput("Turret", getTurretPosition());
+    currentState.setString(getState());
   }
 }

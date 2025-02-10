@@ -5,7 +5,6 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.ClimbAvator.ClimbAvator;
 import frc.robot.subsystems.ClimbAvator.ClimbAvatorStates;
@@ -16,142 +15,13 @@ public class SuperSubsystem extends SubsystemBase {
   private final ClimbAvator s_ClimbAvator;
   private final MrPibb s_MrPibb;
 
-  /** Creates a new SuperSubsystem. */ //TODO discuss rewrite of this
+  /** Creates a new SuperSubsystem. */
   public SuperSubsystem(ClimbAvator s_ClimbAvator, MrPibb s_MrPibb) {
     this.s_ClimbAvator = s_ClimbAvator; 
     this.s_MrPibb = s_MrPibb;
   }
 
-  public Command load() {
-    loadState();
-    //TODO: Add safety check and actual code. Look at MrPibb.java for example.
-    return Commands.none();
-  }
-
-  public Command runToProtect() {
-    protectState();
-    
-    if(s_ClimbAvator.isShoulderPrimeLocation()) {
-      return handleRetractAndExtend();
-    }
-    else {
-      return handleRetractAndExtendFromGround();
-    }
-  }
-
-  public Command runToL1() {
-    level1State();
-    
-    if(s_ClimbAvator.isShoulderPrimeLocation()) {
-      return handleRetractAndExtend();
-    }
-    else {
-      return handleRetractAndExtendFromGround();
-    }
-  }
-
-  public Command runToL2() {
-    level2State();
-    
-    if(s_ClimbAvator.isShoulderPrimeLocation()) {
-      return handleRetractAndExtend();
-    }
-    else {
-      return handleRetractAndExtendFromGround();
-    }
-  }
-
-  public Command runToL3() {
-    level3State();
-    
-    if(s_ClimbAvator.isShoulderPrimeLocation()) {
-      return handleRetractAndExtend();
-    }
-    else {
-      return handleRetractAndExtendFromGround();
-    }
-  }
-
-  public Command runToL4() {
-    level4State();
-    
-    if(s_ClimbAvator.isShoulderPrimeLocation()) {
-      return handleRetractAndExtend();
-    }
-    else {
-      return handleRetractAndExtendFromGround();
-    }
-  }
-
-  public Command runToLowerAlgea() {
-    lowerAlgeaState();
-    
-    if(s_ClimbAvator.isShoulderPrimeLocation()) {
-      return handleRetractAndExtend();
-    }
-    else {
-      return handleRetractAndExtendFromGround();
-    }
-  }
-
-  public Command runToClimb() {
-    climbState();
-    
-    if(s_ClimbAvator.isShoulderPrimeLocation()) {
-      return handleRetractAndExtend();
-    }
-    else {
-      return handleRetractAndExtendFromGround();
-    }
-  }
-
-  public Command runToUpperAlgea() {
-    upperAlgeaState();
-    
-    if(s_ClimbAvator.isShoulderPrimeLocation()) {
-      return handleRetractAndExtend();
-    }
-    else {
-      return handleRetractAndExtendFromGround();
-    }
-  }
-
-  public Command runToStation() {
-    loadState();
-    
-    if(s_ClimbAvator.isShoulderPrimeLocation()) {
-      return handleRetractAndExtend();
-    }
-    else {
-      return handleRetractAndExtendFromGround();
-    }
-  }
-
-  public Command runToPreStage() {
-    preStageState();
-    
-    if(s_ClimbAvator.isShoulderPrimeLocation()) {
-      return handleRetractAndExtend();
-    }
-    else {
-      return handleRetractAndExtendFromGround();
-    }
-  }
-
-  public Command runtToZero() {
-    zeroState();
-    
-    if(s_ClimbAvator.isShoulderPrimeLocation()) {
-      return handleRetractAndExtend();
-    }
-    else {
-      return handleRetractAndExtendFromGround();
-    }
-  }
-
-  public Command runToBarge() {
-    bargeState();
-
+  public Command runSubsystems() {
     if(s_ClimbAvator.isShoulderPrimeLocation()) {
       return handleRetractAndExtend();
     }
