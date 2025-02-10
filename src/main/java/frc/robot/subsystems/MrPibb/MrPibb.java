@@ -32,7 +32,6 @@ public class MrPibb extends SubsystemBase {
   private final MotionMagicVoltage wristRequest, turretRequest;
   private final GenericEntry wristPosition, turretPosition, currentState;
   private MrPibbStates mrPibbState;
-  private double maxValue = -0.197200, minValue = 0; //TODO
 
   /** Creates a new MrPibb.
    *  @since Ankle is no longer with us.
@@ -109,7 +108,6 @@ public class MrPibb extends SubsystemBase {
   }
 
   public Command waitUntilWristSafe() {
-
     return Commands.waitUntil(() -> {
       if(getWristPosition() < 11.2 && getWristPosition() > 6.35) {
         return true;
@@ -222,5 +220,6 @@ public class MrPibb extends SubsystemBase {
     turretPosition.setDouble(getTurretPosition());
     Logger.recordOutput("Turret", getTurretPosition());
     currentState.setString(getState());
+    Logger.recordOutput("MrPibb State", getState());
   }
 }

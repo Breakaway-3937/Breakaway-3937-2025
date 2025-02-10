@@ -46,64 +46,64 @@ public class SuperSubsystem extends SubsystemBase {
                         .andThen(s_ClimbAvator.setElevator()).andThen(s_ClimbAvator.waitUntilElevatorSafe());
   }
 
-  public void loadState() {
-    s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.STATION);
-    s_MrPibb.setMrPibbState(MrPibbStates.STATION);
+  public Command loadState() {
+    return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.STATION))
+               .alongWith(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.STATION)));
   }
 
-  public void climbState() {
-    s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.CLIMB_TEST);
-    s_MrPibb.setMrPibbState(MrPibbStates.CLIMB_TEST);
+  public Command climbState() {
+    return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.CLIMB_TEST))
+               .alongWith(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.CLIMB_TEST)));
   }
 
-  public void lowerAlgeaState() {
-    s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.LOWER_ALGEA);
-    s_MrPibb.setMrPibbState(MrPibbStates.LOWER_ALGEA);;
+  public Command lowerAlgeaState() {
+    return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.LOWER_ALGEA))
+               .alongWith(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.LOWER_ALGEA)));
   }
 
-  public void upperAlgeaState() {
-    s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.UPPER_ALGEA);
-    s_MrPibb.setMrPibbState(MrPibbStates.UPPER_ALGEA);;
+  public Command upperAlgeaState() {
+    return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.UPPER_ALGEA))
+               .alongWith(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.UPPER_ALGEA)));
   }
 
-  public void protectState() {
-    s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.PROTECT);
-    s_MrPibb.setMrPibbState(MrPibbStates.PROTECT);
+  public Command protectState() {
+    return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.PROTECT))
+               .alongWith(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.PROTECT)));
   }
 
-  public void level1State() {
-    s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.L1);
-    s_MrPibb.setMrPibbState(MrPibbStates.L1);
+  public Command level1State() {
+    return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.L1))
+               .alongWith(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.L1)));
   }
 
-  public void level2State() {
-    s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.L2);
-    s_MrPibb.setMrPibbState(MrPibbStates.L2);
+  public Command level2State() {
+    return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.L2))
+               .alongWith(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.L2)));
   }
 
-  public void level3State() {
-    s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.L3);
-    s_MrPibb.setMrPibbState(MrPibbStates.L3);
+  public Command level3State() {
+    return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.L3))
+               .alongWith(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.L3)));
   }
 
-  public void level4State() {
-    s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.L4);
-    s_MrPibb.setMrPibbState(MrPibbStates.L4);
+  public Command level4State() {
+    return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.L4))
+               .alongWith(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.L4)));
   }
 
-  public void bargeState() {
-    s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.BARGE);
-    s_MrPibb.setMrPibbState(MrPibbStates.BARGE);
+  public Command bargeState() {
+    return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.BARGE))
+               .alongWith(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.BARGE)));
   }
 
-  public void zeroState() {
-    s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.CLIMB);
-    s_MrPibb.setMrPibbState(MrPibbStates.CLIMB);
+  public Command zeroState() {
+    return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.CLIMB))
+               .alongWith(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.CLIMB)));
   }
 
-  public void preStageState() {
-    s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.CORAL_PRESTAGE);
-    s_MrPibb.setMrPibbState(MrPibbStates.CORAL_PRESTAGE);
+  public Command preStageState() {
+    return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.CORAL_PRESTAGE))
+               .alongWith(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.CORAL_PRESTAGE)));
   }
 
   @Override

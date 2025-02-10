@@ -7,19 +7,25 @@ package frc.robot.commands;
 import com.ctre.phoenix6.Orchestra;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.ClimbAvator.ClimbAvator;
+import frc.robot.subsystems.MrPibb.MrPibb;
 import frc.robot.subsystems.Swerve.Swerve;
 
 public class Music extends Command {
   private final Orchestra orchestra;
   private final Swerve s_Swerve;
+  private final MrPibb s_MrPibb;
+  private final ClimbAvator s_ClimbAvator;
   private int count;
   private double time;
   /** Creates a new Music. */
-  public Music(Swerve s_Swerve) {
+  public Music(Swerve s_Swerve, MrPibb s_MrPibb, ClimbAvator s_ClimbAvator) {
     orchestra = new Orchestra();
     this.s_Swerve = s_Swerve;
+    this.s_MrPibb = s_MrPibb;
+    this.s_ClimbAvator = s_ClimbAvator;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(s_Swerve);
+    addRequirements(s_Swerve, s_MrPibb, s_ClimbAvator);
   }
 
   // Called when the command is initially scheduled.
@@ -31,6 +37,13 @@ public class Music extends Command {
       orchestra.addInstrument(s_Swerve.getModule(i).getDriveMotor());
       orchestra.addInstrument(s_Swerve.getModule(i).getSteerMotor());
     }
+
+    orchestra.addInstrument(s_MrPibb.getTurretMotor());
+    orchestra.addInstrument(s_MrPibb.getWristMotor());
+    orchestra.addInstrument(s_ClimbAvator.getShoulderMotor());
+    orchestra.addInstrument(s_ClimbAvator.getBoulderMotor());
+    orchestra.addInstrument(s_ClimbAvator.getElevatorMotor());
+    orchestra.addInstrument(s_ClimbAvator.getDetonatorMotor());
   }
 
   // Called every time the scheduler runs while the command is scheduled.
