@@ -28,7 +28,7 @@ public class BreakaCamera extends PhotonCamera {
     /**
      * Creates a BreakaCamera
      * @param cameraName Name of camera being created. Get from PV dashboard.
-     * @param poseEstimator Pose estimator to be used for Pose estimation. 
+     * @param poseEstimator Pose estimator to be used for pose estimation. 
      */
     public BreakaCamera(String cameraName, PhotonPoseEstimator poseEstimator) {
         super(cameraName);
@@ -37,6 +37,10 @@ public class BreakaCamera extends PhotonCamera {
         poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
     }
 
+    /**
+     * Replaces the {@link PhotonCamera#getLatestResult} method from photonvision
+     * @return The latest result from the camera
+     */
     public PhotonPipelineResult getLatest() {
       var results = super.getAllUnreadResults();
 
@@ -63,10 +67,16 @@ public class BreakaCamera extends PhotonCamera {
       }
     }
 
+    /**
+     * @return Pose Estimator passed to the object
+     */
     public PhotonPoseEstimator getPhotonPoseEstimator() {
         return poseEstimator;
     }
 
+    /**
+     * @return Boolean that shows if camera is connected
+     */
     public boolean isDead(){
       if(!super.isConnected()){
         return true;
