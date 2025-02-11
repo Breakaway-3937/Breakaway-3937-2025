@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.numbers.N3;
 import frc.robot.Constants;
 import frc.robot.lib.Vision.BreakaCamera;
@@ -33,6 +34,7 @@ public class Vision extends SubsystemBase {
   private final BreakaCamera backCamera;
   private final Swerve s_Swerve;
   private final double maxDistance = 6; // In meters
+  private final InterpolatingDoubleTreeMap xStdMap, yStdMap; //Key = distance, Value = STD
   private boolean frontCameraBad;
   private ArrayList<Pose3d> frontTagsUsed;
 
@@ -48,6 +50,9 @@ public class Vision extends SubsystemBase {
 
     frontCamera = new BreakaCamera("FrontCamera", new PhotonPoseEstimator(atfl, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.Vision.FRONT_CAMERA_TRANSFORM));
     backCamera = new BreakaCamera("3937", new PhotonPoseEstimator(atfl, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.Vision.BACK_CAMERA_TRANSFORM));
+  
+    xStdMap = new InterpolatingDoubleTreeMap();
+    yStdMap = new InterpolatingDoubleTreeMap();
   }
 
   public double getX() {
@@ -62,16 +67,24 @@ public class Vision extends SubsystemBase {
     return frontCamera.getLatest();
   }
 
-  public double getAverageTagDistance(Optional<EstimatedRobotPose> result) {
+  public double getAverageTagDistanceX(Optional<EstimatedRobotPose> result) {
     double averageDistance = 0;
     for(int i = 0; i < result.get().targetsUsed.size(); i++) {
       averageDistance += Math.abs(result.get().targetsUsed.get(i).getBestCameraToTarget().getX());
     }
     return averageDistance /= (double) result.get().targetsUsed.size();
   }
+  
+  public double getAverageTagDistanceY(Optional<EstimatedRobotPose> result) {
+    double averageDistance = 0;
+    for(int i = 0; i < result.get().targetsUsed.size(); i++) {
+      averageDistance += Math.abs(result.get().targetsUsed.get(i).getBestCameraToTarget().getY());
+    }
+    return averageDistance /= (double) result.get().targetsUsed.size();
+  }
 
-  public Vector<N3> std(double averageDistance) {
-    return VecBuilder.fill(0, 0, 0); 
+  public Vector<N3> std(double averageDistanceX, double averageDistanceY) {
+    return VecBuilder.fill(xStdMap.get(averageDistanceX), yStdMap.get(averageDistanceY), 0); 
     // Make an Interpolating map that uses average distance from camera to find x and y std. 
     // Fill map with varing ranges and stds from aScope
   }
@@ -83,7 +96,7 @@ public class Vision extends SubsystemBase {
 
     /* Front Camera */
     if(!result.isEmpty()) {
-      double averageDistance = getAverageTagDistance(result);
+      double averageDistance = getAverageTagDistanceX(result);
 
       if(averageDistance > maxDistance) {
         frontCameraBad = true;
