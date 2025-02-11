@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutoTeleop;
 import frc.robot.commands.CenterOnAprilTag;
 import frc.robot.commands.Music;
@@ -54,6 +55,9 @@ public class RobotContainer {
     private final ClimbAvator s_ClimbAvator = new ClimbAvator();
     private final SuperSubsystem s_SuperSubsystem = new SuperSubsystem(s_ClimbAvator, s_MrPibb);
 
+    /* Triggers */
+    private final Trigger botFull = new Trigger(s_MrPibb.botFull());
+
     /* Commands */
     private final Music c_Music = new Music(s_Swerve, s_MrPibb, s_ClimbAvator);
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -89,8 +93,9 @@ public class RobotContainer {
         xboxController.leftBumper().onTrue(s_SuperSubsystem.level4State().alongWith(s_SuperSubsystem.runSubsystems()));
 
         //Intake States
-        xboxController.a().onTrue(s_SuperSubsystem.loadState().alongWith(s_SuperSubsystem.runSubsystems()));
+        //xboxController.a().onTrue(s_SuperSubsystem.loadState().alongWith(s_SuperSubsystem.runSubsystems())); TODO Test me
         xboxController.b().onTrue(s_SuperSubsystem.preStageState().alongWith(s_SuperSubsystem.runSubsystems()));
+        botFull.onTrue(s_SuperSubsystem.preStageState().alongWith(s_SuperSubsystem.runSubsystems()));
  
         //Climbing States
         xboxController.rightStick().onTrue(s_SuperSubsystem.climbState().alongWith(s_SuperSubsystem.runSubsystems()));

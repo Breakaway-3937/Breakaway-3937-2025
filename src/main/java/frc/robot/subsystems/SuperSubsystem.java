@@ -46,9 +46,11 @@ public class SuperSubsystem extends SubsystemBase {
                         .andThen(s_ClimbAvator.setElevator()).andThen(s_ClimbAvator.waitUntilElevatorSafe());
   }
 
+  //TODO TEST ME
   public Command loadState() {
     return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.STATION))
-               .alongWith(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.STATION)));
+               .alongWith(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.STATION)))
+               .andThen(runSubsystems());
   }
 
   public Command climbState() {
