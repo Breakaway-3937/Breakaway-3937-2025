@@ -115,7 +115,7 @@ public class MrPibb extends SubsystemBase {
       else {
         return false;
       }
-    }).alongWith(new PrintCommand("Wrist unsafe"));
+    });
   }
 
   public Command waitUntilTurretSafe() {
