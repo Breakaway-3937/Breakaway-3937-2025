@@ -48,7 +48,7 @@ public class CenterOnAprilTag extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    var result = s_Vision.getLatest();
+    var result = s_Vision.getLatestFront();
     if(result.hasTargets()) {
       controller.reset(result.getBestTarget().getBestCameraToTarget().getY());
     }
@@ -58,7 +58,7 @@ public class CenterOnAprilTag extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    var result = s_Vision.getLatest();
+    var result = s_Vision.getLatestFront(); //TODO I dont think this is right
     if(result.hasTargets()) {
       if(tag == 0) {
         s_Swerve.setControl(swerveRequest.withVelocityY(controller.calculate(result.getBestTarget().getBestCameraToTarget().getY())));
