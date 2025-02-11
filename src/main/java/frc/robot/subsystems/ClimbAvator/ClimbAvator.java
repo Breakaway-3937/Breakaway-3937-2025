@@ -98,7 +98,8 @@ public class ClimbAvator extends SubsystemBase {
     return climbAvatorState.toString();
   }
 
-  public Command waitUntilShoulderSafe() {
+  public Command waitUntilShoulderSafe() { 
+    //FIXME TODO THIS IS VERY BROKEN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! That tolerance is half the shoudler range
     return Commands.waitUntil(() -> MathUtil.isNear(climbAvatorState.getAngle(), getShoulderMotorPosition(), .75)).alongWith(new PrintCommand("shoulder unsafe"));
   }
 
@@ -200,12 +201,10 @@ public class ClimbAvator extends SubsystemBase {
   @Override
   public void periodic() {
     elevatorPosition.setDouble(getElevatorMotorPosition());
-    shoulderPosition.setDouble(getShoulderMotorPosition());
-    currentState.setString(getState());
-    System.out.println(getShoulderMotorPosition());
-    //System.out.println("closed Hello: Hello agian " + shoulderMotor.getClosedLoopReference().getValueAsDouble());
-    //System.out.println(shoulderRequest.Position);
     Logger.recordOutput("Elevator", getElevatorMotorPosition());
+    shoulderPosition.setDouble(getShoulderMotorPosition());
     Logger.recordOutput("Shoulder", getShoulderMotorPosition());
+    currentState.setString(getState());
+    Logger.recordOutput("ClimbAvator State", getState());
   }
 }
