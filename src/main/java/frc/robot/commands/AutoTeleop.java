@@ -32,7 +32,10 @@ public class AutoTeleop extends SequentialCommandGroup {
     addRequirements(s_Swerve, s_Vision);
 
     //Change the until at pose
-    addCommands(loadState(), pathFindPickup().until(robotAtPickUp()), pathFindScore().until(robotAtScoring()), scoreState());
+    addCommands(loadState(), 
+                pathFindPickup().until(robotAtPickUp()), 
+                pathFindScore().until(robotAtScoring()), 
+                scoreState());
   }
 
   private Command pathFindPickup() {
@@ -57,29 +60,23 @@ public class AutoTeleop extends SequentialCommandGroup {
   private Command scoreState() {
     return Commands.defer(
       () -> {
-        Command scoringHeight = Commands.none();
         switch (OperatorController.getLevel()) {
           case "LEVEL_1":
-            scoringHeight = s_SuperSubsystem.level1State();
-            break;
+            return s_SuperSubsystem.level1State().alongWith(s_SuperSubsystem.runSubsystems());
           case "LEVEL_2":
-            scoringHeight = s_SuperSubsystem.level2State();
-            break;
+            return s_SuperSubsystem.level2State().alongWith(s_SuperSubsystem.runSubsystems());
           case "LEVEL_3":
-            scoringHeight = s_SuperSubsystem.level3State();
-            break;
+            return s_SuperSubsystem.level3State().alongWith(s_SuperSubsystem.runSubsystems());
           case "LEVEL_4":
-            scoringHeight = s_SuperSubsystem.level4State();
-            break;
+            return s_SuperSubsystem.level4State().alongWith(s_SuperSubsystem.runSubsystems());
           default:
-            break;
+            return Commands.none();
         }
-        return scoringHeight.alongWith(s_SuperSubsystem.runSubsystems());
       }, Set.of(s_SuperSubsystem));
   }
 
   private Command loadState() {
-    return s_SuperSubsystem.loadState().alongWith(s_SuperSubsystem.runSubsystems());
+    return Commands.none();//s_SuperSubsystem.loadState().alongWith(s_SuperSubsystem.runSubsystems());
   }
 
   private BooleanSupplier robotAtPickUp() {
