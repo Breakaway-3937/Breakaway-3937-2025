@@ -95,7 +95,7 @@ public class ClimbAvator extends SubsystemBase {
   }
 
   public String getState() {
-    return climbAvatorState.toString();
+    return climbAvatorState.name();
   }
 
   public Command waitUntilShoulderSafe() { 

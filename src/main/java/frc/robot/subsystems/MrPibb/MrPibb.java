@@ -131,7 +131,7 @@ public class MrPibb extends SubsystemBase {
   }
 
   public String getState() {
-    return mrPibbState.toString();
+    return mrPibbState.name();
   }
 
   public TalonFX getTurretMotor() {
