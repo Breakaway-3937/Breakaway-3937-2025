@@ -6,8 +6,10 @@ package frc.robot.subsystems;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Optional;
 
 import org.littletonrobotics.junction.Logger;
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
@@ -27,10 +29,10 @@ import frc.robot.subsystems.Swerve.Swerve;
 
 public class Vision extends SubsystemBase {
   private AprilTagFieldLayout atfl;
-  private final BreakaCamera camera;
-  private final BreakaCamera otherCamera;
+  private final BreakaCamera frontCamera;
+  private final BreakaCamera backCamera;
   private final Swerve s_Swerve;
-  private final double maxDistance = 6;
+  private final double maxDistance = 6; // In meters
   private boolean frontCameraBad;
   private ArrayList<Pose3d> frontTagsUsed;
 
@@ -44,20 +46,28 @@ public class Vision extends SubsystemBase {
       e.printStackTrace();
     }
 
-    camera = new BreakaCamera("FrontCamera", new PhotonPoseEstimator(atfl, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.Vision.FRONT_CAMERA_TRANSFORM));
-    otherCamera = new BreakaCamera("3937", new PhotonPoseEstimator(atfl, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.Vision.BACK_CAMERA_TRANSFORM));
+    frontCamera = new BreakaCamera("FrontCamera", new PhotonPoseEstimator(atfl, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.Vision.FRONT_CAMERA_TRANSFORM));
+    backCamera = new BreakaCamera("3937", new PhotonPoseEstimator(atfl, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.Vision.BACK_CAMERA_TRANSFORM));
   }
 
   public double getX() {
-    return camera.getLatest().hasTargets() ? camera.getLatest().getBestTarget().getBestCameraToTarget().getX() : 0;
+    return frontCamera.getLatest().hasTargets() ? frontCamera.getLatest().getBestTarget().getBestCameraToTarget().getX() : 0;
   }
 
   public boolean hasTargets() {
-    return camera.getLatest().hasTargets();
+    return frontCamera.getLatest().hasTargets();
   }
 
-  public PhotonPipelineResult getLatest() {
-    return camera.getLatest();
+  public PhotonPipelineResult getLatestFront() {
+    return frontCamera.getLatest();
+  }
+
+  public double getAverageTagDistance(Optional<EstimatedRobotPose> result) {
+    double averageDistance = 0;
+    for(int i = 0; i < result.get().targetsUsed.size(); i++) {
+      averageDistance += Math.abs(result.get().targetsUsed.get(i).getBestCameraToTarget().getX());
+    }
+    return averageDistance /= (double) result.get().targetsUsed.size();
   }
 
   public Vector<N3> std(double averageDistance) {
@@ -68,16 +78,12 @@ public class Vision extends SubsystemBase {
 
   @Override
   public void periodic() {
-    var result = camera.getEstimatedPose();
-    var otherResult = otherCamera.getEstimatedPose();
+    var result = frontCamera.getEstimatedPose();
+    var otherResult = backCamera.getEstimatedPose();
 
+    /* Front Camera */
     if(!result.isEmpty()) {
-      double averageDistance = 0;
-
-      for(int i = 0; i < result.get().targetsUsed.size(); i++) {
-        averageDistance += Math.abs(result.get().targetsUsed.get(i).getBestCameraToTarget().getX());
-      }
-      averageDistance /= (double) result.get().targetsUsed.size();
+      double averageDistance = getAverageTagDistance(result);
 
       if(averageDistance > maxDistance) {
         frontCameraBad = true;
@@ -86,21 +92,21 @@ public class Vision extends SubsystemBase {
       if(!frontCameraBad) {
         s_Swerve.addVisionMeasurement(result.get().estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(result.get().timestampSeconds), Constants.Vision.TAG_VISION_STDS_FRONT);
       }
-    }
-    if(!otherResult.isEmpty()) {
-      s_Swerve.addVisionMeasurement(otherResult.get().estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(otherResult.get().timestampSeconds), Constants.Vision.TAG_VISION_STDS_FRONT);
-    }
 
-    if(!result.isEmpty()) {
       for(int i = 0; i < result.get().targetsUsed.size(); i++) {
-        frontTagsUsed.add(camera.getPhotonPoseEstimator().getFieldTags().getTagPose(result.get().targetsUsed.get(i).getFiducialId()).get());
+        frontTagsUsed.add(frontCamera.getPhotonPoseEstimator().getFieldTags().getTagPose(result.get().targetsUsed.get(i).getFiducialId()).get());
       }
 
       if(!frontTagsUsed.isEmpty()) {
         Logger.recordOutput("Front Camera Tags Used", frontTagsUsed.toArray(new Pose3d[frontTagsUsed.size()]));
       }
     }
+    /* Back Camera */
+    if(!otherResult.isEmpty()) {
+      s_Swerve.addVisionMeasurement(otherResult.get().estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(otherResult.get().timestampSeconds), Constants.Vision.TAG_VISION_STDS_FRONT);
+    }
 
-    Logger.recordOutput("Front Camera Connected", camera.isDead());
+    Logger.recordOutput("Front Camera Dead", frontCamera.isDead());
+    Logger.recordOutput("Back Camera Dead", backCamera.isDead());
   }
 }
