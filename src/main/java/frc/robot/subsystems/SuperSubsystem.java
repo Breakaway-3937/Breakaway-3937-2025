@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.ClimbAvator.ClimbAvator;
 import frc.robot.subsystems.ClimbAvator.ClimbAvatorStates;
@@ -30,7 +31,20 @@ public class SuperSubsystem extends SubsystemBase {
                                      .andThen(s_ClimbAvator.setShoulder()).andThen(s_ClimbAvator.waitUntilShoulderSafe())
                                      .andThen(s_ClimbAvator.setElevator()).andThen(s_ClimbAvator.waitUntilElevatorSafe())
                                      .andThen(s_MrPibb.setTurret()).andThen(s_MrPibb.waitUntilTurretSafe())
-                                     .andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.waitUntilWristSafe()); //TODO wrist before turret?
+                                     .andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.waitUntilWristSafe()); 
+                                     //TODO wrist before turret?
+                                     //If wrist moving forward wrist needs to go first if moving back turret needs to go first.
+                                     //We need more conditions for example if going to floor we are going to bring elevator and shoudler down then move turret we hit a swerve module i think
+  }
+
+  public Command wristOrTurret() {
+    return Commands.either(s_MrPibb.setWrist().andThen(s_MrPibb.waitUntilWristSafe())
+                                              .andThen(s_MrPibb.setTurret())
+                                              .andThen(s_MrPibb.setTurret()),
+                           s_MrPibb.setTurret().andThen(s_MrPibb.waitUntilTurretSafe())
+                                               .andThen(s_MrPibb.setWrist())
+                                               .andThen(s_MrPibb.waitUntilWristSafe()),                    
+                           s_MrPibb.wristForward());
   }
 
   /* Intake States */
