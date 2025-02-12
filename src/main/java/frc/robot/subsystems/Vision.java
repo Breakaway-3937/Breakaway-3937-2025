@@ -66,6 +66,7 @@ public class Vision extends SubsystemBase {
     return frontCamera.getLatest();
   }
 
+  /** Do not call without checking if result is empty */
   public double getAverageTagDistanceX(Optional<EstimatedRobotPose> result) {
     double averageDistance = 0;
     for(int i = 0; i < result.get().targetsUsed.size(); i++) {
@@ -74,6 +75,7 @@ public class Vision extends SubsystemBase {
     return averageDistance /= (double) result.get().targetsUsed.size();
   }
   
+  /** Do not call without checking if result is empty */
   public double getAverageTagDistanceY(Optional<EstimatedRobotPose> result) {
     double averageDistance = 0;
     for(int i = 0; i < result.get().targetsUsed.size(); i++) {
