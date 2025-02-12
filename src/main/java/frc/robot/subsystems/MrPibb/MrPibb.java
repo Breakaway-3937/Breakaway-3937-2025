@@ -106,6 +106,10 @@ public class MrPibb extends SubsystemBase {
     return () -> false;
   }
 
+  public BooleanSupplier wristForward() {
+    return () -> mrPibbState.getWrist() > getWristPosition();
+  }
+
   public double getWristPosition(){
     return wrist.getPosition().getValueAsDouble();
   }
