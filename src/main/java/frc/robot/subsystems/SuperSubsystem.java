@@ -25,13 +25,12 @@ public class SuperSubsystem extends SubsystemBase {
   }
 
   public Command runSubsystems() {
-    return s_MrPibb.setWristNeutral().andThen(s_MrPibb.waitUntilWristSafe())
+    return s_MrPibb.setWristNeutral().andThen(s_MrPibb.waitUntilWristSafe()) //Crash when turret at 90deg?
                                      .andThen(s_MrPibb.setTurretNeutral()).andThen(s_MrPibb.waitUntilTurretSafe())
                                      .andThen(s_ClimbAvator.setElevatorNeutral()).andThen(s_ClimbAvator.waitUntilElevatorSafe())
                                      .andThen(s_ClimbAvator.setShoulder()).andThen(s_ClimbAvator.waitUntilShoulderSafe())
                                      .andThen(s_ClimbAvator.setElevator()).andThen(s_ClimbAvator.waitUntilElevatorSafe())
-                                     .andThen(s_MrPibb.setTurret()).andThen(s_MrPibb.waitUntilTurretSafe())
-                                     .andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.waitUntilWristSafe()); 
+                                     .andThen(wristOrTurret()); 
                                      //TODO wrist before turret?
                                      //If wrist moving forward wrist needs to go first if moving back turret needs to go first.
                                      //We need more conditions for example if going to floor we are going to bring elevator and shoudler down then move turret we hit a swerve module i think
@@ -40,7 +39,7 @@ public class SuperSubsystem extends SubsystemBase {
   public Command wristOrTurret() {
     return Commands.either(s_MrPibb.setWrist().andThen(s_MrPibb.waitUntilWristSafe())
                                               .andThen(s_MrPibb.setTurret())
-                                              .andThen(s_MrPibb.setTurret()),
+                                              .andThen(s_MrPibb.waitUntilTurretSafe()),
                            s_MrPibb.setTurret().andThen(s_MrPibb.waitUntilTurretSafe())
                                                .andThen(s_MrPibb.setWrist())
                                                .andThen(s_MrPibb.waitUntilWristSafe()),                    
