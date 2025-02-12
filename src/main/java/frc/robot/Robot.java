@@ -32,7 +32,7 @@ public class Robot extends LoggedRobot {
 
   private GenericEntry canUtil = Shuffleboard.getTab("System").add("CAN", 0).withPosition(0, 0).getEntry();
   private GenericEntry currentScoringLocation = Shuffleboard.getTab("System").add("Scoring Location", "").withPosition(1, 0).getEntry();
-  private GenericEntry currentPickUpLocation = Shuffleboard.getTab("System").add("PickUp Location", "").withPosition(1, 0).getEntry();
+  private GenericEntry currentPickUpLocation = Shuffleboard.getTab("System").add("PickUp Location", "").withPosition(2, 0).getEntry();
 
   public Robot() {
     robotContainer = new RobotContainer();
@@ -52,7 +52,7 @@ public class Robot extends LoggedRobot {
     }
     
     if(Constants.DEBUG){
-      //Logger.start();
+      Logger.start();
     }
 
     PathfindingCommand.warmupCommand().schedule();
@@ -60,9 +60,6 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotPeriodic() {
-
-    //System.out.println("Hi");
-
     CommandScheduler.getInstance().run(); 
 
     currentScoringLocation.setString(OperatorController.getScoringLocation().get().name());
@@ -123,6 +120,8 @@ public class Robot extends LoggedRobot {
     if(autonomousCommand != null) {
       autonomousCommand.cancel();
     }
+
+    robotContainer.getInitialProtectCommand().schedule();
   }
 
   @Override

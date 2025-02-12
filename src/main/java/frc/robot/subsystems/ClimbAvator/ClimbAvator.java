@@ -4,8 +4,13 @@
 
 package frc.robot.subsystems.ClimbAvator;
 
+import java.util.function.BooleanSupplier;
+
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
@@ -13,7 +18,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -24,12 +28,13 @@ import frc.robot.Constants;
 
 public class ClimbAvator extends SubsystemBase {
   private final TalonFX shoulderMotor, boulderMotor, elevatorMotor, detonatorMotor;
+  private final TalonSRX bagTheBack;
   private final Follower followerShoulderRequest;
   private final Follower followerElevatorRequest;
   private final MotionMagicVoltage shoulderRequest;
   private final MotionMagicVoltage elevatorRequest;
   private final GenericEntry elevatorPosition, shoulderPosition, currentState;
-  private ClimbAvatorStates climbAvatorState;
+  private ClimbAvatorStates climbAvatorState = ClimbAvatorStates.PROTECT;
 
   /** Creates a new ClimbAvator.*/
   public ClimbAvator() {
@@ -37,6 +42,7 @@ public class ClimbAvator extends SubsystemBase {
     boulderMotor = new TalonFX(Constants.ClimbAvator.BOULDER_CAN_ID);
     elevatorMotor = new TalonFX(Constants.ClimbAvator.ELEVATOR_CAN_ID);
     detonatorMotor = new TalonFX(Constants.ClimbAvator.DETONATOR_CAN_ID);
+    bagTheBack = new TalonSRX(Constants.ClimbAvator.BAG_THE_BACK);
 
     followerShoulderRequest = new Follower(Constants.ClimbAvator.SHOULDER_CAN_ID, true);
     followerElevatorRequest = new Follower(Constants.ClimbAvator.ELEVATOR_CAN_ID, true);
@@ -48,7 +54,7 @@ public class ClimbAvator extends SubsystemBase {
     configElevatorMotors();
 
     elevatorPosition = Shuffleboard.getTab("ClimbAvator").add("Elevator", getElevatorMotorPosition()).withPosition(0, 0).getEntry();
-    shoulderPosition = Shuffleboard.getTab("ClimbAvator").add("Climber", getShoulderMotorPosition()).withPosition(1, 0).getEntry();
+    shoulderPosition = Shuffleboard.getTab("ClimbAvator").add("Shoulder", getShoulderMotorPosition()).withPosition(1, 0).getEntry();
     currentState = Shuffleboard.getTab("ClimbAvator").add("State", getState()).withPosition(2, 0).getEntry();
   }
 
@@ -63,27 +69,25 @@ public class ClimbAvator extends SubsystemBase {
   public Command setElevatorNeutral() {
     return runOnce(() -> elevatorMotor.setControl(elevatorRequest.withPosition(ClimbAvatorStates.getNeutralElevator())));
   }
-  //hello world
 
   public Command setShoulder() {
-    return runOnce(() -> shoulderMotor.setControl(shoulderRequest.withPosition(climbAvatorState.getAngle())));
+    return runOnce(() -> shoulderMotor.setControl(shoulderRequest.withPosition(climbAvatorState.getAngle()))).alongWith(new PrintCommand("SHOULDER BOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEAN"));
   }
 
-  public void setShoulderTest() {
-    shoulderMotor.setControl(shoulderRequest.withPosition(-0.020996*4));
-  }
-
-  public Command stopShoulder(){
+  public Command stopShoulder() {
     return runOnce(() -> shoulderMotor.stopMotor());
   }
 
-  public boolean isShoulderPrimeLocation() {
-    if(getShoulderMotorPosition() <= -0.114 && getShoulderMotorPosition() >= -0.228) {
-      return true;
-    } 
-    else {
-      return false;
-    }
+  public Command bagForward() {
+    return runOnce(() -> bagTheBack.set(TalonSRXControlMode.PercentOutput, 1));
+  }
+
+  public Command bagBackward() {
+    return runOnce(() -> bagTheBack.set(TalonSRXControlMode.PercentOutput, -1));
+  }
+
+  public Command bagStop() {
+    return runOnce(() -> bagTheBack.set(TalonSRXControlMode.PercentOutput, 0));
   }
 
   public double getShoulderMotorPosition() {
@@ -98,13 +102,30 @@ public class ClimbAvator extends SubsystemBase {
     return climbAvatorState.name();
   }
 
+  public BooleanSupplier shoulderSafe() {
+    if(Math.abs(getShoulderMotorPosition() - climbAvatorState.getAngle()) < 0.05) {
+      return () -> true;
+    }
+    else {
+      return () -> false;
+    }
+  }
+
   public Command waitUntilShoulderSafe() { 
-    //FIXME TODO THIS IS VERY BROKEN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! That tolerance is half the shoudler range
-    return Commands.waitUntil(() -> MathUtil.isNear(climbAvatorState.getAngle(), getShoulderMotorPosition(), .75)).alongWith(new PrintCommand("shoulder unsafe"));
+    return Commands.waitUntil(shoulderSafe());
+  }
+
+  public BooleanSupplier elevatorSafe() {
+    if(Math.abs(getElevatorMotorPosition() - climbAvatorState.getHeight()) < 0.75) {
+      return () -> true;
+    }
+    else {
+      return () -> false;
+    }
   }
 
   public Command waitUntilElevatorSafe() {
-    return Commands.waitUntil(() -> MathUtil.isNear(climbAvatorState.getHeight(), getElevatorMotorPosition(), .75)).alongWith(new PrintCommand("ele unsafe"));
+    return Commands.waitUntil(elevatorSafe());
   }
 
   public TalonFX getShoulderMotor() {
@@ -137,7 +158,6 @@ public class ClimbAvator extends SubsystemBase {
 
     config.Feedback.SensorToMechanismRatio = 250;
 
-    //TODO: Tune these values.
     config.Slot0.kS = 0.25;
     config.Slot0.kV = 0.2;
     config.Slot0.kA = 0.03;
@@ -172,7 +192,6 @@ public class ClimbAvator extends SubsystemBase {
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    //TODO: Tune these values.
     config.Slot0.kS = 0.25;
     config.Slot0.kV = 0.12;
     config.Slot0.kA = 0.01;
@@ -196,6 +215,20 @@ public class ClimbAvator extends SubsystemBase {
     detonatorMotor.setPosition(0);
 
     detonatorMotor.setControl(followerElevatorRequest);
+  }
+
+  public void configBag() {
+    bagTheBack.configFactoryDefault();
+
+    TalonSRXConfiguration config = new TalonSRXConfiguration();
+
+    //TODO: Tune these values.
+    config.peakCurrentDuration = 100;
+    config.peakCurrentLimit = 40;
+    config.continuousCurrentLimit = 30;
+
+    bagTheBack.configAllSettings(config);
+    bagTheBack.enableCurrentLimit(true);
   }
 
   @Override

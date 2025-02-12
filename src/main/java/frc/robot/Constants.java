@@ -10,18 +10,15 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.generated.CompTunerConstants;
 import frc.robot.generated.PracticeTunerConstants;
 
 public final class Constants {
-    public static final boolean ROBOT_RELATIVE = false;
-    public static final boolean OPEN_LOOP = true;
     //TODO: Will all change with new robot.
-    public static final int CANDLE_ID = 45;
-    public static final int PDH_ID = 63;
+    public static final int CANDLE_ID = 26;
+    public static final int PDH_ID = 27;
     public static final int NUM_LEDS = 0;
     public static final String CANIVORE_BUS = "CANivore";
     public static final String PRACTICE_SERIAL_NUM = "0324152B";
@@ -43,12 +40,12 @@ public final class Constants {
 
     public static final class Vision {
         //TODO: Will all change with new robot.
-        public static final String FRONT_CAMERA_NAME = "Front Camera";
-        public static final String BACK_CAMERA_NAME = "Global_Shutter_Camera";
-        public static final Transform3d FRONT_CAMERA_TRANSFORM = new Transform3d(new Translation3d(-0.198, -0.172, 0.29), new Rotation3d(-0.174533, 0, Math.PI));
-        public static final Transform3d BACK_CAMERA_TRANSFORM = new Transform3d(new Translation3d(-0.198, 0.172, 0.29), new Rotation3d(-0.174533, 0, 0));
+        public static final String FRONT_CAMERA_NAME = "FrontCamera";
+        public static final String BACK_CAMERA_NAME = "BackCamera";
+        public static final Transform3d FRONT_CAMERA_TRANSFORM = new Transform3d(new Translation3d(-0.194657, 0.236575, 0.172173), new Rotation3d(0, 1.745448, 0));
+        public static final Transform3d BACK_CAMERA_TRANSFORM = new Transform3d(new Translation3d(-0.264378, 0.235461, 0.187954), new Rotation3d(0, 2.491458, Math.PI));
         public static final Vector<N3> TAG_VISION_STDS_FRONT = VecBuilder.fill(0.716, 0.162, 9999999);
-        public static final Vector<N3> TAG_VISION_STDS_BACK = VecBuilder.fill(1.294, 0.086, Units.degreesToRadians(10));
+        public static final Vector<N3> TAG_VISION_STDS_BACK = VecBuilder.fill(0.716, 0.162, 9999999);
     }
 
     public static final class Swerve {
@@ -60,8 +57,8 @@ public final class Constants {
     public static final class MrPibb {
         public static final int WRIST_CAN_ID = 3; 
         public static final int TURRET_CAN_ID = 4;
-        public static final int LOADER_CAN_ID = 51; 
-        public static final int THUMB_CAN_ID = 52; 
+        public static final int LOADER_CAN_ID = 5; 
+        public static final int THUMB_CAN_ID = 2; 
     }
     
     public static final class ClimbAvator {
@@ -69,5 +66,6 @@ public final class Constants {
         public static final int BOULDER_CAN_ID = 13; 
         public static final int ELEVATOR_CAN_ID = 14; 
         public static final int DETONATOR_CAN_ID = 15; 
+        public static final int BAG_THE_BACK = 16;
     }
 }

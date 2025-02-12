@@ -28,7 +28,7 @@ public class AutoTeleop extends SequentialCommandGroup {
     this.s_Vision = s_Vision;
     this.s_SuperSubsystem = s_SuperSubsystem;
 
-    setName("AutoTelop");
+    setName("AutoTeleop");
     addRequirements(s_Swerve, s_Vision);
 
     //Change the until at pose
@@ -41,8 +41,7 @@ public class AutoTeleop extends SequentialCommandGroup {
   private Command pathFindPickup() {
     return Commands.defer(
       () -> {
-        //change the unless to bot full
-        return s_Swerve.pathFindToPose(OperatorController.getPickUpLocation()).unless(() -> false);
+        return s_Swerve.pathFindToPose(OperatorController.getPickUpLocation()).unless(s_SuperSubsystem.botFullCoral());
       },
       Set.of(s_Swerve)
     );
@@ -76,7 +75,7 @@ public class AutoTeleop extends SequentialCommandGroup {
   }
 
   private Command loadState() {
-    return Commands.none();//s_SuperSubsystem.loadState().alongWith(s_SuperSubsystem.runSubsystems());
+    return s_SuperSubsystem.loadState();
   }
 
   private BooleanSupplier robotAtPickUp() {
@@ -87,7 +86,7 @@ public class AutoTeleop extends SequentialCommandGroup {
       return () -> nearX && nearY;
     }
     else {
-      return () -> true;
+      return () -> false;
     }
   }
 
@@ -99,7 +98,7 @@ public class AutoTeleop extends SequentialCommandGroup {
       return () -> nearX && nearY;
     }
     else {
-      return () -> true;
+      return () -> false;
     }
   }
 }

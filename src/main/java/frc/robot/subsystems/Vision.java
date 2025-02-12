@@ -35,8 +35,8 @@ public class Vision extends SubsystemBase {
   private final Swerve s_Swerve;
   private final double maxDistance = 6; // In meters
   private final InterpolatingDoubleTreeMap xStdMap, yStdMap; //Key = distance, Value = STD
-  private boolean frontCameraBad;
-  private ArrayList<Pose3d> frontTagsUsed;
+  private boolean frontCameraBad, backCameraBad;
+  private ArrayList<Pose3d> frontTagsUsed, backTagsUsed;
 
   /** Creates a new Vision. */
   public Vision(Swerve s_Swerve) {
@@ -48,15 +48,14 @@ public class Vision extends SubsystemBase {
       e.printStackTrace();
     }
 
-    frontCamera = new BreakaCamera("FrontCamera", new PhotonPoseEstimator(atfl, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.Vision.FRONT_CAMERA_TRANSFORM));
-    backCamera = new BreakaCamera("3937", new PhotonPoseEstimator(atfl, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.Vision.BACK_CAMERA_TRANSFORM));
+    frontCamera = new BreakaCamera(Constants.Vision.FRONT_CAMERA_NAME, new PhotonPoseEstimator(atfl, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.Vision.FRONT_CAMERA_TRANSFORM));
+    backCamera = new BreakaCamera(Constants.Vision.BACK_CAMERA_NAME, new PhotonPoseEstimator(atfl, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.Vision.BACK_CAMERA_TRANSFORM));
   
     xStdMap = new InterpolatingDoubleTreeMap();
     yStdMap = new InterpolatingDoubleTreeMap();
-  }
 
-  public double getX() {
-    return frontCamera.getLatest().hasTargets() ? frontCamera.getLatest().getBestTarget().getBestCameraToTarget().getX() : 0;
+    frontTagsUsed = new ArrayList<Pose3d>();
+    backTagsUsed = new ArrayList<Pose3d>();
   }
 
   public boolean hasTargets() {
@@ -84,39 +83,56 @@ public class Vision extends SubsystemBase {
   }
 
   public Vector<N3> std(double averageDistanceX, double averageDistanceY) {
-    return VecBuilder.fill(xStdMap.get(averageDistanceX), yStdMap.get(averageDistanceY), 0); 
+    return VecBuilder.fill(xStdMap.get(averageDistanceX), yStdMap.get(averageDistanceY), 9999999); 
     // Make an Interpolating map that uses average distance from camera to find x and y std. 
     // Fill map with varing ranges and stds from aScope
   }
 
   @Override
   public void periodic() {
-    var result = frontCamera.getEstimatedPose();
-    var otherResult = backCamera.getEstimatedPose();
+    var frontResult = frontCamera.getEstimatedPose();
+    var backResult = backCamera.getEstimatedPose();
 
     /* Front Camera */
-    if(!result.isEmpty()) {
-      double averageDistance = getAverageTagDistanceX(result);
+    if(!frontResult.isEmpty()) {
+      double averageDistance = getAverageTagDistanceX(frontResult);
 
       if(averageDistance > maxDistance) {
         frontCameraBad = true;
       }
 
       if(!frontCameraBad) {
-        s_Swerve.addVisionMeasurement(result.get().estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(result.get().timestampSeconds), Constants.Vision.TAG_VISION_STDS_FRONT);
+        s_Swerve.addVisionMeasurement(frontResult.get().estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(frontResult.get().timestampSeconds), Constants.Vision.TAG_VISION_STDS_FRONT);
       }
 
-      for(int i = 0; i < result.get().targetsUsed.size(); i++) {
-        frontTagsUsed.add(frontCamera.getPhotonPoseEstimator().getFieldTags().getTagPose(result.get().targetsUsed.get(i).getFiducialId()).get());
+      for(int i = 0; i < frontResult.get().targetsUsed.size(); i++) {
+        frontTagsUsed.add(frontCamera.getPhotonPoseEstimator().getFieldTags().getTagPose(frontResult.get().targetsUsed.get(i).getFiducialId()).get());
       }
 
       if(!frontTagsUsed.isEmpty()) {
         Logger.recordOutput("Front Camera Tags Used", frontTagsUsed.toArray(new Pose3d[frontTagsUsed.size()]));
       }
     }
+    
     /* Back Camera */
-    if(!otherResult.isEmpty()) {
-      s_Swerve.addVisionMeasurement(otherResult.get().estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(otherResult.get().timestampSeconds), Constants.Vision.TAG_VISION_STDS_FRONT);
+    if(!backResult.isEmpty()) {
+      double averageDistance = getAverageTagDistanceX(backResult);
+
+      if(averageDistance > maxDistance) {
+        backCameraBad = true;
+      }
+
+      if(!backCameraBad) {
+        s_Swerve.addVisionMeasurement(backResult.get().estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(backResult.get().timestampSeconds), Constants.Vision.TAG_VISION_STDS_BACK);
+      }
+
+      for(int i = 0; i < backResult.get().targetsUsed.size(); i++) {
+        backTagsUsed.add(backCamera.getPhotonPoseEstimator().getFieldTags().getTagPose(backResult.get().targetsUsed.get(i).getFiducialId()).get());
+      }
+
+      if(!backTagsUsed.isEmpty()) {
+        Logger.recordOutput("Back Camera Tags Used", backTagsUsed.toArray(new Pose3d[backTagsUsed.size()]));
+      }
     }
 
     Logger.recordOutput("Front Camera Dead", frontCamera.isDead());

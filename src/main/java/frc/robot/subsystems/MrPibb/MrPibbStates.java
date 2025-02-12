@@ -18,13 +18,16 @@ public enum MrPibbStates {
     L4(12.851, -1.842, 0),
     PROTECT(0, 0, 0),
     CORAL_PRESTAGE(9.788, -1.824, 0),
-    LOWER_ALGEA(11.8, -3.5, 0),
-    UPPER_ALGEA(11.8, -3.5, 0),
-    CLIMB_TEST(9.8, -1.7, 0); //3x ele
+    LOWER_ALGAE(11.8, -3.5, 0),
+    UPPER_ALGAE(11.8, -3.5, 0),
+    //TODO
+    CLIMB_TEST(9.8, -1.7, 0);
 
     private final double wrist, turret, speed;
 
     public static final double NEUTRAL_WRIST = 1;
+
+    public static final double NEUTRAL_TURRET = 0;
 
     private MrPibbStates(double wrist, double turret, double speed) {
         this.wrist = wrist;
@@ -46,5 +49,9 @@ public enum MrPibbStates {
 
     public static double getNeutralWrist() {
         return NEUTRAL_WRIST;
+    }
+
+    public static double getNeutralTurret() {
+        return NEUTRAL_TURRET;
     }
 }

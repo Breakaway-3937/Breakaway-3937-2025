@@ -5,22 +5,23 @@
 package frc.robot.subsystems.ClimbAvator;
 
 public enum ClimbAvatorStates {
-    FLOOR_INTAKE_CORAL(0, 0),
-    FLOOR_INTAKE_ALGAE(0, 0),
-    STOW_MODE(0, 0),
-    PROCESSOR(0, 0),
-    BARGE(0, 0),
-    CLIMB(0, 0),
-    STATION(0, -49.0/250.0),
-    L1(0, -0.079590),
+    //TODO: Update values
+    FLOOR_INTAKE_CORAL(0.25, 0),
+    FLOOR_INTAKE_ALGAE(0.25, 0),
+    STOW_MODE(0.25, 0),
+    PROCESSOR(0.25, 0),
+    BARGE(0.25, 0),
+    CLIMB(0.25, 0),
+    STATION(0.25, -0.196),
+    L1(0.25, -0.079590),
     L2(6.2, -0.139),
     L3(24.5, -0.1689),
     L4(70, -0.18),
-    PROTECT(0, 0),
-    CORAL_PRESTAGE(0, -40.0/250.0),
-    LOWER_ALGEA(13, -0.143),
-    UPPER_ALGEA(39, -0.174053),
-    CLIMB_TEST(0, -0.192);
+    PROTECT(0.25, 0),
+    CORAL_PRESTAGE(0.25, -0.16),
+    LOWER_ALGAE(13, -0.143),
+    UPPER_ALGAE(39, -0.174053),
+    CLIMB_TEST(0.25, -0.192);
 
     //MAX FOR 0-100 ON TURRET = 14.283 ON WRIST
     //MAX FOR 100-180 ON TURRET = 9.503
@@ -29,7 +30,7 @@ public enum ClimbAvatorStates {
 
     private final double height, angle;
 
-    public static final double NEUTRAL_ELEVATOR = 0;
+    public static final double NEUTRAL_ELEVATOR = 0.25;
 
     private ClimbAvatorStates(double height, double angle) {
         this.height = height;

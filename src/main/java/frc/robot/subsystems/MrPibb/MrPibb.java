@@ -17,21 +17,19 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class MrPibb extends SubsystemBase {
-  private final TalonFX wrist, turret;
-  private final TalonSRX loader, thumb;
+  private final TalonFX wrist, turret, loader;
+  private final TalonSRX thumb;
   private final MotionMagicVoltage wristRequest, turretRequest;
   private final GenericEntry wristPosition, turretPosition, currentState;
-  private MrPibbStates mrPibbState;
+  private MrPibbStates mrPibbState = MrPibbStates.PROTECT;
 
   /** Creates a new MrPibb.
    *  @since Ankle is no longer with us.
@@ -39,12 +37,13 @@ public class MrPibb extends SubsystemBase {
   public MrPibb() {
     wrist = new TalonFX(Constants.MrPibb.WRIST_CAN_ID);
     turret = new TalonFX(Constants.MrPibb.TURRET_CAN_ID);
-    loader = new TalonSRX(Constants.MrPibb.LOADER_CAN_ID);
+    loader = new TalonFX(Constants.MrPibb.LOADER_CAN_ID);
     thumb = new TalonSRX(Constants.MrPibb.THUMB_CAN_ID);
 
-    configLoader();
     configWrist();
     configTurret();
+    configLoader();
+    configThumb();
 
     wristRequest = new MotionMagicVoltage(0).withEnableFOC(true);
     turretRequest = new MotionMagicVoltage(0).withEnableFOC(true);
@@ -70,20 +69,28 @@ public class MrPibb extends SubsystemBase {
     return runOnce(() -> turret.setControl(turretRequest.withPosition(mrPibbState.getTurret())));
   }
 
+  public Command setTurretNeutral() {
+    return runOnce(() -> turret.setControl(turretRequest.withPosition(MrPibbStates.getNeutralTurret())));
+  }
+
   public Command stopTurret() {
     return runOnce(() -> turret.stopMotor());
   }
 
   public Command runLoader() {
-    return runOnce(() -> loader.set(ControlMode.PercentOutput, mrPibbState.getSpeed()));
+    return runOnce(() -> loader.set(1));
   }
 
   public Command stopLoader() {
-    return runOnce(() -> loader.set(ControlMode.PercentOutput, 0));
+    return runOnce(() -> loader.stopMotor());
   }
 
-  public Command runThumb() {
-    return runOnce(() -> thumb.set(ControlMode.PercentOutput, 0));
+  public Command runThumbForward() {
+    return runOnce(() -> thumb.set(ControlMode.PercentOutput, 1));
+  }
+
+  public Command runThumbBackward() {
+    return runOnce(() -> thumb.set(ControlMode.PercentOutput, -1));
   }
 
   public Command stopThumb() {
@@ -91,35 +98,42 @@ public class MrPibb extends SubsystemBase {
   }
 
   public Command runUntilFull() {
-    return runLoader().andThen(Commands.waitUntil(botFull())).andThen(stopLoader());
+    return runLoader().andThen(Commands.waitUntil(botFullCoral())).andThen(stopLoader());
   }
 
   //TODO: Write this method.
-  public BooleanSupplier botFull() {
+  public BooleanSupplier botFullCoral() {
     return () -> false;
-  }
-
-  public double getSpeed() {
-    return loader.getMotorOutputPercent();
   }
 
   public double getWristPosition(){
     return wrist.getPosition().getValueAsDouble();
   }
 
+  public BooleanSupplier wristSafe() {
+    if(Math.abs(getWristPosition() - mrPibbState.getWrist()) < 0.75) {
+      return () -> true;
+    }
+    else {
+      return () -> false;
+    }
+  }
+
   public Command waitUntilWristSafe() {
-    return Commands.waitUntil(() -> {
-      if(getWristPosition() < 11.2 && getWristPosition() > 6.35) {
-        return true;
-      }
-      else {
-        return false;
-      }
-    });
+    return Commands.waitUntil(wristSafe());
+  }
+
+  public BooleanSupplier turretSafe() {
+    if(Math.abs(getTurretPosition() - mrPibbState.getTurret()) < 0.75) {
+      return () -> true;
+    }
+    else {
+      return () -> false;
+    }
   }
 
   public Command waitUntilTurretSafe() {
-    return Commands.waitUntil(() -> MathUtil.isNear(mrPibbState.getTurret(), getTurretPosition(), 0.2)).alongWith(new PrintCommand("turret unsafe"));
+    return Commands.waitUntil(turretSafe());
   }
 
   public TalonFX getWristMotor() {
@@ -142,8 +156,8 @@ public class MrPibb extends SubsystemBase {
     this.mrPibbState = mrPibbState;
   }
 
-  public void configLoader() {
-    loader.configFactoryDefault();
+  public void configThumb() {
+    thumb.configFactoryDefault();
 
     TalonSRXConfiguration config = new TalonSRXConfiguration();
 
@@ -152,8 +166,8 @@ public class MrPibb extends SubsystemBase {
     config.peakCurrentLimit = 40;
     config.continuousCurrentLimit = 30;
 
-    loader.configAllSettings(config);
-    loader.enableCurrentLimit(true);
+    thumb.configAllSettings(config);
+    thumb.enableCurrentLimit(true);
   }
 
   public void configWrist() {
@@ -211,6 +225,23 @@ public class MrPibb extends SubsystemBase {
 
     turret.getConfigurator().apply(config);
     turret.setPosition(0);
+  }
+
+  public void configLoader() {
+    loader.getConfigurator().apply(new TalonFXConfiguration());
+
+    TalonFXConfiguration config = new TalonFXConfiguration();
+
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+    /*config.CurrentLimits.SupplyCurrentLimit = 70;
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLowerLimit = 40;
+    config.CurrentLimits.SupplyCurrentLowerTime = 1;*/
+
+    loader.getConfigurator().apply(config);
   }
 
   @Override
