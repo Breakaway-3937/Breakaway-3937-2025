@@ -30,20 +30,22 @@ public class SuperSubsystem extends SubsystemBase {
                                      .andThen(s_ClimbAvator.setShoulder()).andThen(s_ClimbAvator.waitUntilShoulderSafe())
                                      .andThen(s_ClimbAvator.setElevator()).andThen(s_ClimbAvator.waitUntilElevatorSafe())
                                      .andThen(s_MrPibb.setTurret()).andThen(s_MrPibb.waitUntilTurretSafe())
-                                     .andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.waitUntilWristSafe());
+                                     .andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.waitUntilWristSafe()); //TODO wrist before turret?
   }
 
+  /* Intake States */
   public Command loadState() {
     return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.STATION))
                .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.STATION)))
                .andThen(runSubsystems());
   }
 
-  public Command climbState() {
-    return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.CLIMB_TEST))
-               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.CLIMB_TEST)));
+  public Command preStageState() {
+    return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.CORAL_PRESTAGE))
+               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.CORAL_PRESTAGE)));
   }
 
+  /* Algae States */
   public Command lowerAlgaeState() {
     return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.LOWER_ALGAE))
                .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.LOWER_ALGAE)));
@@ -54,11 +56,12 @@ public class SuperSubsystem extends SubsystemBase {
                .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.UPPER_ALGAE)));
   }
 
-  public Command protectState() {
-    return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.PROTECT))
-               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.PROTECT)));
+  public Command bargeState() {
+    return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.BARGE))
+               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.BARGE)));
   }
 
+  /* Scoring States */
   public Command level1State() {
     return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.L1))
                .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.L1)));
@@ -79,9 +82,10 @@ public class SuperSubsystem extends SubsystemBase {
                .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.L4)));
   }
 
-  public Command bargeState() {
-    return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.BARGE))
-               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.BARGE)));
+  /* Other States */
+  public Command climbState() {
+    return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.CLIMB_TEST))
+               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.CLIMB_TEST)));
   }
 
   public Command zeroState() {
@@ -89,9 +93,9 @@ public class SuperSubsystem extends SubsystemBase {
                .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.CLIMB)));
   }
 
-  public Command preStageState() {
-    return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.CORAL_PRESTAGE))
-               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.CORAL_PRESTAGE)));
+  public Command protectState() {
+    return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.PROTECT))
+               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.PROTECT)));
   }
 
   public BooleanSupplier botFullCoral() {

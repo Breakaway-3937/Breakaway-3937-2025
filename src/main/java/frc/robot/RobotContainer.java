@@ -82,23 +82,23 @@ public class RobotContainer {
 
         translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
 
-        //Coral Scoring States
+        /* Coral Scoring States */
         xboxController.povDown().onTrue(s_SuperSubsystem.level1State().andThen(s_SuperSubsystem.runSubsystems()));
         xboxController.povUp().onTrue(s_SuperSubsystem.level2State().andThen(s_SuperSubsystem.runSubsystems()));
         xboxController.a().onTrue(s_SuperSubsystem.level3State().andThen(s_SuperSubsystem.runSubsystems()));
         xboxController.y().onTrue(s_SuperSubsystem.level4State().andThen(s_SuperSubsystem.runSubsystems()));
 
-        //Intake States
+        /* Intake States */
         xboxController.leftTrigger(0.3).onTrue(s_SuperSubsystem.loadState()); // TODO Test me
         xboxController.rightBumper().onTrue(s_SuperSubsystem.preStageState().andThen(s_SuperSubsystem.runSubsystems()));
         xboxController.start().onTrue(s_MrPibb.runLoader()).onFalse(s_MrPibb.stopLoader());
         xboxController.back().onTrue(s_MrPibb.runThumbForward()).onFalse(s_MrPibb.stopThumb());
  
-        //Climbing States
+        /* Climbing States */
         //xboxController.leftStick().onTrue(s_SuperSubsystem.climbState().alongWith(s_SuperSubsystem.runSubsystems()));
         //xboxController.rightStick().onTrue(s_SuperSubsystem.zeroState().alongWith(s_SuperSubsystem.runSubsystems()));
         
-        //Algae States
+        /* Algae States */
         xboxController.povRight().onTrue(s_SuperSubsystem.lowerAlgaeState().alongWith(s_SuperSubsystem.runSubsystems()));
         xboxController.b().onTrue(s_SuperSubsystem.upperAlgaeState().alongWith(s_SuperSubsystem.runSubsystems()));
 
