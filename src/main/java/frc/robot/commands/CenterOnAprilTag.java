@@ -7,6 +7,7 @@ package frc.robot.commands;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 
+import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -25,6 +26,7 @@ public class CenterOnAprilTag extends Command {
   private final Vision s_Vision;
   private final int tag;
   private final ProfiledPIDController controller;
+  private PhotonPipelineResult result;
 
   private final SwerveRequest.RobotCentric swerveRequest = new SwerveRequest.RobotCentric()
     .withDriveRequestType(DriveRequestType.Velocity)
@@ -48,7 +50,7 @@ public class CenterOnAprilTag extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    var result = s_Vision.getLatestFront();
+    result = s_Vision.getLatestFront();
     if(result.hasTargets()) {
       controller.reset(result.getBestTarget().getBestCameraToTarget().getY());
     }
@@ -58,7 +60,6 @@ public class CenterOnAprilTag extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    var result = s_Vision.getLatestFront(); //TODO I dont think this is right
     if(result.hasTargets()) {
       if(tag == 0) {
         s_Swerve.setControl(swerveRequest.withVelocityY(controller.calculate(result.getBestTarget().getBestCameraToTarget().getY())));
