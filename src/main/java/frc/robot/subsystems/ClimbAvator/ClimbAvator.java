@@ -4,8 +4,6 @@
 
 package frc.robot.subsystems.ClimbAvator;
 
-import java.util.function.BooleanSupplier;
-
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
@@ -22,7 +20,6 @@ import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -55,7 +52,7 @@ public class ClimbAvator extends SubsystemBase {
 
     elevatorPosition = Shuffleboard.getTab("ClimbAvator").add("Elevator", getElevatorMotorPosition()).withPosition(0, 0).getEntry();
     shoulderPosition = Shuffleboard.getTab("ClimbAvator").add("Shoulder", getShoulderMotorPosition()).withPosition(1, 0).getEntry();
-    currentState = Shuffleboard.getTab("ClimbAvator").add("State", getState()).withPosition(2, 0).getEntry();
+    currentState = Shuffleboard.getTab("ClimbAvator").add("State", getState().name()).withPosition(2, 0).getEntry();
   }
 
   public Command setElevator() {
@@ -66,12 +63,8 @@ public class ClimbAvator extends SubsystemBase {
     return runOnce(() -> elevatorMotor.stopMotor());
   }
 
-  public Command setElevatorNeutral() {
-    return runOnce(() -> elevatorMotor.setControl(elevatorRequest.withPosition(ClimbAvatorStates.getNeutralElevator())));
-  }
-
   public Command setShoulder() {
-    return runOnce(() -> shoulderMotor.setControl(shoulderRequest.withPosition(climbAvatorState.getAngle()))).alongWith(new PrintCommand("SHOULDER BOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEANBOOLEAN"));
+    return runOnce(() -> shoulderMotor.setControl(shoulderRequest.withPosition(climbAvatorState.getAngle())));
   }
 
   public Command stopShoulder() {
@@ -98,34 +91,16 @@ public class ClimbAvator extends SubsystemBase {
     return elevatorMotor.getPosition().getValueAsDouble();
   }
 
-  public String getState() {
-    return climbAvatorState.name();
-  }
-
-  public BooleanSupplier shoulderSafe() {
-    if(Math.abs(getShoulderMotorPosition() - climbAvatorState.getAngle()) < 0.05) {
-      return () -> true;
-    }
-    else {
-      return () -> false;
-    }
+  public ClimbAvatorStates getState() {
+    return climbAvatorState;
   }
 
   public Command waitUntilShoulderSafe() { 
-    return Commands.waitUntil(shoulderSafe());
-  }
-
-  public BooleanSupplier elevatorSafe() {
-    if(Math.abs(getElevatorMotorPosition() - climbAvatorState.getHeight()) < 0.75) {
-      return () -> true;
-    }
-    else {
-      return () -> false;
-    }
+    return Commands.waitUntil(() -> Math.abs(getShoulderMotorPosition() - climbAvatorState.getAngle()) < 0.05);
   }
 
   public Command waitUntilElevatorSafe() {
-    return Commands.waitUntil(elevatorSafe());
+    return Commands.waitUntil(() -> Math.abs(getElevatorMotorPosition() - climbAvatorState.getHeight()) < 0.75);
   }
 
   public TalonFX getShoulderMotor() {
@@ -237,7 +212,7 @@ public class ClimbAvator extends SubsystemBase {
     Logger.recordOutput("Elevator", getElevatorMotorPosition());
     shoulderPosition.setDouble(getShoulderMotorPosition());
     Logger.recordOutput("Shoulder", getShoulderMotorPosition());
-    currentState.setString(getState());
-    Logger.recordOutput("ClimbAvator State", getState());
+    currentState.setString(getState().name());
+    Logger.recordOutput("ClimbAvator State", getState().name());
   }
 }

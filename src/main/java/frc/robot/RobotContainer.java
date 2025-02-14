@@ -83,15 +83,16 @@ public class RobotContainer {
         translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
 
         /* Coral Scoring States */
-        xboxController.povDown().onTrue(s_SuperSubsystem.level1State().andThen(s_SuperSubsystem.runSubsystems()));
-        xboxController.povUp().onTrue(s_SuperSubsystem.level2State().andThen(s_SuperSubsystem.runSubsystems()));
-        xboxController.a().onTrue(s_SuperSubsystem.level3State().andThen(s_SuperSubsystem.runSubsystems()));
-        xboxController.y().onTrue(s_SuperSubsystem.level4State().andThen(s_SuperSubsystem.runSubsystems()));
+        xboxController.povDown().onTrue(s_SuperSubsystem.level1State());
+        xboxController.povUp().onTrue(s_SuperSubsystem.level2State());
+        xboxController.a().onTrue(s_SuperSubsystem.level3State());
+        xboxController.y().onTrue(s_SuperSubsystem.level4State());
 
         /* Intake States */
         xboxController.leftTrigger(0.3).onTrue(s_SuperSubsystem.loadState()); // TODO Test me
-        xboxController.rightBumper().onTrue(s_SuperSubsystem.preStageState().andThen(s_SuperSubsystem.runSubsystems()));
+        xboxController.rightBumper().onTrue(s_SuperSubsystem.preStageState());
         xboxController.start().onTrue(s_MrPibb.runLoader()).onFalse(s_MrPibb.stopLoader());
+        xboxController.leftStick().onTrue(s_MrPibb.runLoaderReverse()).onFalse(s_MrPibb.stopLoader());
         xboxController.back().onTrue(s_MrPibb.runThumbForward()).onFalse(s_MrPibb.stopThumb());
  
         /* Climbing States */
@@ -99,8 +100,9 @@ public class RobotContainer {
         //xboxController.rightStick().onTrue(s_SuperSubsystem.zeroState().alongWith(s_SuperSubsystem.runSubsystems()));
         
         /* Algae States */
-        xboxController.povRight().onTrue(s_SuperSubsystem.lowerAlgaeState().alongWith(s_SuperSubsystem.runSubsystems()));
-        xboxController.b().onTrue(s_SuperSubsystem.upperAlgaeState().alongWith(s_SuperSubsystem.runSubsystems()));
+
+        xboxController.povRight().onTrue(s_SuperSubsystem.lowerAlgaeState());
+        xboxController.b().onTrue(s_SuperSubsystem.upperAlgaeState());
 
         autoTrackButton.whileTrue(new AutoTeleop(s_Swerve, s_Vision, s_SuperSubsystem));
         alignButton.or(rotationButton).whileTrue(new CenterOnAprilTag(s_Swerve, s_Vision, 0));
@@ -124,7 +126,7 @@ public class RobotContainer {
 
     //TODO
     public Command getInitialProtectCommand() {
-        return s_SuperSubsystem.protectState().alongWith(s_SuperSubsystem.runSubsystems());
+        return s_SuperSubsystem.protectState();
     }
 
     public Vision getVisionSystem() {

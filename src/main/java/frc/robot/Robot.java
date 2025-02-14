@@ -121,7 +121,7 @@ public class Robot extends LoggedRobot {
       autonomousCommand.cancel();
     }
 
-    robotContainer.getInitialProtectCommand().schedule();
+    //robotContainer.getInitialProtectCommand().schedule();
   }
 
   @Override

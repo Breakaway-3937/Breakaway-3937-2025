@@ -8,7 +8,9 @@ import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.lib.Conversions;
 import frc.robot.subsystems.ClimbAvator.ClimbAvator;
 import frc.robot.subsystems.ClimbAvator.ClimbAvatorStates;
 import frc.robot.subsystems.MrPibb.MrPibb;
@@ -25,18 +27,27 @@ public class SuperSubsystem extends SubsystemBase {
   }
 
   public Command runSubsystems() {
-    return s_MrPibb.setWristNeutral().andThen(s_MrPibb.waitUntilWristSafe()) //Crash when turret at 90deg?
-                                     .andThen(s_MrPibb.setTurretNeutral()).andThen(s_MrPibb.waitUntilTurretSafe())
-                                     .andThen(s_ClimbAvator.setElevatorNeutral()).andThen(s_ClimbAvator.waitUntilElevatorSafe())
-                                     .andThen(s_ClimbAvator.setShoulder()).andThen(s_ClimbAvator.waitUntilShoulderSafe())
-                                     .andThen(s_ClimbAvator.setElevator()).andThen(s_ClimbAvator.waitUntilElevatorSafe())
-                                     .andThen(wristOrTurret()); 
-                                     //TODO wrist before turret?
-                                     //If wrist moving forward wrist needs to go first if moving back turret needs to go first.
-                                     //We need more conditions for example if going to floor we are going to bring elevator and shoudler down then move turret we hit a swerve module i think
+    return Commands.either(disperse(), condense(), () -> (s_ClimbAvator.getShoulderMotorPosition() > Conversions.shoulderDegreesToRotations(45) || s_ClimbAvator.getElevatorMotorPosition() <= s_ClimbAvator.getState().getHeight()));
+  }
+
+  public Command disperse() {
+    return s_ClimbAvator.setShoulder().andThen(s_ClimbAvator.waitUntilShoulderSafe())
+                                      .andThen(s_ClimbAvator.setElevator()).andThen(s_ClimbAvator.waitUntilElevatorSafe())
+                                      .andThen(wristOrTurret());
+  }
+
+  public Command condense() {
+    return wristOrTurret().andThen(s_ClimbAvator.setElevator()).andThen(s_ClimbAvator.waitUntilElevatorSafe())
+                          .andThen(s_ClimbAvator.setShoulder()).andThen(s_ClimbAvator.waitUntilShoulderSafe());
   }
 
   public Command wristOrTurret() {
+    return Commands.either(wristOrTurretPositive(),
+                           wristOrTurretNegative(),
+                           s_MrPibb.wristPositive());
+  }
+
+  public Command wristOrTurretPositive() {
     return Commands.either(s_MrPibb.setWrist().andThen(s_MrPibb.waitUntilWristSafe())
                                               .andThen(s_MrPibb.setTurret())
                                               .andThen(s_MrPibb.waitUntilTurretSafe()),
@@ -44,6 +55,12 @@ public class SuperSubsystem extends SubsystemBase {
                                                .andThen(s_MrPibb.setWrist())
                                                .andThen(s_MrPibb.waitUntilWristSafe()),                    
                            s_MrPibb.wristForward());
+  }
+
+  public Command wristOrTurretNegative() {
+    return s_MrPibb.setWristNeutral().andThen(s_MrPibb.waitUntilWristNeutralSafe())
+                                     .andThen(s_MrPibb.setTurret()).andThen(s_MrPibb.waitUntilTurretSafe())
+                                     .andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.waitUntilWristSafe());
   }
 
   /* Intake States */
@@ -55,64 +72,74 @@ public class SuperSubsystem extends SubsystemBase {
 
   public Command preStageState() {
     return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.CORAL_PRESTAGE))
-               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.CORAL_PRESTAGE)));
+               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.CORAL_PRESTAGE)))
+               .andThen(runSubsystems());
   }
 
   /* Algae States */
   public Command lowerAlgaeState() {
     return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.LOWER_ALGAE))
-               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.LOWER_ALGAE)));
+               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.LOWER_ALGAE)))
+               .andThen(runSubsystems());
   }
 
   public Command upperAlgaeState() {
     return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.UPPER_ALGAE))
-               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.UPPER_ALGAE)));
+               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.UPPER_ALGAE)))
+               .andThen(runSubsystems());
   }
 
   public Command bargeState() {
     return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.BARGE))
-               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.BARGE)));
+               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.BARGE)))
+               .andThen(runSubsystems());
   }
 
   /* Scoring States */
   public Command level1State() {
     return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.L1))
-               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.L1)));
+               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.L1)))
+               .andThen(runSubsystems());
   }
 
   public Command level2State() {
     return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.L2))
-               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.L2)));
+               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.L2)))
+               .andThen(runSubsystems());
   }
 
   public Command level3State() {
     return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.L3))
-               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.L3)));
+               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.L3)))
+               .andThen(runSubsystems());
   }
 
   public Command level4State() {
     return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.L4))
-               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.L4)));
+               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.L4)))
+               .andThen(runSubsystems());
   }
 
   /* Other States */
   public Command climbState() {
     return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.CLIMB_TEST))
-               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.CLIMB_TEST)));
+               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.CLIMB_TEST)))
+               .andThen(runSubsystems());
   }
 
   public Command zeroState() {
     return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.CLIMB))
-               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.CLIMB)));
+               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.CLIMB)))
+               .andThen(runSubsystems());
   }
 
   public Command protectState() {
     return runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.PROTECT))
-               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.PROTECT)));
+               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.PROTECT)))
+               .andThen(runSubsystems());
   }
 
   public BooleanSupplier botFullCoral() {
     return s_MrPibb.botFullCoral();
   }
-
 }
