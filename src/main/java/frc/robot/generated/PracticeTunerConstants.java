@@ -125,7 +125,7 @@ public class PracticeTunerConstants {
             .withDriveFrictionVoltage(kDriveFrictionVoltage);
 
 
-    // Front Left
+    /* Front Left */
     private static final int kFrontLeftDriveMotorId = 8;
     private static final int kFrontLeftSteerMotorId = 9;
     private static final int kFrontLeftEncoderId = 23;
@@ -136,7 +136,7 @@ public class PracticeTunerConstants {
     private static final Distance kFrontLeftXPos = Inches.of(12.5);
     private static final Distance kFrontLeftYPos = Inches.of(12.5);
 
-    // Front Right
+    /* Front Right */
     private static final int kFrontRightDriveMotorId = 0;
     private static final int kFrontRightSteerMotorId = 1;
     private static final int kFrontRightEncoderId = 24;
@@ -147,7 +147,7 @@ public class PracticeTunerConstants {
     private static final Distance kFrontRightXPos = Inches.of(12.5);
     private static final Distance kFrontRightYPos = Inches.of(-12.5);
 
-    // Back Left
+    /* Back Left */
     private static final int kBackLeftDriveMotorId = 10;
     private static final int kBackLeftSteerMotorId = 11;
     private static final int kBackLeftEncoderId = 21;
@@ -158,7 +158,7 @@ public class PracticeTunerConstants {
     private static final Distance kBackLeftXPos = Inches.of(-12.5);
     private static final Distance kBackLeftYPos = Inches.of(12.5);
 
-    // Back Right
+    /* Back Right */
     private static final int kBackRightDriveMotorId = 18;
     private static final int kBackRightSteerMotorId = 19;
     private static final int kBackRightEncoderId = 22;
