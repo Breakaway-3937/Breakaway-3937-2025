@@ -28,7 +28,7 @@ public class MrPibb extends SubsystemBase {
   private final TalonFX wrist, turret, loader;
   private final TalonSRX thumb;
   private final MotionMagicVoltage wristRequest, turretRequest;
-  private final GenericEntry wristPosition, turretPosition, currentState;
+  private final GenericEntry wristPosition, turretPosition, currentState, coralFull, algaeFull;
   private MrPibbStates mrPibbState = MrPibbStates.PROTECT;
 
   /** Creates a new MrPibb.
@@ -49,8 +49,11 @@ public class MrPibb extends SubsystemBase {
     turretRequest = new MotionMagicVoltage(0).withEnableFOC(true);
 
     wristPosition = Shuffleboard.getTab("MrPibb").add("Wrist", getWristPosition()).withPosition(0, 0).getEntry();
-    turretPosition = Shuffleboard.getTab("MrPibb").add("Turret", getTurretPosition()).withPosition(0, 0).getEntry();
-    currentState = Shuffleboard.getTab("MrPibb").add("State", getState()).withPosition(0, 0).getEntry();
+    turretPosition = Shuffleboard.getTab("MrPibb").add("Turret", getTurretPosition()).withPosition(1, 0).getEntry();
+    currentState = Shuffleboard.getTab("MrPibb").add("State", getState()).withPosition(2, 0).getEntry();
+    coralFull = Shuffleboard.getTab("MrPibb").add("Coral Full", botFullCoral().getAsBoolean()).withPosition(3, 0).getEntry();
+    algaeFull = Shuffleboard.getTab("MrPibb").add("Algae Full", botFullAlgae().getAsBoolean()).withPosition(4, 0).getEntry();
+
   }
 
   public Command setWrist() {
@@ -246,10 +249,18 @@ public class MrPibb extends SubsystemBase {
   @Override
   public void periodic() {
     wristPosition.setDouble(getWristPosition());
-    Logger.recordOutput("Wrist", getWristPosition());
+    Logger.recordOutput("MrPibb/Wrist", getWristPosition());
+
     turretPosition.setDouble(getTurretPosition());
-    Logger.recordOutput("Turret", getTurretPosition());
+    Logger.recordOutput("MrPibb/Turret", getTurretPosition());
+
     currentState.setString(getState());
-    Logger.recordOutput("MrPibb State", getState());
+    Logger.recordOutput("MrPibb/MrPibb State", getState());
+
+    coralFull.setBoolean(botFullCoral().getAsBoolean());
+    Logger.recordOutput("MrPibb/Coral Full", botFullCoral().getAsBoolean());
+
+    algaeFull.setBoolean(botFullAlgae().getAsBoolean());
+    Logger.recordOutput("MrPibb/Algae Full", botFullAlgae().getAsBoolean());
   }
 }

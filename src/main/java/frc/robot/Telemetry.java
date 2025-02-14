@@ -117,7 +117,8 @@ public class Telemetry {
         SignalLogger.writeDoubleArray("odometry", poseArray);
         SignalLogger.writeDouble("odom period", state.OdometryPeriod, "seconds");
 
-        Logger.recordOutput("Pose", pose);
-        Logger.recordOutput("Speed", velocities.getNorm());
+        Logger.recordOutput("Swerve/Pose", pose);
+        Logger.recordOutput("Swerve/Speed", velocities.getNorm());
+        Logger.recordOutput("Swerve/Swerve Mod States", state.ModuleStates);
     }
 }

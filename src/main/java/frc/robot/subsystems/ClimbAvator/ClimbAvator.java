@@ -209,10 +209,12 @@ public class ClimbAvator extends SubsystemBase {
   @Override
   public void periodic() {
     elevatorPosition.setDouble(getElevatorMotorPosition());
-    Logger.recordOutput("Elevator", getElevatorMotorPosition());
+    Logger.recordOutput("ClimbAvator/Elevator", getElevatorMotorPosition());
+
     shoulderPosition.setDouble(getShoulderMotorPosition());
-    Logger.recordOutput("Shoulder", getShoulderMotorPosition());
+    Logger.recordOutput("ClimbAvator/Shoulder", getShoulderMotorPosition());
+    
     currentState.setString(getState().name());
-    Logger.recordOutput("ClimbAvator State", getState().name());
+    Logger.recordOutput("ClimbAvator/ClimbAvator State", getState().name());
   }
 }

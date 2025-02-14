@@ -120,7 +120,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        Logger.recordOutput("Selected Auto", autoChooser.getSelected().getName());
+        Logger.recordOutput("Auto/Selected Auto", autoChooser.getSelected().getName());
         return autoChooser.getSelected();
     }
 
@@ -142,6 +142,7 @@ public class RobotContainer {
     }
 
     public Swerve createSwerve() {
+        Logger.recordOutput("Is Practice Bot", Constants.PRACTICE_BOT);
         return (Constants.PRACTICE_BOT) ? PracticeTunerConstants.createDrivetrain() : CompTunerConstants.createDrivetrain();
     }
 }
