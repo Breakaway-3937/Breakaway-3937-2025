@@ -43,7 +43,7 @@ public class Vision extends SubsystemBase {
     this.s_Swerve = s_Swerve;
     
     try {
-      atfl = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025Reefscape.m_resourceFile);
+      atfl = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025ReefscapeWelded.m_resourceFile);
     } catch(IOException e) {
       e.printStackTrace();
     }
