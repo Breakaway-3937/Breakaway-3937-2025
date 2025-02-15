@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
@@ -142,6 +143,10 @@ public class Vision extends SubsystemBase {
     //return VecBuilder.fill(xStdMapFront.get(averageDistanceX), yStdMapFront.get(averageDistanceY), 9999999); 
     // Make an Interpolating map that uses average distance from camera to find x and y std. 
     // Fill map with varing ranges and stds from aScope
+  }
+
+  public BooleanSupplier funeral() {
+    return () -> frontCamera.isDead() || backCamera.isDead();
   }
 
   @Override
