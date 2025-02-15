@@ -60,13 +60,13 @@ public class AutoTeleop extends SequentialCommandGroup {
     return Commands.defer(
       () -> {
         switch (OperatorController.getLevel()) {
-          case "LEVEL_ONE":
+          case "L1":
             return s_SuperSubsystem.l1State();
-          case "LEVEL_TWO":
+          case "L2":
             return s_SuperSubsystem.l2State();
-          case "LEVEL_THREE":
+          case "L3":
             return s_SuperSubsystem.l3State();
-          case "LEVEL_FOUR":
+          case "L4":
             return s_SuperSubsystem.l4State();
           default:
             return Commands.none();

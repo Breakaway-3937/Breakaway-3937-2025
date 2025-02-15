@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -99,10 +100,10 @@ public class RobotContainer {
         translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
 
         /* Coral Scoring States */
-        xboxController.back().and(xboxController.a()).or(l1Trigger).onTrue(s_SuperSubsystem.l1State());
-        xboxController.back().and(xboxController.b()).or(l2Trigger).onTrue(s_SuperSubsystem.l2State());
-        xboxController.back().and(xboxController.x()).or(l3Trigger).onTrue(s_SuperSubsystem.l3State());
-        xboxController.back().and(xboxController.y()).or(l4Trigger).onTrue(s_SuperSubsystem.l4State());
+        xboxController.back().and(xboxController.a()).or(l1Trigger).onTrue(s_SuperSubsystem.l1State().alongWith(new InstantCommand(() -> OperatorController.setLevelEntry())));
+        xboxController.back().and(xboxController.b()).or(l2Trigger).onTrue(s_SuperSubsystem.l2State().alongWith(new InstantCommand(() -> OperatorController.setLevelEntry())));
+        xboxController.back().and(xboxController.x()).or(l3Trigger).onTrue(s_SuperSubsystem.l3State().alongWith(new InstantCommand(() -> OperatorController.setLevelEntry())));
+        xboxController.back().and(xboxController.y()).or(l4Trigger).onTrue(s_SuperSubsystem.l4State().alongWith(new InstantCommand(() -> OperatorController.setLevelEntry())));
 
         /* Intake States */
         xboxController.y().onTrue(s_SuperSubsystem.stationState());

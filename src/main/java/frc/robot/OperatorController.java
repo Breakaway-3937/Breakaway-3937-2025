@@ -44,19 +44,23 @@ public class OperatorController {
     return levelEntry.get();
   }
 
+  public static void setLevelEntry() {
+    levelEntry.set("");
+  }
+
   public static Trigger getL1Trigger() {
-    return new Trigger(() -> levelEntry.get().equals("LEVEL_ONE"));
+    return new Trigger(() -> levelEntry.get().equals("L1"));
   }
 
   public static Trigger getL2Trigger() {
-    return new Trigger(() -> levelEntry.get().equals("LEVEL_TWO"));
+    return new Trigger(() -> levelEntry.get().equals("L2"));
   }
 
   public static Trigger getL3Trigger() {
-    return new Trigger(() -> levelEntry.get().equals("LEVEL_THREE"));
+    return new Trigger(() -> levelEntry.get().equals("L3"));
   }
 
   public static Trigger getL4Trigger() {
-    return new Trigger(() -> levelEntry.get().equals("LEVEL_FOUR"));
+    return new Trigger(() -> levelEntry.get().equals("L4"));
   }
 }
