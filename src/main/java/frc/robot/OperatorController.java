@@ -6,6 +6,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringEntry;
 import edu.wpi.first.networktables.StringTopic;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.Swerve.AutoPathLocations;
 
 /** Class for acquiring button triggers from Network Tables */
@@ -41,5 +42,21 @@ public class OperatorController {
 
   public static String getLevel() {
     return levelEntry.get();
+  }
+
+  public static Trigger getL1Trigger() {
+    return new Trigger(() -> levelEntry.get().equals("LEVEL_ONE"));
+  }
+
+  public static Trigger getL2Trigger() {
+    return new Trigger(() -> levelEntry.get().equals("LEVEL_TWO"));
+  }
+
+  public static Trigger getL3Trigger() {
+    return new Trigger(() -> levelEntry.get().equals("LEVEL_THREE"));
+  }
+
+  public static Trigger getL4Trigger() {
+    return new Trigger(() -> levelEntry.get().equals("LEVEL_FOUR"));
   }
 }
