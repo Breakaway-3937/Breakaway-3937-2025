@@ -5,17 +5,18 @@
 package frc.robot.subsystems.MrPibb;
 
 public enum MrPibbStates {
-    //Wrist Max = 16.58
-    FLOOR_INTAKE_CORAL(16.2, 0, 0),
-    FLOOR_INTAKE_ALGAE(0, 0, 0),
-    STOW_MODE(0, 0, 0),
+    //16.58 Max for Wrist
+    GROUND_CORAL(16.2, 0, 0),
+    GROUND_ALGAE(0, 0, 0), //TODO
     PROCESSOR(10.435, -3.62, 0),
-    BARGE(0, 0, 0),
+    BARGE(0, 0, 0), //TODO
     CLIMB(9.8, -1.7, 0),
-    STATION(-0.523438, -3.598, 0),
+    //STATION(-0.523438, -3.598, 0),
+    STATION(11.2, 0, 0),
     L1(13.2, 0, 0),
     L2(10.7, -1.83, 0),
-    L3(10.851, -1.842, 0),
+    //L3(10.851, -1.842, 0),
+    L3(4.4, -1.9, 0),
     L4(16.5, -1.842, 0),
     PROTECT(4.6, 0, 0),
     CORAL_PRESTAGE(9.788, -1.824, 0),
