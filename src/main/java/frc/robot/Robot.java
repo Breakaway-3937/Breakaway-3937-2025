@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ComplexWidget;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.LED.LEDStates;
 
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
@@ -95,7 +96,9 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    robotContainer.getLEDSystem().setState(LEDStates.DISABLED);
+  }
 
   @Override
   public void disabledExit() {}
@@ -110,7 +113,9 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    robotContainer.getLEDSystem().setState(LEDStates.AUTONOMOUS);
+  }
 
   @Override
   public void autonomousExit() {}
