@@ -48,7 +48,7 @@ public class RobotContainer {
     private final JoystickButton alignButton = new JoystickButton(buttons, 8);
 
     /* Subsystems */
-    private final Swerve s_Swerve = PracticeTunerConstants.createDrivetrain();//createSwerve();
+    private final Swerve s_Swerve = createSwerve();
     private final Vision s_Vision = new Vision(s_Swerve);
     private final MrPibb s_MrPibb = new MrPibb();
     private final ClimbAvator s_ClimbAvator = new ClimbAvator();
@@ -89,20 +89,24 @@ public class RobotContainer {
         xboxController.y().onTrue(s_SuperSubsystem.level4State());
 
         /* Intake States */
-        xboxController.leftTrigger(0.3).onTrue(s_SuperSubsystem.loadState()); // TODO Test me
+        xboxController.leftTrigger(0.3).onTrue(s_SuperSubsystem.loadState());
         xboxController.rightBumper().onTrue(s_SuperSubsystem.preStageState());
         xboxController.start().onTrue(s_MrPibb.runLoader()).onFalse(s_MrPibb.stopLoader());
         xboxController.leftStick().onTrue(s_MrPibb.runLoaderReverse()).onFalse(s_MrPibb.stopLoader());
         xboxController.back().onTrue(s_MrPibb.runThumbForward()).onFalse(s_MrPibb.stopThumb());
+        xboxController.povLeft().onTrue(s_SuperSubsystem.groundCoralState());
+        
  
         /* Climbing States */
-        //xboxController.leftStick().onTrue(s_SuperSubsystem.climbState().alongWith(s_SuperSubsystem.runSubsystems()));
-        //xboxController.rightStick().onTrue(s_SuperSubsystem.zeroState().alongWith(s_SuperSubsystem.runSubsystems()));
+        /*xboxController.leftStick().onTrue(s_SuperSubsystem.climbState());
+        xboxController.rightStick().onTrue(s_SuperSubsystem.downClimb());
+        xboxController.start().onTrue(s_ClimbAvator.bagForward()).onFalse(s_ClimbAvator.bagStop());
+        xboxController.back().onTrue(s_ClimbAvator.bagBackward()).onFalse(s_ClimbAvator.bagStop());*/
         
         /* Algae States */
-
         xboxController.povRight().onTrue(s_SuperSubsystem.lowerAlgaeState());
         xboxController.b().onTrue(s_SuperSubsystem.upperAlgaeState());
+        xboxController.rightStick().onTrue(s_SuperSubsystem.processorState());
 
         autoTrackButton.whileTrue(new AutoTeleop(s_Swerve, s_Vision, s_SuperSubsystem));
         alignButton.or(rotationButton).whileTrue(new CenterOnAprilTag(s_Swerve, s_Vision, 0));
@@ -124,7 +128,6 @@ public class RobotContainer {
         return autoChooser.getSelected();
     }
 
-    //TODO
     public Command getInitialProtectCommand() {
         return s_SuperSubsystem.protectState();
     }
