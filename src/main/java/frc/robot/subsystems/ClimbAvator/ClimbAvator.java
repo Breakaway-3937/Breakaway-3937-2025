@@ -133,20 +133,20 @@ public class ClimbAvator extends SubsystemBase {
 
     config.Feedback.SensorToMechanismRatio = 250;
 
-    config.Slot0.kS = 0.25;
-    config.Slot0.kV = 0.2;
-    config.Slot0.kA = 0.03;
-    config.Slot0.kP = 67.2;
+    config.Slot0.kS = 0.28;
+    config.Slot0.kV = 1.35;
+    config.Slot0.kA = 0.1;
+    config.Slot0.kP = 1800;
     config.Slot0.kI = 0;
     config.Slot0.kD = 0;
 
-    /*config.CurrentLimits.SupplyCurrentLimit = 70;
+    config.CurrentLimits.SupplyCurrentLimit = 80;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLowerLimit = 40;
-    config.CurrentLimits.SupplyCurrentLowerTime = 1;*/
+    config.CurrentLimits.SupplyCurrentLowerTime = 1;
 
-    config.MotionMagic.MotionMagicAcceleration = 2880;
-    config.MotionMagic.MotionMagicCruiseVelocity = 2880;
+    config.MotionMagic.MotionMagicCruiseVelocity = 10000;
+    config.MotionMagic.MotionMagicAcceleration = 5000;
     config.MotionMagic.MotionMagicJerk = 4000;
 
     shoulderMotor.getConfigurator().apply(config);
@@ -174,13 +174,13 @@ public class ClimbAvator extends SubsystemBase {
     config.Slot0.kI = 0;
     config.Slot0.kD = 0.1;
 
-    /*config.CurrentLimits.SupplyCurrentLimit = 70;
+    config.CurrentLimits.SupplyCurrentLimit = 80;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLowerLimit = 40;
-    config.CurrentLimits.SupplyCurrentLowerTime = 1;*/
+    config.CurrentLimits.SupplyCurrentLowerTime = 1;
 
-    config.MotionMagic.MotionMagicAcceleration = 200;
-    config.MotionMagic.MotionMagicCruiseVelocity = 280;
+    config.MotionMagic.MotionMagicAcceleration = 380;
+    config.MotionMagic.MotionMagicCruiseVelocity = 445;
     config.MotionMagic.MotionMagicJerk = 1600;
 
     elevatorMotor.getConfigurator().apply(config);
@@ -197,10 +197,9 @@ public class ClimbAvator extends SubsystemBase {
 
     TalonSRXConfiguration config = new TalonSRXConfiguration();
 
-    //TODO: Tune these values.
     config.peakCurrentDuration = 100;
-    config.peakCurrentLimit = 40;
-    config.continuousCurrentLimit = 30;
+    config.peakCurrentLimit = 50;
+    config.continuousCurrentLimit = 35;
 
     bagTheBack.configAllSettings(config);
     bagTheBack.enableCurrentLimit(true);

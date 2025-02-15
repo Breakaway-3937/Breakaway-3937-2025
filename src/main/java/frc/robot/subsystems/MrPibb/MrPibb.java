@@ -163,10 +163,9 @@ public class MrPibb extends SubsystemBase {
 
     TalonSRXConfiguration config = new TalonSRXConfiguration();
 
-    //TODO: Tune these values.
     config.peakCurrentDuration = 100;
-    config.peakCurrentLimit = 40;
-    config.continuousCurrentLimit = 30;
+    config.peakCurrentLimit = 50;
+    config.continuousCurrentLimit = 35;
 
     thumb.configAllSettings(config);
     thumb.enableCurrentLimit(true);
@@ -180,7 +179,6 @@ public class MrPibb extends SubsystemBase {
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    //TODO: Tune these values.
     config.Slot0.kS = 0.25;
     config.Slot0.kV = 0.12;
     config.Slot0.kA = 0.01;
@@ -188,10 +186,10 @@ public class MrPibb extends SubsystemBase {
     config.Slot0.kI = 0;
     config.Slot0.kD = 0.18;
 
-    /*config.CurrentLimits.SupplyCurrentLimit = 70;
+    config.CurrentLimits.SupplyCurrentLimit = 80;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLowerLimit = 40;
-    config.CurrentLimits.SupplyCurrentLowerTime = 1;*/
+    config.CurrentLimits.SupplyCurrentLowerTime = 1;
 
     config.MotionMagic.MotionMagicAcceleration = 175;
     config.MotionMagic.MotionMagicCruiseVelocity = 200;
@@ -208,18 +206,17 @@ public class MrPibb extends SubsystemBase {
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-    //TODO: Tune these values.
     config.Slot0.kS = 0.25;
     config.Slot0.kV = 0.12;
     config.Slot0.kA = 0.01;
-    config.Slot0.kP = 2.89;
+    config.Slot0.kP = 6;
     config.Slot0.kI = 0;
     config.Slot0.kD = 0.24;
 
-    /*config.CurrentLimits.SupplyCurrentLimit = 70;
+    config.CurrentLimits.SupplyCurrentLimit = 80;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLowerLimit = 40;
-    config.CurrentLimits.SupplyCurrentLowerTime = 1;*/
+    config.CurrentLimits.SupplyCurrentLowerTime = 1;
 
     config.MotionMagic.MotionMagicAcceleration = 155;
     config.MotionMagic.MotionMagicCruiseVelocity = 170;
@@ -238,10 +235,10 @@ public class MrPibb extends SubsystemBase {
 
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    /*config.CurrentLimits.SupplyCurrentLimit = 70;
+    config.CurrentLimits.SupplyCurrentLimit = 80;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLowerLimit = 40;
-    config.CurrentLimits.SupplyCurrentLowerTime = 1;*/
+    config.CurrentLimits.SupplyCurrentLowerTime = 1;
 
     loader.getConfigurator().apply(config);
   }
