@@ -16,10 +16,9 @@ import frc.robot.generated.CompTunerConstants;
 import frc.robot.generated.PracticeTunerConstants;
 
 public final class Constants {
-    //TODO: Will all change with new robot.
     public static final int CANDLE_ID = 26;
     public static final int PDH_ID = 27;
-    public static final int NUM_LEDS = 0;
+    public static final int NUM_LEDS = 8;
     public static final String CANIVORE_BUS = "CANivore";
     public static final String PRACTICE_SERIAL_NUM = "0324152B";
     public static final boolean PRACTICE_BOT = RobotController.getSerialNumber().equals(PRACTICE_SERIAL_NUM);
@@ -39,11 +38,11 @@ public final class Constants {
     }
 
     public static final class Vision {
-        //TODO: Will all change with new robot.
         public static final String FRONT_CAMERA_NAME = "FrontCamera";
         public static final String BACK_CAMERA_NAME = "BackCamera";
         public static final Transform3d FRONT_CAMERA_TRANSFORM = new Transform3d(new Translation3d(-0.194657, 0.236575, 0.172173), new Rotation3d(0, 1.745448, 0));
         public static final Transform3d BACK_CAMERA_TRANSFORM = new Transform3d(new Translation3d(-0.264378, 0.235461, 0.187954), new Rotation3d(0, 2.491458, Math.PI));
+        //TODO: Get STDs
         public static final Vector<N3> TAG_VISION_STDS_FRONT = VecBuilder.fill(0.716, 0.162, 9999999);
         public static final Vector<N3> TAG_VISION_STDS_BACK = VecBuilder.fill(0.716, 0.162, 9999999);
     }

@@ -28,28 +28,28 @@ public enum AutoPathLocations {
     STATION_SIX(new Pose2d(1.664, 1.664, Rotation2d.fromDegrees(-128))),
     NO_STATION(null);
 
-    private final Pose2d coralLocation;
+    private final Pose2d location;
 
-    private AutoPathLocations(Pose2d coralLocation) {
-        this.coralLocation = coralLocation;
+    private AutoPathLocations(Pose2d location) {
+        this.location = location;
     }
 
     public Pose2d getLocation() {
-        if(!DriverStation.getAlliance().isEmpty()) {
+        if(DriverStation.getAlliance().isPresent()) {
             if(DriverStation.getAlliance().get().equals(DriverStation.Alliance.Red)) {
-                if(coralLocation != null) {
-                    return FlippingUtil.flipFieldPose(coralLocation);
+                if(location != null) {
+                    return FlippingUtil.flipFieldPose(location);
                 }
                 else {
-                    return coralLocation;
+                    return location;
                 }
             }
             else {
-                return coralLocation;
+                return location;
             }
         }
         else {
-            return coralLocation;
+            return location;
         }
     }
 }
