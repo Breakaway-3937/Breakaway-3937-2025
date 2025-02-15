@@ -60,14 +60,14 @@ public class AutoTeleop extends SequentialCommandGroup {
     return Commands.defer(
       () -> {
         switch (OperatorController.getLevel()) {
-          case "LEVEL_1":
-            return s_SuperSubsystem.level1State().alongWith(s_SuperSubsystem.runSubsystems());
-          case "LEVEL_2":
-            return s_SuperSubsystem.level2State().alongWith(s_SuperSubsystem.runSubsystems());
-          case "LEVEL_3":
-            return s_SuperSubsystem.level3State().alongWith(s_SuperSubsystem.runSubsystems());
-          case "LEVEL_4":
-            return s_SuperSubsystem.level4State().alongWith(s_SuperSubsystem.runSubsystems());
+          case "LEVEL_ONE":
+            return s_SuperSubsystem.l1State();
+          case "LEVEL_TWO":
+            return s_SuperSubsystem.l2State();
+          case "LEVEL_THREE":
+            return s_SuperSubsystem.l3State();
+          case "LEVEL_FOUR":
+            return s_SuperSubsystem.l4State();
           default:
             return Commands.none();
         }
@@ -75,7 +75,7 @@ public class AutoTeleop extends SequentialCommandGroup {
   }
 
   private Command loadState() {
-    return s_SuperSubsystem.loadState();
+    return s_SuperSubsystem.stationState();
   }
 
   private BooleanSupplier robotAtPickUp() {
