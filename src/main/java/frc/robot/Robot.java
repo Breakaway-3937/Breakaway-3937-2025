@@ -47,7 +47,7 @@ public class Robot extends LoggedRobot {
       pdh = new PowerDistribution(Constants.PDH_ID, ModuleType.kRev);
       pdh.setSwitchableChannel(true);
       pdh.clearStickyFaults();
-      ComplexWidget pdhWidget = Shuffleboard.getTab("System").add("PDH", pdh).withPosition(1, 0);
+      ComplexWidget pdhWidget = Shuffleboard.getTab("System").add("PDH", pdh).withPosition(3, 0);
       pdhWidget.hashCode();
     }
     
@@ -121,7 +121,7 @@ public class Robot extends LoggedRobot {
       autonomousCommand.cancel();
     }
 
-    //robotContainer.getInitialProtectCommand().schedule();
+    robotContainer.getInitialProtectCommand().schedule();
   }
 
   @Override
