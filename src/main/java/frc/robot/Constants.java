@@ -50,7 +50,7 @@ public final class Constants {
 
     public static final class Swerve {
         //TODO: Add the correct max speed and max angular rate.
-        public static final double MAX_SPEED = (Constants.PRACTICE_BOT) ? PracticeTunerConstants.kSpeedAt12Volts.in(MetersPerSecond) : CompTunerConstants.kSpeedAt12Volts.in(MetersPerSecond);; 
+        public static final double MAX_SPEED = (Constants.PRACTICE_BOT) ? PracticeTunerConstants.kSpeedAt12Volts.in(MetersPerSecond) : CompTunerConstants.kSpeedAt12Volts.in(MetersPerSecond); 
         public static final double MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
     }
 
