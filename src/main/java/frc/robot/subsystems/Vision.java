@@ -36,7 +36,7 @@ public class Vision extends SubsystemBase {
   private final InterpolatingDoubleTreeMap xStdMapFront, yStdMapFront, xStdMapBack, yStdMapBack; //Key = distance, Value = STD
   private boolean frontCameraBad, backCameraBad;
   private boolean xDistanceBad = false, yDistanceBad = false;
-  private ArrayList<Pose3d> frontTagsUsed, backTagsUsed;
+  private final ArrayList<Pose3d> frontTagsUsed, backTagsUsed;
 
   /** Creates a new Vision. */
   public Vision(Swerve s_Swerve) {
@@ -137,7 +137,7 @@ public class Vision extends SubsystemBase {
     // Fill map with varing ranges and stds from aScope
   }
 
-  public Vector<N3> calcStdBAck(double averageDistanceX, double averageDistanceY) {
+  public Vector<N3> calcStdBack(double averageDistanceX, double averageDistanceY) {
     return Constants.Vision.TAG_VISION_STDS_BACK;  //TODO get tree map values then uncomment line below
     //return VecBuilder.fill(xStdMapFront.get(averageDistanceX), yStdMapFront.get(averageDistanceY), 9999999); 
     // Make an Interpolating map that uses average distance from camera to find x and y std. 
@@ -184,7 +184,7 @@ public class Vision extends SubsystemBase {
       }
 
       if(!backCameraBad) {
-        s_Swerve.addVisionMeasurement(backResult.get().estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(backResult.get().timestampSeconds), calcStdBAck(averageDistanceX, averageDistanceY));
+        s_Swerve.addVisionMeasurement(backResult.get().estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(backResult.get().timestampSeconds), calcStdBack(averageDistanceX, averageDistanceY));
       }
 
       for(int i = 0; i < backResult.get().targetsUsed.size(); i++) {
