@@ -140,6 +140,9 @@ public class ClimbAvator extends SubsystemBase {
     config.Slot0.kI = 0;
     config.Slot0.kD = 0;
 
+    config.MotionMagic.MotionMagicExpo_kV = 0.12; // kV is around 0.12 V/rps
+    config.MotionMagic.MotionMagicExpo_kA = 0.1; // Use a slower kA of 0.1 V/(rps/s)
+
     config.CurrentLimits.SupplyCurrentLimit = 80;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLowerLimit = 40;
