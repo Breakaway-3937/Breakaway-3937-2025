@@ -44,8 +44,8 @@ public class OperatorController {
     return levelEntry.get();
   }
 
-  public static void setLevelEntry() {
-    levelEntry.set("");
+  public static void clearLevelEntry() {
+    levelEntry.set("Empty Level");
   }
 
   public static Trigger getL1Trigger() {
