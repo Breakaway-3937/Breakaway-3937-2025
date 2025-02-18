@@ -9,7 +9,7 @@ public enum MrPibbStates {
     GROUND_CORAL(16.7, 0, 0),
     GROUND_ALGAE(-0.3, -3.7, 0), //TODO
     PROCESSOR(10.435, -3.62, 0),
-    BARGE(0, 0, 0), //TODO
+    BARGE(16.5, 0, 0), //TODO
     CLIMB(9.8, -1.7, 0),
     //STATION(-0.523438, -3.598, 0),
     STATION(8.6, 0, 0),

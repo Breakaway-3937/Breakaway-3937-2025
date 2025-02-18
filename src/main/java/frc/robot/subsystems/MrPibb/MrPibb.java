@@ -167,6 +167,8 @@ public class MrPibb extends SubsystemBase {
     config.peakCurrentLimit = 50;
     config.continuousCurrentLimit = 35;
 
+    thumb.setInverted(true);
+
     thumb.configAllSettings(config);
     thumb.enableCurrentLimit(true);
   }

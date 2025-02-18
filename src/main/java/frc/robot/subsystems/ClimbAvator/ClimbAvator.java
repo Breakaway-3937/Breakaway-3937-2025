@@ -133,10 +133,10 @@ public class ClimbAvator extends SubsystemBase {
 
     config.Feedback.SensorToMechanismRatio = 250;
 
-    config.Slot0.kS = 0.28;
-    config.Slot0.kV = 1.35;
-    config.Slot0.kA = 0.1;
-    config.Slot0.kP = 1800;
+    config.Slot0.kS = 5;
+    config.Slot0.kV = 5;
+    config.Slot0.kA = 15;
+    config.Slot0.kP = 2;//900;
     config.Slot0.kI = 0;
     config.Slot0.kD = 0;
 
