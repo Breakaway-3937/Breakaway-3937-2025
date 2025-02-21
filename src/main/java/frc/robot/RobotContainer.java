@@ -110,7 +110,7 @@ public class RobotContainer {
         xboxController.rightBumper().onTrue(s_SuperSubsystem.preStageState());
         xboxController.leftTrigger(0.3).and(xboxController.rightTrigger(0.3).negate()).onTrue(s_MrPibb.runLoader()).onFalse(s_MrPibb.stopLoader());
         xboxController.leftBumper().onTrue(s_MrPibb.runLoaderReverse()).onFalse(s_MrPibb.stopLoader());
-        xboxController.rightTrigger(0.3).and(xboxController.leftTrigger(0.3).negate()).onTrue(s_MrPibb.runThumbForward()).onFalse(s_MrPibb.stopThumb());
+        xboxController.rightTrigger(0.3).and(xboxController.leftTrigger(0.3).negate()).onTrue(s_MrPibb.runThumbBackward()).onFalse(s_MrPibb.stopThumb());
         xboxController.povLeft().onTrue(s_SuperSubsystem.groundCoralState());
         xboxController.povRight().onTrue(s_SuperSubsystem.groundAlgaeState());
 
