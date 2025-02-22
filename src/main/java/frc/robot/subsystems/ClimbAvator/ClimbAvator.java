@@ -8,7 +8,6 @@ import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -26,7 +25,7 @@ public class ClimbAvator extends SubsystemBase {
   private final Follower followerShoulderRequest;
   private final Follower followerElevatorRequest;
   private final MotionMagicVoltage shoulderRequest;
-  private final MotionMagicExpoVoltage elevatorRequest;
+  private final MotionMagicVoltage elevatorRequest;
   private final GenericEntry elevatorPosition, shoulderPosition, currentState;
   private ClimbAvatorStates climbAvatorState = ClimbAvatorStates.PROTECT;
 
@@ -41,8 +40,8 @@ public class ClimbAvator extends SubsystemBase {
     followerShoulderRequest = new Follower(Constants.ClimbAvator.SHOULDER_CAN_ID, true);
     followerElevatorRequest = new Follower(Constants.ClimbAvator.ELEVATOR_CAN_ID, true);
 
-    shoulderRequest = new MotionMagicVoltage(0);
-    elevatorRequest = new MotionMagicExpoVoltage(0);//.withEnableFOC(true);
+    shoulderRequest = new MotionMagicVoltage(0);//Expo
+    elevatorRequest = new MotionMagicVoltage(0);
 
     configShoulderMotors();
     configElevatorMotors();
@@ -117,7 +116,9 @@ public class ClimbAvator extends SubsystemBase {
     return detonatorMotor;
   }
 
-  //TODO getMusic Motor Bilbo
+  public TalonFX getBilboBagginsTheBackMotor() {
+    return bilboBagginsTheBack;
+  }
 
   public void setClimbAvatorState(ClimbAvatorStates climbAvatorState) {
     this.climbAvatorState = climbAvatorState;
@@ -128,6 +129,8 @@ public class ClimbAvator extends SubsystemBase {
     boulderMotor.getConfigurator().apply(new TalonFXConfiguration());
 
     TalonFXConfiguration config = new TalonFXConfiguration();
+
+    config.Audio.AllowMusicDurDisable = true;
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
@@ -167,6 +170,8 @@ public class ClimbAvator extends SubsystemBase {
 
     TalonFXConfiguration config = new TalonFXConfiguration();
 
+    config.Audio.AllowMusicDurDisable = true;
+
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
@@ -199,6 +204,8 @@ public class ClimbAvator extends SubsystemBase {
     bilboBagginsTheBack.getConfigurator().apply(new TalonFXConfiguration());
 
     TalonFXConfiguration config = new TalonFXConfiguration();
+
+    config.Audio.AllowMusicDurDisable = true;
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 

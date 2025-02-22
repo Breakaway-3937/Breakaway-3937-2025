@@ -62,7 +62,7 @@ public class Vision extends SubsystemBase {
     backTagsUsed = new ArrayList<Pose3d>();
   }
 
-  public boolean hasTargets() {
+  public boolean hasFrontTargets() {
     return frontCamera.getLatest().hasTargets();
   }
 
@@ -165,7 +165,7 @@ public class Vision extends SubsystemBase {
       }
 
       if(!frontCameraBad) {
-        Pose2d pose = new Pose2d(frontResult.get().estimatedPose.getX(), frontResult.get().estimatedPose.getY(), s_Swerve.getPigeon2().getRotation2d());
+        Pose2d pose = new Pose2d(frontResult.get().estimatedPose.getX(), frontResult.get().estimatedPose.getY(), s_Swerve.getState().Pose.getRotation());
         s_Swerve.addVisionMeasurement(pose, Utils.fpgaToCurrentTime(frontResult.get().timestampSeconds), calcStdFront(averageDistanceX, averageDistanceY));
       }
 
@@ -191,7 +191,7 @@ public class Vision extends SubsystemBase {
       }
 
       if(!backCameraBad) {
-        Pose2d pose = new Pose2d(backResult.get().estimatedPose.getX(), backResult.get().estimatedPose.getY(), s_Swerve.getPigeon2().getRotation2d());
+        Pose2d pose = new Pose2d(backResult.get().estimatedPose.getX(), backResult.get().estimatedPose.getY(), s_Swerve.getState().Pose.getRotation());
         s_Swerve.addVisionMeasurement(pose, Utils.fpgaToCurrentTime(backResult.get().timestampSeconds), calcStdBack(averageDistanceX, averageDistanceY));
       }
 

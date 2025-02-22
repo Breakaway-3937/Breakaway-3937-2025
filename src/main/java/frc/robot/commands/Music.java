@@ -39,10 +39,12 @@ public class Music extends Command {
 
     orchestra.addInstrument(s_MrPibb.getTurretMotor());
     orchestra.addInstrument(s_MrPibb.getWristMotor());
+    orchestra.addInstrument(s_MrPibb.getLoaderMotor());
     orchestra.addInstrument(s_ClimbAvator.getShoulderMotor());
     orchestra.addInstrument(s_ClimbAvator.getBoulderMotor());
     orchestra.addInstrument(s_ClimbAvator.getElevatorMotor());
     orchestra.addInstrument(s_ClimbAvator.getDetonatorMotor());
+    orchestra.addInstrument(s_ClimbAvator.getBilboBagginsTheBackMotor());
   }
 
   // Called every time the scheduler runs while the command is scheduled.

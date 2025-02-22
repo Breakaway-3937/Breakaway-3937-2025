@@ -9,14 +9,12 @@ public enum ClimbAvatorStates {
     GROUND_CORAL(4.77, 0),
     GROUND_ALGAE(0.25, -0.0319),
     PROCESSOR(0.25, -0.0713),
-    BARGE(73.5, -0.2), //TODO
+    BARGE(73.5, -0.2),
     CLIMB(0.25, -0.192),
-    //STATION(0.25, -0.196),
     STATION(0.25, -0.2),
     L1(0.25, -0.0852),
-    L2(5.780, -0.131),//Down 1 inch
-    //L3(18, -0.1689),
-    L3(27.98, -0.1660),//Up 3 inch
+    L2(5.780, -0.131),
+    L3(27.98, -0.1660),
     L4(73.5, -0.1899),
     PROTECT(0.25, 0),
     CORAL_PRESTAGE(0.25, -0.16),

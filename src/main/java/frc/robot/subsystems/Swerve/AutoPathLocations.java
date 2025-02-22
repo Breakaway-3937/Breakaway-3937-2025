@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 
 public enum AutoPathLocations {
+    //TODO: Update with new values.
     CORAL_A(new Pose2d(3.062, 4.2, Rotation2d.fromDegrees(0))),
     CORAL_B(new Pose2d(3.146, 3.852, Rotation2d.fromDegrees(0))),
     CORAL_C(new Pose2d(3.55, 2.8, Rotation2d.fromDegrees(60))),

@@ -56,8 +56,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private final SwerveRequest.ApplyRobotSpeeds pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
     PathConstraints constraints = new PathConstraints(
-        10.0, 10.0,
-        Units.degreesToRadians(720), Units.degreesToRadians(720));
+        7.0, 7.0,
+        Units.degreesToRadians(720.0), Units.degreesToRadians(720.0));
 
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
     private final SysIdRoutine sysIdRoutineTranslation = new SysIdRoutine(

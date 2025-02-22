@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutoTeleop;
-import frc.robot.commands.CenterOnAprilTag;
 import frc.robot.commands.Music;
 import frc.robot.generated.CompTunerConstants;
 import frc.robot.generated.PracticeTunerConstants;
@@ -48,9 +47,7 @@ public class RobotContainer {
 
     /* Driver Buttons */
     private final JoystickButton translationButton = new JoystickButton(translationController, Constants.Controllers.TRANSLATION_BUTTON);
-    private final JoystickButton rotationButton = new JoystickButton(rotationController, Constants.Controllers.ROTATION_BUTTON);
     private final JoystickButton autoTrackButton = new JoystickButton(buttons, 1);
-    private final JoystickButton alignButton = new JoystickButton(buttons, 8);
 
     /* Triggers */
     private final Trigger l1Trigger = OperatorController.getL1Trigger();
@@ -77,10 +74,6 @@ public class RobotContainer {
             .withDeadband(Constants.Swerve.MAX_SPEED * Constants.Controllers.STICK_DEADBAND)
             .withRotationalDeadband(Constants.Swerve.MAX_ANGULAR_RATE * Constants.Controllers.STICK_DEADBAND) 
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
-    @SuppressWarnings("unused")
-    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    @SuppressWarnings("unused")
-    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
     /* Telemetry */
     private final Telemetry logger = new Telemetry(Constants.Swerve.MAX_SPEED);
@@ -113,7 +106,7 @@ public class RobotContainer {
         /* Intake States */
         xboxController.y().onTrue(s_SuperSubsystem.stationState());
         xboxController.rightBumper().onTrue(s_SuperSubsystem.preStageState());
-        xboxController.leftTrigger(0.3).and(xboxController.rightTrigger(0.3).negate()).onTrue(s_MrPibb.runUntilFullCoral());
+        xboxController.leftTrigger(0.3).and(xboxController.rightTrigger(0.3).negate()).onTrue(s_MrPibb.runUntilFullCoral()).onFalse(s_MrPibb.stopLoader());
         xboxController.leftBumper().onTrue(s_MrPibb.runLoaderReverse()).onFalse(s_MrPibb.runUntilFullAlgae());
         xboxController.rightTrigger(0.3).and(xboxController.leftTrigger(0.3).negate()).onTrue(s_MrPibb.runThumbForward()).onFalse(s_MrPibb.stopThumb());
         xboxController.povLeft().onTrue(s_SuperSubsystem.groundCoralState());
@@ -133,13 +126,12 @@ public class RobotContainer {
         xboxController.b().onTrue(s_SuperSubsystem.bargeState());
 
         autoTrackButton.whileTrue(new AutoTeleop(s_Swerve, s_SuperSubsystem));
-        alignButton.or(rotationButton).whileTrue(new CenterOnAprilTag(s_Swerve, s_Vision, translationController));
 
         /* LEDs */
         climbLEDTrigger.whileTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.CLIMBED), s_LED));
         funeralLEDTrigger.whileTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.FUNERAL), s_LED).ignoringDisable(true));
-        botFullAlgaeLEDTrigger.and(botFullCoralLEDTrigger.negate()).onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.ALGAE_FULL), s_LED));
-        botFullCoralLEDTrigger.and(botFullAlgaeLEDTrigger.negate()).onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.CORAL_FULL), s_LED));
+        botFullAlgaeLEDTrigger.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.ALGAE_FULL), s_LED));
+        botFullCoralLEDTrigger.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.CORAL_FULL), s_LED));
         botFullAlgaeLEDTrigger.and(botFullCoralLEDTrigger).and(funeralLEDTrigger).and(climbLEDTrigger).whileFalse(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED));
 
         s_Swerve.registerTelemetry(logger::telemeterize);
@@ -152,7 +144,6 @@ public class RobotContainer {
         autoChooser.addOption("L4 Left CAC DS", new PathPlannerAuto("L4 Right CAC DS", true));
         Shuffleboard.getTab("Auto").add(autoChooser).withPosition(0, 0).withSize(2, 1);
         climbLEDTrigger = new Trigger(() -> s_ClimbAvator.getState().equals(ClimbAvatorStates.CLIMB_PULL) && s_ClimbAvator.waitUntilShoulderSafe().isFinished());
-        s_ClimbAvator.getState();
         funeralLEDTrigger = new Trigger(s_Vision.funeral());
         botFullAlgaeLEDTrigger = new Trigger(s_SuperSubsystem.botFullAlgae());
         botFullCoralLEDTrigger = new Trigger(s_SuperSubsystem.botFullCoral());
@@ -190,7 +181,7 @@ public class RobotContainer {
     }
 }
 
-//FIXME: Run SysId with robot.
+//TODO: Run SysId with robot.
 /*
 // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
