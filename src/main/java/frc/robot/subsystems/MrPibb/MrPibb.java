@@ -11,8 +11,10 @@ import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
+import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -27,6 +29,7 @@ import frc.robot.Constants;
 public class MrPibb extends SubsystemBase {
   private final TalonFX wrist, turret, loader;
   private final TalonSRX thumb;
+  private final CANrange sherlock, watson;
   private final MotionMagicVoltage wristRequest, turretRequest;
   private final GenericEntry wristPosition, turretPosition, currentState, coralFull, algaeFull;
   private MrPibbStates mrPibbState = MrPibbStates.PROTECT;
@@ -39,11 +42,14 @@ public class MrPibb extends SubsystemBase {
     turret = new TalonFX(Constants.MrPibb.TURRET_CAN_ID);
     loader = new TalonFX(Constants.MrPibb.LOADER_CAN_ID);
     thumb = new TalonSRX(Constants.MrPibb.THUMB_CAN_ID);
+    sherlock = new CANrange(Constants.MrPibb.SHERLOCK_CAN_ID);
+    watson = new CANrange(Constants.MrPibb.WATSON_CAN_ID);
 
     configWrist();
     configTurret();
     configLoader();
     configThumb();
+    configCANranges();
 
     wristRequest = new MotionMagicVoltage(0).withEnableFOC(true);
     turretRequest = new MotionMagicVoltage(0).withEnableFOC(true);
@@ -69,7 +75,7 @@ public class MrPibb extends SubsystemBase {
   }
 
   public Command setTurret() {
-    return runOnce(() -> turret.setControl(turretRequest.withPosition(mrPibbState.getTurret()))).unless(botFullAlgae());
+    return runOnce(() -> turret.setControl(turretRequest.withPosition(mrPibbState.getTurret())));//.unless(botFullAlgae());
   }
 
   public Command stopTurret() {
@@ -84,6 +90,10 @@ public class MrPibb extends SubsystemBase {
     return runOnce(() -> loader.set(-1));
   }
 
+  public Command runLoaderReverseSlowly() {
+    return runOnce(() -> loader.set(-0.1));
+  }
+
   public Command stopLoader() {
     return runOnce(() -> loader.stopMotor());
   }
@@ -92,26 +102,35 @@ public class MrPibb extends SubsystemBase {
     return runOnce(() -> thumb.set(ControlMode.PercentOutput, 1));
   }
 
+  public Command runThumbForwardSlowly() {
+    return runOnce(() -> thumb.set(ControlMode.PercentOutput, 0.30));
+  }
+
   public Command runThumbBackward() {
-    return runOnce(() -> thumb.set(ControlMode.PercentOutput, -1));
+    return runOnce(() -> thumb.set(ControlMode.PercentOutput, -0.3));
   }
 
   public Command stopThumb() {
     return runOnce(() -> thumb.set(ControlMode.PercentOutput, 0));
   }
 
-  public Command runUntilFull() {
-    return runLoader().andThen(Commands.waitUntil(botFullCoral())).andThen(stopLoader());
+  public Command runUntilFullCoral() {
+    return runLoader().andThen(runThumbForwardSlowly()).andThen(Commands.waitUntil(botFullCoral())).andThen(stopLoader())
+                      .andThen(runThumbBackward()).andThen(Commands.waitUntil(() -> !botFullCoral().getAsBoolean()))
+                      .andThen(runThumbForwardSlowly()).andThen(Commands.waitUntil(botFullCoral()))
+                      .andThen(stopThumb());
   }
 
-  //TODO: Write this method.
+  public Command runUntilFullAlgae() {
+    return Commands.either(runLoaderReverseSlowly(), stopLoader(), botFullAlgae());
+  }
+
   public BooleanSupplier botFullCoral() {
-    return () -> false;
+    return () -> sherlock.getIsDetected().getValue();
   }
 
-  //TODO: Write this method.
   public BooleanSupplier botFullAlgae() {
-    return () -> false;
+    return () -> watson.getIsDetected().getValue();
   } 
 
   public BooleanSupplier wristForward() {
@@ -166,8 +185,6 @@ public class MrPibb extends SubsystemBase {
     config.peakCurrentDuration = 100;
     config.peakCurrentLimit = 50;
     config.continuousCurrentLimit = 35;
-
-    thumb.setInverted(true);
 
     thumb.configAllSettings(config);
     thumb.enableCurrentLimit(true);
@@ -243,6 +260,16 @@ public class MrPibb extends SubsystemBase {
     config.CurrentLimits.SupplyCurrentLowerTime = 1;
 
     loader.getConfigurator().apply(config);
+  }
+
+  public void configCANranges() {
+    sherlock.getConfigurator().apply(new CANrangeConfiguration());
+    watson.getConfigurator().apply(new CANrangeConfiguration());
+
+    CANrangeConfiguration config = new CANrangeConfiguration();
+    config.ProximityParams.ProximityThreshold = 0.12;
+
+    sherlock.getConfigurator().apply(config);
   }
 
   @Override

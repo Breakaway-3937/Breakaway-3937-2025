@@ -13,29 +13,22 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.OperatorController;
 import frc.robot.subsystems.SuperSubsystem;
-import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Swerve.Swerve;
 
 public class AutoTeleop extends SequentialCommandGroup {
   private final Swerve s_Swerve;
-  private final Vision s_Vision;
   private final SuperSubsystem s_SuperSubsystem;
 
-  //TODO: Add the aligning command.
-  /** Creates a new AutoTelop. */
-  public AutoTeleop(Swerve s_Swerve, Vision s_Vision, SuperSubsystem s_SuperSubsystem) {
+  /** Creates a new AutoTeleop. */
+  public AutoTeleop(Swerve s_Swerve, SuperSubsystem s_SuperSubsystem) {
     this.s_Swerve = s_Swerve;
-    this.s_Vision = s_Vision;
     this.s_SuperSubsystem = s_SuperSubsystem;
 
     setName("AutoTeleop");
-    addRequirements(s_Swerve, s_Vision);
+    addRequirements(s_Swerve);
 
-    //Change the until at pose
-    addCommands(loadState(), 
-                pathFindPickup().until(robotAtPickUp()), 
-                pathFindScore().until(robotAtScoring()), 
-                scoreState());
+    addCommands(pathFindPickup().until(robotAtPickUp()), 
+                pathFindScore().until(robotAtScoring()));
   }
 
   private Command pathFindPickup() {
@@ -54,28 +47,6 @@ public class AutoTeleop extends SequentialCommandGroup {
       },
       Set.of(s_Swerve)
     );
-  }
-
-  private Command scoreState() {
-    return Commands.defer(
-      () -> {
-        switch (OperatorController.getLevel()) {
-          case "L1":
-            return s_SuperSubsystem.l1State();
-          case "L2":
-            return s_SuperSubsystem.l2State();
-          case "L3":
-            return s_SuperSubsystem.l3State();
-          case "L4":
-            return s_SuperSubsystem.l4State();
-          default:
-            return Commands.none();
-        }
-      }, Set.of(s_SuperSubsystem));
-  }
-
-  private Command loadState() {
-    return s_SuperSubsystem.stationState();
   }
 
   private BooleanSupplier robotAtPickUp() {

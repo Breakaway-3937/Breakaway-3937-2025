@@ -71,7 +71,6 @@ public class LED extends SubsystemBase {
     AUTONOMOUS,
     CLIMBED,
     FUNERAL,
-    BOT_FULL,
     ALGAE_FULL,
     CORAL_FULL,
     BOT_EMPTY
@@ -136,29 +135,6 @@ public class LED extends SubsystemBase {
         break;
       case FUNERAL:
         candle.animate(bad);
-        break;
-      case BOT_FULL:
-        if(!flag) {
-          timer.reset();
-          timer.start();
-          flag = true;
-          flag1 = false;
-          strobe.setR(0);
-          strobe.setG(255);
-          strobe.setB(0);
-          fade.setR(0);
-          fade.setG(255);
-          fade.setB(0);
-        }
-        else if(timer.get() > 3) {
-          flag1 = true;
-        }
-        if(!flag1) {
-          candle.animate(strobe);
-        }
-        else {
-          candle.animate(fade);
-        }
         break;
       case ALGAE_FULL:
         if(!flag) {

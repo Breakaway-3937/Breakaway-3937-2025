@@ -6,9 +6,6 @@ package frc.robot.subsystems.ClimbAvator;
 
 import org.littletonrobotics.junction.Logger;
 
-import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
@@ -24,8 +21,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class ClimbAvator extends SubsystemBase {
-  private final TalonFX shoulderMotor, boulderMotor, elevatorMotor, detonatorMotor;
-  private final TalonSRX bagTheBack;
+  private final TalonFX shoulderMotor, boulderMotor, elevatorMotor, detonatorMotor, bilboBagginsTheBack;
   private final Follower followerShoulderRequest;
   private final Follower followerElevatorRequest;
   private final MotionMagicVoltage shoulderRequest;
@@ -39,7 +35,7 @@ public class ClimbAvator extends SubsystemBase {
     boulderMotor = new TalonFX(Constants.ClimbAvator.BOULDER_CAN_ID);
     elevatorMotor = new TalonFX(Constants.ClimbAvator.ELEVATOR_CAN_ID);
     detonatorMotor = new TalonFX(Constants.ClimbAvator.DETONATOR_CAN_ID);
-    bagTheBack = new TalonSRX(Constants.ClimbAvator.BAG_THE_BACK);
+    bilboBagginsTheBack = new TalonFX(Constants.ClimbAvator.BILBO_BAGGINS_THE_BACK);
 
     followerShoulderRequest = new Follower(Constants.ClimbAvator.SHOULDER_CAN_ID, true);
     followerElevatorRequest = new Follower(Constants.ClimbAvator.ELEVATOR_CAN_ID, true);
@@ -49,6 +45,7 @@ public class ClimbAvator extends SubsystemBase {
 
     configShoulderMotors();
     configElevatorMotors();
+    configBilboBagginsTheBack();
 
     elevatorPosition = Shuffleboard.getTab("ClimbAvator").add("Elevator", getElevatorMotorPosition()).withPosition(0, 0).getEntry();
     shoulderPosition = Shuffleboard.getTab("ClimbAvator").add("Shoulder", getShoulderMotorPosition()).withPosition(1, 0).getEntry();
@@ -71,16 +68,16 @@ public class ClimbAvator extends SubsystemBase {
     return runOnce(() -> shoulderMotor.stopMotor());
   }
 
-  public Command bagForward() {
-    return runOnce(() -> bagTheBack.set(TalonSRXControlMode.PercentOutput, 1));
+  public Command bilboBagginsTheBackForward() {
+    return runOnce(() -> bilboBagginsTheBack.set(1));
   }
 
-  public Command bagBackward() {
-    return runOnce(() -> bagTheBack.set(TalonSRXControlMode.PercentOutput, -1));
+  public Command bilboBagginsTheBackBackward() {
+    return runOnce(() -> bilboBagginsTheBack.set(-1));
   }
 
-  public Command bagStop() {
-    return runOnce(() -> bagTheBack.set(TalonSRXControlMode.PercentOutput, 0));
+  public Command bilboBagginsTheBackStop() {
+    return runOnce(() -> bilboBagginsTheBack.set(0));
   }
 
   public double getShoulderMotorPosition() {
@@ -119,6 +116,8 @@ public class ClimbAvator extends SubsystemBase {
     return detonatorMotor;
   }
 
+  //TODO getMusic Motor Bilbo
+
   public void setClimbAvatorState(ClimbAvatorStates climbAvatorState) {
     this.climbAvatorState = climbAvatorState;
   }
@@ -133,15 +132,15 @@ public class ClimbAvator extends SubsystemBase {
 
     config.Feedback.SensorToMechanismRatio = 250;
 
-    config.Slot0.kS = 5;
-    config.Slot0.kV = 5;
-    config.Slot0.kA = 15;
-    config.Slot0.kP = 2;//900;
+    config.Slot0.kS = 0.28;//5;
+    config.Slot0.kV = 1.35;//5;
+    config.Slot0.kA = 0.1;//15;
+    config.Slot0.kP = 1800;//2;//900;
     config.Slot0.kI = 0;
     config.Slot0.kD = 0;
 
-    config.MotionMagic.MotionMagicExpo_kV = 0.12; // kV is around 0.12 V/rps
-    config.MotionMagic.MotionMagicExpo_kA = 0.1; // Use a slower kA of 0.1 V/(rps/s)
+    //config.MotionMagic.MotionMagicExpo_kV = 0.12; // kV is around 0.12 V/rps
+    //config.MotionMagic.MotionMagicExpo_kA = 0.1; // Use a slower kA of 0.1 V/(rps/s)
 
     config.CurrentLimits.SupplyCurrentLimit = 80;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -195,17 +194,19 @@ public class ClimbAvator extends SubsystemBase {
     detonatorMotor.setControl(followerElevatorRequest);
   }
 
-  public void configBag() {
-    bagTheBack.configFactoryDefault();
+  public void configBilboBagginsTheBack() {
+    bilboBagginsTheBack.getConfigurator().apply(new TalonFXConfiguration());
 
-    TalonSRXConfiguration config = new TalonSRXConfiguration();
+    TalonFXConfiguration config = new TalonFXConfiguration();
 
-    config.peakCurrentDuration = 100;
-    config.peakCurrentLimit = 50;
-    config.continuousCurrentLimit = 35;
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-    bagTheBack.configAllSettings(config);
-    bagTheBack.enableCurrentLimit(true);
+    config.CurrentLimits.SupplyCurrentLimit = 80;
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLowerLimit = 40;
+    config.CurrentLimits.SupplyCurrentLowerTime = 1;
+
+    bilboBagginsTheBack.getConfigurator().apply(config);
   }
 
   @Override
