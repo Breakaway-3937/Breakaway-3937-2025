@@ -55,10 +55,9 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     private final SwerveRequest.ApplyRobotSpeeds pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
-    //TODO: Add the correct max speed and max angular rate.
     PathConstraints constraints = new PathConstraints(
-        4, 4.0,
-        Units.degreesToRadians(540), Units.degreesToRadians(720));
+        10.0, 10.0,
+        Units.degreesToRadians(720), Units.degreesToRadians(720));
 
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
     private final SysIdRoutine sysIdRoutineTranslation = new SysIdRoutine(
@@ -146,6 +145,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             startSimThread();
         }
         configPathplanner();
+        this.setStateStdDevs(VecBuilder.fill(0.05, 0.05, 0.05));
     }
 
     public Swerve(
@@ -160,6 +160,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             startSimThread();
         }
         configPathplanner();
+        this.setStateStdDevs(VecBuilder.fill(0.05, 0.05, 0.05));
     }
 
     /**

@@ -21,6 +21,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.numbers.N3;
@@ -164,7 +165,8 @@ public class Vision extends SubsystemBase {
       }
 
       if(!frontCameraBad) {
-        s_Swerve.addVisionMeasurement(frontResult.get().estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(frontResult.get().timestampSeconds), calcStdFront(averageDistanceX, averageDistanceY));
+        Pose2d pose = new Pose2d(frontResult.get().estimatedPose.getX(), frontResult.get().estimatedPose.getY(), s_Swerve.getPigeon2().getRotation2d());
+        s_Swerve.addVisionMeasurement(pose, Utils.fpgaToCurrentTime(frontResult.get().timestampSeconds), calcStdFront(averageDistanceX, averageDistanceY));
       }
 
       for(int i = 0; i < frontResult.get().targetsUsed.size(); i++) {
@@ -189,7 +191,8 @@ public class Vision extends SubsystemBase {
       }
 
       if(!backCameraBad) {
-        s_Swerve.addVisionMeasurement(backResult.get().estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(backResult.get().timestampSeconds), calcStdBack(averageDistanceX, averageDistanceY));
+        Pose2d pose = new Pose2d(backResult.get().estimatedPose.getX(), backResult.get().estimatedPose.getY(), s_Swerve.getPigeon2().getRotation2d());
+        s_Swerve.addVisionMeasurement(pose, Utils.fpgaToCurrentTime(backResult.get().timestampSeconds), calcStdBack(averageDistanceX, averageDistanceY));
       }
 
       for(int i = 0; i < backResult.get().targetsUsed.size(); i++) {

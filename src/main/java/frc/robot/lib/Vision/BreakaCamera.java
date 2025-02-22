@@ -38,18 +38,10 @@ public class BreakaCamera extends PhotonCamera {
     }
 
     /**
-     * Replaces the {@link PhotonCamera#getLatestResult} method from photonvision
      * @return The latest result from the camera
      */
     public PhotonPipelineResult getLatest() {
-      var results = super.getAllUnreadResults();
-
-      if(results.isEmpty()) {
-        return new PhotonPipelineResult();
-      }
-      else {
-        return results.get(results.size() - 1);
-      }
+      return super.getLatestResult();
     }
 
     /**
