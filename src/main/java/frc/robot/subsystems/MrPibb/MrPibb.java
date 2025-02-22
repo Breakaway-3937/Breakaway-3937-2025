@@ -75,7 +75,7 @@ public class MrPibb extends SubsystemBase {
   }
 
   public Command setTurret() {
-    return runOnce(() -> turret.setControl(turretRequest.withPosition(mrPibbState.getTurret())));//.unless(botFullAlgae());
+    return runOnce(() -> turret.setControl(turretRequest.withPosition(mrPibbState.getTurret())));
   }
 
   public Command stopTurret() {
@@ -106,7 +106,7 @@ public class MrPibb extends SubsystemBase {
     return runOnce(() -> thumb.set(ControlMode.PercentOutput, 0.30));
   }
 
-  public Command runThumbBackward() {
+  public Command runThumbBackwardSlowly() {
     return runOnce(() -> thumb.set(ControlMode.PercentOutput, -0.3));
   }
 
@@ -115,10 +115,11 @@ public class MrPibb extends SubsystemBase {
   }
 
   public Command runUntilFullCoral() {
-    return runLoader().andThen(runThumbForwardSlowly()).andThen(Commands.waitUntil(botFullCoral())).andThen(stopLoader())
-                      .andThen(runThumbBackward()).andThen(Commands.waitUntil(() -> !botFullCoral().getAsBoolean()))
+    return runLoader().andThen(Commands.waitUntil(() -> loader.get() == 0))
+                      .andThen(Commands.either(runThumbBackwardSlowly().andThen(Commands.waitUntil(() -> !botFullCoral().getAsBoolean())
                       .andThen(runThumbForwardSlowly()).andThen(Commands.waitUntil(botFullCoral()))
-                      .andThen(stopThumb());
+                      .andThen(stopThumb())),
+                      runThumbForwardSlowly().andThen(Commands.waitUntil(botFullCoral())).andThen(stopLoader()), botFullCoral()));
   }
 
   public Command runUntilFullAlgae() {
@@ -173,6 +174,10 @@ public class MrPibb extends SubsystemBase {
     return turret;
   }
 
+  public TalonFX getLoaderMotor() {
+    return loader;
+  }
+
   public void setMrPibbState(MrPibbStates mrPibbState) {
     this.mrPibbState = mrPibbState;
   }
@@ -194,6 +199,8 @@ public class MrPibb extends SubsystemBase {
     wrist.getConfigurator().apply(new TalonFXConfiguration());
 
     TalonFXConfiguration config = new TalonFXConfiguration();
+
+    config.Audio.AllowMusicDurDisable = true;
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -223,6 +230,8 @@ public class MrPibb extends SubsystemBase {
 
     TalonFXConfiguration config = new TalonFXConfiguration();
 
+    config.Audio.AllowMusicDurDisable = true;
+
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
     config.Slot0.kS = 0.25;
@@ -249,6 +258,8 @@ public class MrPibb extends SubsystemBase {
     loader.getConfigurator().apply(new TalonFXConfiguration());
 
     TalonFXConfiguration config = new TalonFXConfiguration();
+
+    config.Audio.AllowMusicDurDisable = true;
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
