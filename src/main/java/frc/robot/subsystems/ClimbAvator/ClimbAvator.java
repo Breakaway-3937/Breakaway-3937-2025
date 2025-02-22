@@ -8,6 +8,7 @@ import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -25,7 +26,7 @@ public class ClimbAvator extends SubsystemBase {
   private final Follower followerShoulderRequest;
   private final Follower followerElevatorRequest;
   private final MotionMagicVoltage shoulderRequest;
-  private final MotionMagicVoltage elevatorRequest;
+  private final MotionMagicExpoVoltage elevatorRequest;
   private final GenericEntry elevatorPosition, shoulderPosition, currentState;
   private ClimbAvatorStates climbAvatorState = ClimbAvatorStates.PROTECT;
 
@@ -41,7 +42,7 @@ public class ClimbAvator extends SubsystemBase {
     followerElevatorRequest = new Follower(Constants.ClimbAvator.ELEVATOR_CAN_ID, true);
 
     shoulderRequest = new MotionMagicVoltage(0);
-    elevatorRequest = new MotionMagicVoltage(0);
+    elevatorRequest = new MotionMagicExpoVoltage(0);//.withEnableFOC(true);
 
     configShoulderMotors();
     configElevatorMotors();
