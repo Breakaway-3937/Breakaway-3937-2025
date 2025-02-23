@@ -4,7 +4,8 @@
   "holonomicMode": true,
   "pathFolders": [
     "Algae",
-    "L4 Right"
+    "L4 Right",
+    "Aligning"
   ],
   "autoFolders": [],
   "defaultMaxVel": 7.0,

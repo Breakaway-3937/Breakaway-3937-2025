@@ -90,6 +90,10 @@ public class MrPibb extends SubsystemBase {
     return runOnce(() -> loader.set(-1));
   }
 
+  public Command runLoaderReverseTrough() {
+    return runOnce(() -> loader.set(-0.3));
+  }
+
   public Command runLoaderReverseSlowly() {
     return runOnce(() -> loader.set(-0.1));
   }
@@ -115,11 +119,10 @@ public class MrPibb extends SubsystemBase {
   }
 
   public Command runUntilFullCoral() {
-    return runLoader().andThen(Commands.waitUntil(() -> loader.get() == 0))
-                      .andThen(Commands.either(runThumbBackwardSlowly().andThen(Commands.waitUntil(() -> !botFullCoral().getAsBoolean())
+    return runLoader().andThen(runThumbForwardSlowly()).andThen(Commands.waitUntil(botFullCoral())).andThen(stopLoader())
+                      .andThen(runThumbBackwardSlowly()).andThen(Commands.waitUntil(() -> !botFullCoral().getAsBoolean()))
                       .andThen(runThumbForwardSlowly()).andThen(Commands.waitUntil(botFullCoral()))
-                      .andThen(stopThumb())),
-                      runThumbForwardSlowly().andThen(Commands.waitUntil(botFullCoral())).andThen(stopLoader()), botFullCoral()));
+                      .andThen(stopThumb());
   }
 
   public Command runUntilFullAlgae() {
@@ -132,14 +135,10 @@ public class MrPibb extends SubsystemBase {
 
   public BooleanSupplier botFullAlgae() {
     return () -> watson.getIsDetected().getValue();
-  } 
-
-  public BooleanSupplier wristForward() {
-    return () -> mrPibbState.getWrist() >= getWristPosition();
   }
 
-  public BooleanSupplier wristPositive() {
-    return () -> mrPibbState.getWrist() >= 0;
+  public BooleanSupplier turretMoving() {
+    return () -> Math.abs(getTurretPosition() - mrPibbState.getTurret()) > 0.35;
   }
 
   public double getWristPosition(){
@@ -151,11 +150,11 @@ public class MrPibb extends SubsystemBase {
   }
 
   public Command waitUntilWristNeutralSafe() {
-    return Commands.waitUntil(() -> Math.abs(getWristPosition() - MrPibbStates.getNeutralWrist()) < 0.75);
+    return Commands.waitUntil(() -> getWristPosition() > MrPibbStates.getNeutralWrist() && getWristPosition() < 10.5);
   }
 
   public Command waitUntilTurretSafe() {
-    return Commands.waitUntil(() -> Math.abs(getTurretPosition() - mrPibbState.getTurret()) < 0.75);
+    return Commands.waitUntil(() -> Math.abs(getTurretPosition() - mrPibbState.getTurret()) < 0.35);
   }
 
   public TalonFX getWristMotor() {

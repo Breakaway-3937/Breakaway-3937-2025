@@ -31,6 +31,7 @@ import frc.robot.subsystems.ClimbAvator.ClimbAvator;
 import frc.robot.subsystems.ClimbAvator.ClimbAvatorStates;
 import frc.robot.subsystems.LED.LEDStates;
 import frc.robot.subsystems.MrPibb.MrPibb;
+import frc.robot.subsystems.MrPibb.MrPibbStates;
 import frc.robot.subsystems.Swerve.Swerve;
 
 public class RobotContainer {
@@ -54,6 +55,7 @@ public class RobotContainer {
     private final Trigger l2Trigger = OperatorController.getL2Trigger();
     private final Trigger l3Trigger = OperatorController.getL3Trigger();
     private final Trigger l4Trigger = OperatorController.getL4Trigger();
+    private final Trigger slowDownTrigger;
     private final Trigger climbLEDTrigger;
     private final Trigger funeralLEDTrigger;
     private final Trigger botFullAlgaeLEDTrigger;
@@ -66,6 +68,8 @@ public class RobotContainer {
     private final ClimbAvator s_ClimbAvator = new ClimbAvator();
     private final LED s_LED = new LED();
     private final SuperSubsystem s_SuperSubsystem = new SuperSubsystem(s_ClimbAvator, s_MrPibb);
+
+    private double multiplier = 1;
 
 
     /* Commands */
@@ -84,13 +88,17 @@ public class RobotContainer {
 
         s_Swerve.setDefaultCommand(
             s_Swerve.applyRequest(() ->
-                drive.withVelocityX(translationController.getRawAxis(translationAxis) * Constants.Swerve.MAX_SPEED)
-                    .withVelocityY(translationController.getRawAxis(strafeAxis) * Constants.Swerve.MAX_SPEED) 
+                drive.withVelocityX(translationController.getRawAxis(translationAxis) * multiplier * Constants.Swerve.MAX_SPEED)
+                    .withVelocityY(translationController.getRawAxis(strafeAxis) * multiplier * Constants.Swerve.MAX_SPEED) 
                     .withRotationalRate(rotationController.getRawAxis(rotationAxis)  * Constants.Swerve.MAX_ANGULAR_RATE)
             )
         );
 
+        slowDownTrigger.whileTrue(Commands.runOnce(() -> multiplier = 0.5)).whileFalse(Commands.runOnce(() -> multiplier = 1));
+
         translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
+
+        xboxController.x().onTrue(s_SuperSubsystem.protectState());
 
         /* Coral Scoring States */
         xboxController.back().and(xboxController.a()).whileTrue(s_SuperSubsystem.l1State().alongWith(new InstantCommand(() -> OperatorController.clearLevelEntry())));
@@ -106,8 +114,8 @@ public class RobotContainer {
         /* Intake States */
         xboxController.y().onTrue(s_SuperSubsystem.stationState());
         xboxController.rightBumper().onTrue(s_SuperSubsystem.preStageState());
-        xboxController.leftTrigger(0.3).and(xboxController.rightTrigger(0.3).negate()).onTrue(s_MrPibb.runUntilFullCoral()).onFalse(s_MrPibb.stopLoader());
-        xboxController.leftBumper().onTrue(s_MrPibb.runLoaderReverse()).onFalse(s_MrPibb.runUntilFullAlgae());
+        xboxController.leftTrigger(0.3).and(xboxController.rightTrigger(0.3).negate()).whileTrue(s_MrPibb.runUntilFullCoral()).onFalse(s_MrPibb.stopLoader().andThen(s_MrPibb.stopThumb()));
+        xboxController.leftBumper().onTrue(Commands.either(s_MrPibb.runLoaderReverseTrough(), s_MrPibb.runLoaderReverse(), () -> s_MrPibb.getState().equals(MrPibbStates.L1.name()))).onFalse(s_MrPibb.runUntilFullAlgae());
         xboxController.rightTrigger(0.3).and(xboxController.leftTrigger(0.3).negate()).onTrue(s_MrPibb.runThumbForward()).onFalse(s_MrPibb.stopThumb());
         xboxController.povLeft().onTrue(s_SuperSubsystem.groundCoralState());
         xboxController.povRight().onTrue(s_SuperSubsystem.groundAlgaeState());
@@ -143,6 +151,7 @@ public class RobotContainer {
         autoChooser.addOption("L4 Left", new PathPlannerAuto("L4 Right", true));
         autoChooser.addOption("L4 Left CAC DS", new PathPlannerAuto("L4 Right CAC DS", true));
         Shuffleboard.getTab("Auto").add(autoChooser).withPosition(0, 0).withSize(2, 1);
+        slowDownTrigger = new Trigger(() -> s_ClimbAvator.getState().equals(ClimbAvatorStates.L4) || s_ClimbAvator.getState().equals(ClimbAvatorStates.BARGE));
         climbLEDTrigger = new Trigger(() -> s_ClimbAvator.getState().equals(ClimbAvatorStates.CLIMB_PULL) && s_ClimbAvator.waitUntilShoulderSafe().isFinished());
         funeralLEDTrigger = new Trigger(s_Vision.funeral());
         botFullAlgaeLEDTrigger = new Trigger(s_SuperSubsystem.botFullAlgae());
@@ -167,6 +176,10 @@ public class RobotContainer {
         return s_Swerve;
     }
 
+    public ClimbAvator getClimbAvatorSystem() {
+        return s_ClimbAvator;
+    }
+
     public LED getLEDSystem() {
         return s_LED;
     }
@@ -181,12 +194,11 @@ public class RobotContainer {
     }
 }
 
-//TODO: Run SysId with robot.
-/*
-// Run SysId routines when holding back/start and X/Y.
-        // Note that each routine should be run exactly once in a single log.
-        joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-*/
+
+// Note that each routine should be run exactly once in a single log.
+/*xboxController.start().onTrue(Commands.runOnce(() -> SignalLogger.start()));
+xboxController.back().onTrue(Commands.runOnce(() -> SignalLogger.stop()));
+xboxController.a().whileTrue(s_Swerve.sysIdDynamic(Direction.kForward));
+xboxController.b().whileTrue(s_Swerve.sysIdDynamic(Direction.kReverse));
+xboxController.x().whileTrue(s_Swerve.sysIdQuasistatic(Direction.kForward));
+xboxController.y().whileTrue(s_Swerve.sysIdQuasistatic(Direction.kReverse));*/

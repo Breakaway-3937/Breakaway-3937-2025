@@ -6,8 +6,10 @@ package frc.robot.subsystems.ClimbAvator;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -24,7 +26,7 @@ public class ClimbAvator extends SubsystemBase {
   private final TalonFX shoulderMotor, boulderMotor, elevatorMotor, detonatorMotor, bilboBagginsTheBack;
   private final Follower followerShoulderRequest;
   private final Follower followerElevatorRequest;
-  private final MotionMagicVoltage shoulderRequest;
+  private final MotionMagicExpoVoltage shoulderRequest;
   private final MotionMagicVoltage elevatorRequest;
   private final GenericEntry elevatorPosition, shoulderPosition, currentState;
   private ClimbAvatorStates climbAvatorState = ClimbAvatorStates.PROTECT;
@@ -40,7 +42,7 @@ public class ClimbAvator extends SubsystemBase {
     followerShoulderRequest = new Follower(Constants.ClimbAvator.SHOULDER_CAN_ID, true);
     followerElevatorRequest = new Follower(Constants.ClimbAvator.ELEVATOR_CAN_ID, true);
 
-    shoulderRequest = new MotionMagicVoltage(0);//Expo
+    shoulderRequest = new MotionMagicExpoVoltage(0);
     elevatorRequest = new MotionMagicVoltage(0);
 
     configShoulderMotors();
@@ -62,6 +64,10 @@ public class ClimbAvator extends SubsystemBase {
 
   public Command setShoulder() {
     return runOnce(() -> shoulderMotor.setControl(shoulderRequest.withPosition(climbAvatorState.getAngle())));
+  }
+
+  public Command setShoulderNeutral() {
+    return runOnce(() -> shoulderMotor.setControl(shoulderRequest.withPosition(ClimbAvatorStates.getNeutralShoulder())));
   }
 
   public Command stopShoulder() {
@@ -96,6 +102,10 @@ public class ClimbAvator extends SubsystemBase {
     return Commands.waitUntil(() -> Math.abs(getShoulderMotorPosition() - climbAvatorState.getAngle()) < 0.05);
   }
 
+  public Command waitUntilShoulderNeutralSafe() { 
+    return Commands.waitUntil(() -> Math.abs(getShoulderMotorPosition() - ClimbAvatorStates.getNeutralShoulder()) < 0.05);
+  }
+
   public Command waitUntilElevatorSafe() {
     return Commands.waitUntil(() -> Math.abs(getElevatorMotorPosition() - climbAvatorState.getHeight()) < 0.75);
   }
@@ -124,6 +134,12 @@ public class ClimbAvator extends SubsystemBase {
     this.climbAvatorState = climbAvatorState;
   }
 
+  public void setShoulderBrakeMode() {
+    MotorOutputConfigs config = new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive).withNeutralMode(NeutralModeValue.Brake);
+    shoulderMotor.getConfigurator().apply(config);
+    boulderMotor.getConfigurator().apply(config);
+  }
+
   public void configShoulderMotors() {
     shoulderMotor.getConfigurator().apply(new TalonFXConfiguration());
     boulderMotor.getConfigurator().apply(new TalonFXConfiguration());
@@ -132,28 +148,24 @@ public class ClimbAvator extends SubsystemBase {
 
     config.Audio.AllowMusicDurDisable = true;
 
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    config.Feedback.SensorToMechanismRatio = 250;
-
-    config.Slot0.kS = 0.28;//5;
-    config.Slot0.kV = 1.35;//5;
-    config.Slot0.kA = 0.1;//15;
-    config.Slot0.kP = 1800;//2;//900;
+    config.Slot0.kS = 0.4;
+    config.Slot0.kV = 0.12;
+    config.Slot0.kA = 0.01;
+    config.Slot0.kP = 8;
     config.Slot0.kI = 0;
     config.Slot0.kD = 0;
 
-    //config.MotionMagic.MotionMagicExpo_kV = 0.12; // kV is around 0.12 V/rps
-    //config.MotionMagic.MotionMagicExpo_kA = 0.1; // Use a slower kA of 0.1 V/(rps/s)
+    config.MotionMagic.MotionMagicCruiseVelocity = 0;
+    config.MotionMagic.MotionMagicExpo_kV = 0.03;
+    config.MotionMagic.MotionMagicExpo_kA = 0.025;
 
     config.CurrentLimits.SupplyCurrentLimit = 80;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLowerLimit = 40;
     config.CurrentLimits.SupplyCurrentLowerTime = 1;
-
-    config.MotionMagic.MotionMagicCruiseVelocity = 10000;
-    config.MotionMagic.MotionMagicAcceleration = 5000;
-    config.MotionMagic.MotionMagicJerk = 4000;
 
     shoulderMotor.getConfigurator().apply(config);
     boulderMotor.getConfigurator().apply(config);

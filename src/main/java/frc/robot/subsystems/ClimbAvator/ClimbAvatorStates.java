@@ -5,24 +5,26 @@
 package frc.robot.subsystems.ClimbAvator;
 
 public enum ClimbAvatorStates {
-    //-0.229004 Max for Shoulder
-    GROUND_CORAL(4.77, 0),
-    GROUND_ALGAE(0.25, -0.0319),
-    PROCESSOR(0.25, -0.0713),
-    BARGE(73.5, -0.2),
-    CLIMB(0.25, -0.192),
-    STATION(0.25, -0.2),
-    L1(0.25, -0.0852),
-    L2(5.780, -0.131),
-    L3(27.98, -0.1660),
-    L4(73.5, -0.1899),
-    PROTECT(0.25, 0),
-    CORAL_PRESTAGE(0.25, -0.16),
-    LOWER_ALGAE(12, -0.14),
-    UPPER_ALGAE(36.1, -0.1596),
-    CLIMB_PULL(0.25, -0.03);
+    //57.251 Max for Shoulder
+    GROUND_CORAL(4.77, 0.25),
+    GROUND_ALGAE(5.3, 7.6), //TODO
+    PROCESSOR(0.25, 17.825),
+    BARGE(73.5, 50),
+    CLIMB(0.25, 48),
+    STATION(0.25, 50),
+    L1(0.25, 21.3),
+    L2(5, 32.75), //TODO
+    L3(27.98, 41.5), //TODO
+    L4(73.5, 47.475), //TODO
+    PROTECT(0.25, 0.25),
+    CORAL_PRESTAGE(0.25, 40),
+    LOWER_ALGAE(12, 35),
+    UPPER_ALGAE(36.1, 39.9),
+    CLIMB_PULL(0.25, 7.5);
 
     private final double height, angle;
+
+    public static final double NEUTRAL_SHOULDER = 25.879;
 
     private ClimbAvatorStates(double height, double angle) {
         this.height = height;
@@ -35,5 +37,9 @@ public enum ClimbAvatorStates {
 
     public double getAngle() {
         return angle;
+    }
+
+    public static double getNeutralShoulder() {
+        return NEUTRAL_SHOULDER;
     }
 }

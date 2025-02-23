@@ -26,41 +26,24 @@ public class SuperSubsystem extends SubsystemBase {
   }
 
   public Command runSubsystems() {
-    return Commands.either(disperse(), condense(), () -> (s_ClimbAvator.getShoulderMotorPosition() > Conversions.shoulderDegreesToRotations(45) && s_ClimbAvator.getElevatorMotorPosition() - s_ClimbAvator.getState().getHeight() < 5 || s_ClimbAvator.getState().getHeight() - s_ClimbAvator.getElevatorMotorPosition() > 5));
+    return Commands.either(disperse(), condense(), () -> s_ClimbAvator.getShoulderMotorPosition() < Conversions.shoulderDegreesToRotations(30) || (s_ClimbAvator.getShoulderMotorPosition() > Conversions.shoulderDegreesToRotations(30) && s_ClimbAvator.getElevatorMotorPosition() - s_ClimbAvator.getState().getHeight() < 5));
   }
 
   public Command disperse() {
-    return s_ClimbAvator.setShoulder().andThen(s_ClimbAvator.waitUntilShoulderSafe())
-                                      .andThen(Commands.either(s_MrPibb.setWristNeutral().andThen(s_MrPibb.waitUntilWristNeutralSafe()), Commands.none(), () -> s_MrPibb.getWristPosition() < MrPibbStates.getNeutralWrist()))
-                                      .andThen(s_ClimbAvator.setElevator()).andThen(s_ClimbAvator.waitUntilElevatorSafe())
-                                      .andThen(wristOrTurret());
+    return Commands.either(s_ClimbAvator.setShoulderNeutral().andThen(s_ClimbAvator.waitUntilShoulderNeutralSafe()), s_ClimbAvator.setShoulder().andThen(s_ClimbAvator.waitUntilShoulderSafe()), () -> s_MrPibb.turretMoving().getAsBoolean() && s_ClimbAvator.getState().getAngle() < Conversions.shoulderDegreesToRotations(30))
+                           .andThen(s_MrPibb.setWristNeutral().andThen(s_MrPibb.waitUntilWristNeutralSafe()))
+                           .andThen(s_ClimbAvator.setElevator()).andThen(s_MrPibb.setTurret())
+                           .andThen(s_ClimbAvator.waitUntilElevatorSafe()).andThen(s_MrPibb.waitUntilTurretSafe())
+                           .andThen(s_ClimbAvator.setShoulder()).andThen(s_MrPibb.setWrist())
+                           .andThen(s_ClimbAvator.waitUntilShoulderSafe()).andThen(s_MrPibb.waitUntilWristSafe());
   }
 
   public Command condense() {
-    return wristOrTurret().andThen(s_ClimbAvator.setElevator()).andThen(s_ClimbAvator.waitUntilElevatorSafe())
-                          .andThen(s_ClimbAvator.setShoulder()).andThen(s_ClimbAvator.waitUntilShoulderSafe());
-  }
-
-  public Command wristOrTurret() {
-    return Commands.either(wristOrTurretPositive(),
-                           wristOrTurretNegative(),
-                           () -> (s_MrPibb.wristPositive().getAsBoolean() && s_MrPibb.getWristPosition() >= 0));
-  }
-
-  public Command wristOrTurretPositive() {
-    return Commands.either(s_MrPibb.setWrist().andThen(s_MrPibb.waitUntilWristSafe())
-                                              .andThen(s_MrPibb.setTurret())
-                                              .andThen(s_MrPibb.waitUntilTurretSafe()),
-                           s_MrPibb.setTurret().andThen(s_MrPibb.waitUntilTurretSafe())
-                                               .andThen(s_MrPibb.setWrist())
-                                               .andThen(s_MrPibb.waitUntilWristSafe()),                    
-                           s_MrPibb.wristForward());
-  }
-
-  public Command wristOrTurretNegative() {
     return s_MrPibb.setWristNeutral().andThen(s_MrPibb.waitUntilWristNeutralSafe())
-                                     .andThen(s_MrPibb.setTurret()).andThen(s_MrPibb.waitUntilTurretSafe())
-                                     .andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.waitUntilWristSafe());
+                   .andThen(s_ClimbAvator.setElevator()).andThen(s_MrPibb.setTurret())
+                   .andThen(s_ClimbAvator.waitUntilElevatorSafe()).andThen(s_MrPibb.waitUntilTurretSafe())
+                   .andThen(s_ClimbAvator.setShoulder()).andThen(s_MrPibb.setWrist())
+                   .andThen(s_ClimbAvator.waitUntilShoulderSafe()).andThen(s_MrPibb.waitUntilWristSafe());
   }
 
   /* Intake States */

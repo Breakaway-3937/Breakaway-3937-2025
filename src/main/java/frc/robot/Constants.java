@@ -1,7 +1,7 @@
 package frc.robot;
 
-import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import edu.wpi.first.math.VecBuilder;
@@ -49,7 +49,7 @@ public final class Constants {
 
     public static final class Swerve {
         public static final double MAX_SPEED = (Constants.PRACTICE_BOT) ? PracticeTunerConstants.kSpeedAt12Volts.in(MetersPerSecond) : CompTunerConstants.kSpeedAt12Volts.in(MetersPerSecond); 
-        public static final double MAX_ANGULAR_RATE = RotationsPerSecond.of(720.0).in(DegreesPerSecond);
+        public static final double MAX_ANGULAR_RATE = RotationsPerSecond.of(1.25).in(RadiansPerSecond);
     }
 
     public static final class MrPibb {

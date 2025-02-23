@@ -1,8 +1,8 @@
 package frc.robot.lib;
 
 public class Conversions { 
-    private static final double shoulderConversion = 90.0 / -0.223633; //Degrees / Motor rotations to reach degree in numerator
-    private static final double turretConversion = 90.0 / -1.85; //TODO: Get new values since new zero.
+    private static final double shoulderConversion = 90.0 / 55.90825; //Degrees / Motor rotations to reach degree in numerator
+    private static final double turretConversion = 180.0 / -3.6;
 
     public static double shoulderDegreesToRotations(double degree) {
         return degree / shoulderConversion;

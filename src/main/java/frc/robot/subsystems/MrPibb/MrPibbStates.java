@@ -8,23 +8,23 @@ public enum MrPibbStates {
     //TODO: Update max and setpoints with new zero and values.
     //16.58 Max for Wrist
     GROUND_CORAL(16.7, 0),
-    GROUND_ALGAE(-0.3, -3.7),
+    GROUND_ALGAE(9.33, -3.6),
     PROCESSOR(10.435, -3.62),
     BARGE(19.5, 0),
     CLIMB(9.8, -1.7),
-    STATION(-2.225, -3.55),
+    STATION(-1, -3.55),
     L1(17.3, 0),
-    L2(10.35, -1.76),
-    L3(13.48, -1.731),
-    L4(17.94, -1.701),
-    PROTECT(4.6, 0),
+    L2(9, -1.76),
+    L3(11.9, -1.731),
+    L4(16.8, -1.701),
+    PROTECT(3.5, 0),
     CORAL_PRESTAGE(9.788, -1.824),
     LOWER_ALGAE(14.3, -3.6),
     UPPER_ALGAE(14.5, -3.5);
 
     private final double wrist, turret;
 
-    public static final double NEUTRAL_WRIST = 4.6;
+    public static final double NEUTRAL_WRIST = 3.5;
 
     private MrPibbStates(double wrist, double turret) {
         this.wrist = wrist;
