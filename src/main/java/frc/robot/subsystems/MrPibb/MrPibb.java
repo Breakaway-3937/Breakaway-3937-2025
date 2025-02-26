@@ -153,6 +153,10 @@ public class MrPibb extends SubsystemBase {
     return Commands.waitUntil(() -> getWristPosition() > MrPibbStates.getNeutralWrist() && getWristPosition() < 10.5);
   }
 
+  public BooleanSupplier isWristNeutralSafe() {
+    return () -> getWristPosition() > MrPibbStates.getNeutralWrist() && getWristPosition() < 10.5;
+  }
+
   public Command waitUntilTurretSafe() {
     return Commands.waitUntil(() -> Math.abs(getTurretPosition() - mrPibbState.getTurret()) < 0.35);
   }

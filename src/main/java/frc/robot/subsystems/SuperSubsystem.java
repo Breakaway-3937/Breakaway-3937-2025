@@ -31,7 +31,7 @@ public class SuperSubsystem extends SubsystemBase {
 
   public Command disperse() {
     return Commands.either(s_ClimbAvator.setShoulderNeutral().andThen(s_ClimbAvator.waitUntilShoulderNeutralSafe()), s_ClimbAvator.setShoulder().andThen(s_ClimbAvator.waitUntilShoulderSafe()), () -> s_MrPibb.turretMoving().getAsBoolean() && s_ClimbAvator.getState().getAngle() < Conversions.shoulderDegreesToRotations(30))
-                           .andThen(s_MrPibb.setWristNeutral().andThen(s_MrPibb.waitUntilWristNeutralSafe()))
+                           .andThen(Commands.either(Commands.none(), s_MrPibb.setWristNeutral(), s_MrPibb.isWristNeutralSafe()).andThen(s_MrPibb.waitUntilWristNeutralSafe()))
                            .andThen(s_ClimbAvator.setElevator()).andThen(s_MrPibb.setTurret())
                            .andThen(s_ClimbAvator.waitUntilElevatorSafe()).andThen(s_MrPibb.waitUntilTurretSafe())
                            .andThen(s_ClimbAvator.setShoulder()).andThen(s_MrPibb.setWrist())
