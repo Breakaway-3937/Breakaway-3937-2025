@@ -193,12 +193,3 @@ public class RobotContainer {
         return (Constants.PRACTICE_BOT) ? PracticeTunerConstants.createDrivetrain() : CompTunerConstants.createDrivetrain();
     }
 }
-
-
-// Note that each routine should be run exactly once in a single log.
-/*xboxController.start().onTrue(Commands.runOnce(() -> SignalLogger.start()));
-xboxController.back().onTrue(Commands.runOnce(() -> SignalLogger.stop()));
-xboxController.a().whileTrue(s_Swerve.sysIdDynamic(Direction.kForward));
-xboxController.b().whileTrue(s_Swerve.sysIdDynamic(Direction.kReverse));
-xboxController.x().whileTrue(s_Swerve.sysIdQuasistatic(Direction.kForward));
-xboxController.y().whileTrue(s_Swerve.sysIdQuasistatic(Direction.kReverse));*/
