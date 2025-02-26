@@ -27,8 +27,9 @@ public class AutoTeleop extends SequentialCommandGroup {
     setName("AutoTeleop");
     addRequirements(s_Swerve);
 
-    addCommands(pathFindPickup().until(robotAtPickUp()), 
-                pathFindScore().until(robotAtScoring()));
+    addCommands(pathFindPickup(), 
+                pathFindScore(),
+                OperatorController.clearLocations());
   }
 
   private Command pathFindPickup() {
