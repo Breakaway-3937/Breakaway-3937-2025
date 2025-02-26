@@ -50,11 +50,13 @@ public class AutoTeleop extends SequentialCommandGroup {
     );
   }
 
+  @SuppressWarnings("unused")
   private BooleanSupplier robotAtPickUp() {
     var location = OperatorController.getPickUpLocation();
-    if(location.get() != null && location.get().getLocation() != null) {
-      boolean nearX = MathUtil.isNear(location.get().getLocation().getX(), s_Swerve.getState().Pose.getX(), 0);
-      boolean nearY = MathUtil.isNear(location.get().getLocation().getY(), s_Swerve.getState().Pose.getY(), 0);
+    if(location.get() != null && location.get().getPath() != null) {
+      var points = location.get().getPath().getAllPathPoints();
+      boolean nearX = MathUtil.isNear(points.get(points.size() - 1).position.getX(), s_Swerve.getState().Pose.getX(), 0);
+      boolean nearY = MathUtil.isNear(points.get(points.size() - 1).position.getY(), s_Swerve.getState().Pose.getY(), 0);
       return () -> nearX && nearY;
     }
     else {
@@ -62,11 +64,13 @@ public class AutoTeleop extends SequentialCommandGroup {
     }
   }
 
+  @SuppressWarnings("unused")
   private BooleanSupplier robotAtScoring() {
     var location = OperatorController.getScoringLocation();
-    if(location.get() != null && location.get().getLocation() != null) {
-      boolean nearX = MathUtil.isNear(location.get().getLocation().getX(), s_Swerve.getState().Pose.getX(), 0);
-      boolean nearY = MathUtil.isNear(location.get().getLocation().getY(), s_Swerve.getState().Pose.getY(), 0);
+    if(location.get() != null && location.get().getPath() != null) {
+      var points = location.get().getPath().getAllPathPoints();
+      boolean nearX = MathUtil.isNear(points.get(points.size() - 1).position.getX(), s_Swerve.getState().Pose.getX(), 0);
+      boolean nearY = MathUtil.isNear(points.get(points.size() - 1).position.getY(), s_Swerve.getState().Pose.getY(), 0);
       return () -> nearX && nearY;
     }
     else {
