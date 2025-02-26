@@ -28,8 +28,7 @@ public class AutoTeleop extends SequentialCommandGroup {
     addRequirements(s_Swerve);
 
     addCommands(pathFindPickup(), 
-                pathFindScore(),
-                OperatorController.clearLocations());
+                pathFindScore());
   }
 
   private Command pathFindPickup() {
