@@ -99,7 +99,7 @@ public class ClimbAvator extends SubsystemBase {
   }
 
   public Command waitUntilShoulderSafe() { 
-    return Commands.waitUntil(() -> Math.abs(getShoulderMotorPosition() - climbAvatorState.getAngle()) < 0.05);
+    return Commands.waitUntil(() -> Math.abs(getShoulderMotorPosition() - climbAvatorState.getAngle()) < 2);
   }
 
   public Command waitUntilShoulderNeutralSafe() { 
