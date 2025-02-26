@@ -35,7 +35,7 @@ public class AutoTeleop extends SequentialCommandGroup {
   private Command pathFindPickup() {
     return Commands.defer(
       () -> {
-        return s_Swerve.pathFindToPose(OperatorController.getPickUpLocation()).unless(s_SuperSubsystem.botFullCoral());
+        return s_Swerve.pathFindAndFollow(OperatorController.getPickUpLocation()).unless(s_SuperSubsystem.botFullCoral());
       },
       Set.of(s_Swerve)
     );
