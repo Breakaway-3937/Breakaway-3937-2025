@@ -44,7 +44,7 @@ public class AutoTeleop extends SequentialCommandGroup {
   private Command pathFindScore() {
     return Commands.defer(
       () -> {
-        return s_Swerve.pathFindToPose(OperatorController.getScoringLocation());
+        return s_Swerve.pathFindAndFollow(OperatorController.getScoringLocation());
       },
       Set.of(s_Swerve)
     );

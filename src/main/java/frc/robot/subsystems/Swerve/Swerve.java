@@ -131,14 +131,13 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         Pathfinding.setPathfinder(new LocalADStar());
     }
 
-    public Command pathFindToPose(Supplier<AutoPathLocations> target) {
-        if(target.get() != null && target.get().getLocation() != null){
-            return AutoBuilder.pathfindToPose(target.get().getLocation(), constraints);
+    public Command pathFindAndFollow(Supplier<AutoPathLocations> target) {
+        if(target.get() != null && target.get().getPath() != null) {
+            return AutoBuilder.pathfindThenFollowPath(target.get().getPath(), constraints);
         }
         else {
             return Commands.none();
         }
-        
     }
 
     @Override
