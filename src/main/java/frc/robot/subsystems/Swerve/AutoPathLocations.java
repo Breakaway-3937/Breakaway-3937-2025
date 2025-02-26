@@ -4,6 +4,9 @@ import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.path.PathPlannerPath;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+
 public enum AutoPathLocations {
     //TODO: Update with new values.
     CORAL_A(breakaParse("A")),
@@ -39,7 +42,12 @@ public enum AutoPathLocations {
 
    private static PathPlannerPath breakaParse(String pathName) {
         try {
-            return PathPlannerPath.fromPathFile(pathName);
+            if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+                return PathPlannerPath.fromPathFile(pathName).flipPath();
+            }
+            else {
+                return PathPlannerPath.fromPathFile(pathName);
+            }
         } 
         catch (Exception e) {
             Logger.recordOutput("Path File Alert", pathName);
