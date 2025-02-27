@@ -166,7 +166,9 @@ public class Vision extends SubsystemBase {
 
       if(!frontCameraBad) {
         Pose2d pose = new Pose2d(frontResult.get().estimatedPose.getX(), frontResult.get().estimatedPose.getY(), s_Swerve.getState().Pose.getRotation());
-        s_Swerve.addVisionMeasurement(pose, Utils.fpgaToCurrentTime(frontResult.get().timestampSeconds), calcStdFront(averageDistanceX, averageDistanceY));
+        var frontSTD = calcStdFront(averageDistanceX, averageDistanceY);
+        s_Swerve.addVisionMeasurement(pose, Utils.fpgaToCurrentTime(frontResult.get().timestampSeconds), frontSTD);
+        Logger.recordOutput("Vision/Front STD", frontSTD);
       }
 
       for(int i = 0; i < frontResult.get().targetsUsed.size(); i++) {
@@ -192,7 +194,9 @@ public class Vision extends SubsystemBase {
 
       if(!backCameraBad) {
         Pose2d pose = new Pose2d(backResult.get().estimatedPose.getX(), backResult.get().estimatedPose.getY(), s_Swerve.getState().Pose.getRotation());
-        s_Swerve.addVisionMeasurement(pose, Utils.fpgaToCurrentTime(backResult.get().timestampSeconds), calcStdBack(averageDistanceX, averageDistanceY));
+        var backSTD = calcStdBack(averageDistanceX, averageDistanceY);
+        s_Swerve.addVisionMeasurement(pose, Utils.fpgaToCurrentTime(backResult.get().timestampSeconds), backSTD);
+        Logger.recordOutput("Vision/Back STD", backSTD);
       }
 
       for(int i = 0; i < backResult.get().targetsUsed.size(); i++) {
