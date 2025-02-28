@@ -41,8 +41,12 @@ public enum AutoPathLocations {
         return path;
    }
 
+   public double getYGoal() {
+        return path.getAllPathPoints().get(path.getAllPathPoints().size() - 1).position.getY();
+   }
+
    public Rotation2d getRotationTarget() {
-        return path.getAllPathPoints().get(path.getAllPathPoints().size() - 1).rotationTarget.rotation();
+    return path.getAllPathPoints().get(path.getAllPathPoints().size() - 1).rotationTarget.rotation();
    }
 
    private static PathPlannerPath breakaParse(String pathName) {

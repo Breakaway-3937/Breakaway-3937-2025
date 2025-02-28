@@ -7,10 +7,11 @@ package frc.robot;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -25,11 +26,11 @@ import frc.robot.commands.Music;
 import frc.robot.generated.CompTunerConstants;
 import frc.robot.generated.PracticeTunerConstants;
 import frc.robot.subsystems.LED;
+import frc.robot.subsystems.LED.LEDStates;
 import frc.robot.subsystems.SuperSubsystem;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.ClimbAvator.ClimbAvator;
 import frc.robot.subsystems.ClimbAvator.ClimbAvatorStates;
-import frc.robot.subsystems.LED.LEDStates;
 import frc.robot.subsystems.MrPibb.MrPibb;
 import frc.robot.subsystems.MrPibb.MrPibbStates;
 import frc.robot.subsystems.Swerve.Swerve;
@@ -71,13 +72,18 @@ public class RobotContainer {
 
     private double multiplier = 1;
 
-
     /* Commands */
     private final Music c_Music = new Music(s_Swerve, s_MrPibb, s_ClimbAvator);
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(Constants.Swerve.MAX_SPEED * Constants.Controllers.STICK_DEADBAND)
             .withRotationalDeadband(Constants.Swerve.MAX_ANGULAR_RATE * Constants.Controllers.STICK_DEADBAND) 
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+
+    private final SwerveRequest.FieldCentricFacingAngle align = new SwerveRequest.FieldCentricFacingAngle()
+            .withDeadband(Constants.Swerve.MAX_SPEED * Constants.Controllers.STICK_DEADBAND)
+            .withRotationalDeadband(Constants.Swerve.MAX_ANGULAR_RATE * Constants.Controllers.STICK_DEADBAND)
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+            .withHeadingPID(0, 0, 0);
 
     /* Telemetry */
     private final Telemetry logger = new Telemetry(Constants.Swerve.MAX_SPEED);
@@ -132,7 +138,7 @@ public class RobotContainer {
         xboxController.a().onTrue(s_SuperSubsystem.processorState());
         xboxController.b().onTrue(s_SuperSubsystem.bargeState());
 
-        autoTrackButton.whileTrue(new AutoTeleop(s_Swerve, s_SuperSubsystem));
+        autoTrackButton.whileTrue(new AutoTeleop(s_Swerve, s_SuperSubsystem).andThen(holdPosition()));
 
         /* LEDs */
         climbLEDTrigger.whileTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.CLIMBED), s_LED));
@@ -155,6 +161,10 @@ public class RobotContainer {
         funeralLEDTrigger = new Trigger(s_Vision.funeral());
         botFullAlgaeLEDTrigger = new Trigger(s_SuperSubsystem.botFullAlgae());
         botFullCoralLEDTrigger = new Trigger(s_SuperSubsystem.botFullCoral());
+
+        align.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
+        align.HeadingController.setTolerance(0.1);
+
         configureBindings();
     }
 
@@ -185,6 +195,18 @@ public class RobotContainer {
 
     public Command getMusicCommand() {
         return c_Music;
+    }
+
+    public Command holdPosition() {
+        return s_Swerve.applyRequest(() ->
+                align.withVelocityX(getSpeeds().vxMetersPerSecond * multiplier * Constants.Swerve.MAX_SPEED)
+                    .withVelocityY(getSpeeds().vyMetersPerSecond * multiplier * Constants.Swerve.MAX_SPEED) 
+                    .withTargetDirection(s_Swerve.getRotationTarget())
+            );
+    }
+
+    public ChassisSpeeds getSpeeds() {
+        return ChassisSpeeds.fromRobotRelativeSpeeds(translationController.getRawAxis(translationAxis), s_Swerve.getYSpeed(), 0, s_Swerve.getState().Pose.getRotation());
     }
 
     public Swerve createSwerve() {

@@ -17,11 +17,14 @@ import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.pathfinding.LocalADStar;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -30,6 +33,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import static frc.robot.OperatorController.getScoringLocation;
 import frc.robot.generated.PracticeTunerConstants.TunerSwerveDrivetrain;
 
 public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
@@ -45,6 +49,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private boolean hasAppliedOperatorPerspective = false; 
 
     private final SwerveRequest.ApplyRobotSpeeds pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
+
+    private final ProfiledPIDController yController = new ProfiledPIDController(0, 0, 0, new Constraints(7, 7));
 
     PathConstraints constraints = new PathConstraints(
         7.0, 7.0,
@@ -129,6 +135,14 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         }
 
         Pathfinding.setPathfinder(new LocalADStar());
+    }
+
+    public double getYSpeed() {
+        return MathUtil.clamp(yController.calculate(getState().Pose.getY(), getScoringLocation().get().getYGoal()), -1, 1);
+    }
+
+    public Rotation2d getRotationTarget() {
+        return getScoringLocation().get().getRotationTarget();
     }
 
     public Command pathFindAndFollow(Supplier<AutoPathLocations> target) {
