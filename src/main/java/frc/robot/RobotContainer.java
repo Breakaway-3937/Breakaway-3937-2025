@@ -84,6 +84,7 @@ public class RobotContainer {
             .withDeadband(Constants.Swerve.MAX_SPEED * Constants.Controllers.STICK_DEADBAND)
             .withRotationalDeadband(Constants.Swerve.MAX_ANGULAR_RATE * Constants.Controllers.STICK_DEADBAND)
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+            .withMaxAbsRotationalRate(Constants.Swerve.MAX_ANGULAR_RATE)
             .withHeadingPID(2, 0, 0);
 
     /* Telemetry */
@@ -100,6 +101,8 @@ public class RobotContainer {
                     .withRotationalRate(rotationController.getRawAxis(rotationAxis)  * Constants.Swerve.MAX_ANGULAR_RATE)
             )
         );
+
+        autoTrackButton.whileTrue(new AutoTeleop(s_Swerve, s_SuperSubsystem).andThen(holdPosition()));
 
         slowDownTrigger.whileTrue(Commands.runOnce(() -> multiplier = 0.5)).whileFalse(Commands.runOnce(() -> multiplier = 1));
 
@@ -138,8 +141,6 @@ public class RobotContainer {
         xboxController.leftStick().onTrue(s_SuperSubsystem.upperAlgaeState());
         xboxController.a().onTrue(s_SuperSubsystem.processorState());
         xboxController.b().onTrue(s_SuperSubsystem.bargeState());
-
-        autoTrackButton.whileTrue(new AutoTeleop(s_Swerve, s_SuperSubsystem).andThen(holdPosition()));
 
         /* LEDs */
         climbLEDTrigger.whileTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.CLIMBED), s_LED));
