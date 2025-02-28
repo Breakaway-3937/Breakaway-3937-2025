@@ -4,6 +4,7 @@ import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.path.PathPlannerPath;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
@@ -38,6 +39,10 @@ public enum AutoPathLocations {
 
    public PathPlannerPath getPath() {
         return path;
+   }
+
+   public Rotation2d getRotationTarget() {
+        return path.getAllPathPoints().get(path.getAllPathPoints().size() - 1).rotationTarget.rotation();
    }
 
    private static PathPlannerPath breakaParse(String pathName) {
