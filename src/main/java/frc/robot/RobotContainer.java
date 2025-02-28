@@ -114,12 +114,11 @@ public class RobotContainer {
         /* Intake States */
         xboxController.y().onTrue(s_SuperSubsystem.stationState());
         xboxController.rightBumper().onTrue(s_SuperSubsystem.preStageState());
-        xboxController.leftTrigger(0.3).and(xboxController.rightTrigger(0.3).negate()).whileTrue(s_MrPibb.runUntilFullCoral()).onFalse(s_MrPibb.stopLoader().andThen(s_MrPibb.stopThumb()));
-        xboxController.leftBumper().onTrue(Commands.either(s_MrPibb.runLoaderReverseTrough(), s_MrPibb.runLoaderReverse(), () -> s_MrPibb.getState().equals(MrPibbStates.L1.name()))).onFalse(s_MrPibb.runUntilFullAlgae());
-        xboxController.rightTrigger(0.3).and(xboxController.leftTrigger(0.3).negate()).onTrue(s_MrPibb.runThumbForward()).onFalse(s_MrPibb.stopThumb());
+        xboxController.leftTrigger(0.3).and(xboxController.rightTrigger(0.3).negate()).whileTrue(s_MrPibb.runLoader().asProxy()).onFalse(s_MrPibb.stopLoader().asProxy().andThen(s_MrPibb.stopThumb().asProxy()));
+        xboxController.leftBumper().onTrue(Commands.either(s_MrPibb.runLoaderReverseTrough(), s_MrPibb.runLoaderReverse(), () -> s_MrPibb.getState().equals(MrPibbStates.L1.name()))).onFalse(s_MrPibb.runUntilFullAlgae().asProxy());
+        xboxController.rightTrigger(0.3).and(xboxController.leftTrigger(0.3).negate()).onTrue(s_MrPibb.runThumbForward().asProxy()).onFalse(s_MrPibb.stopThumb().asProxy());
         xboxController.povLeft().onTrue(s_SuperSubsystem.groundCoralState());
         xboxController.povRight().onTrue(s_SuperSubsystem.groundAlgaeState());
-
         
         /* Climbing States */
         xboxController.povUp().onTrue(s_SuperSubsystem.climbState());
