@@ -96,7 +96,7 @@ public class MrPibb extends SubsystemBase {
   }
 
   public Command runLoaderReverseSlowly() {
-    return runOnce(() -> loader.set(-0.1));
+    return runOnce(() -> loader.set(-0.3));
   }
 
   public Command stopLoader() {
@@ -112,7 +112,7 @@ public class MrPibb extends SubsystemBase {
   }
 
   public Command runThumbBackwardSlowly() {
-    return runOnce(() -> thumb.set(ControlMode.PercentOutput, -0.3));
+    return runOnce(() -> thumb.set(ControlMode.PercentOutput, -0.2));
   }
 
   public Command stopThumb() {
@@ -131,11 +131,11 @@ public class MrPibb extends SubsystemBase {
   }
 
   public BooleanSupplier botFullCoral() {
-    return () -> sherlock.getIsDetected().getValue();
+    return () -> sherlock.getIsDetected().getValue() && sherlock.getDistance().getValueAsDouble() > 0.07;
   }
 
   public BooleanSupplier botFullAlgae() {
-    return () -> watson.getIsDetected().getValue();
+    return () -> watson.getIsDetected().getValue() && watson.getDistance().getValueAsDouble() > 0.07;
   }
 
   public BooleanSupplier turretMoving() {
@@ -151,11 +151,11 @@ public class MrPibb extends SubsystemBase {
   }
 
   public Command waitUntilWristNeutralSafe() {
-    return Commands.waitUntil(() -> getWristPosition() > MrPibbStates.getNeutralWrist() && getWristPosition() < 10.5);
+    return Commands.waitUntil(() -> getWristPosition() > 3.5 && getWristPosition() < 10.5);
   }
 
   public BooleanSupplier isWristNeutralSafe() {
-    return () -> getWristPosition() > MrPibbStates.getNeutralWrist() && getWristPosition() < 10.5;
+    return () -> getWristPosition() > 3.5 && getWristPosition() < 10.5;
   }
 
   public Command waitUntilTurretSafe() {
@@ -305,8 +305,9 @@ public class MrPibb extends SubsystemBase {
     Logger.recordOutput("MrPibb/Algae Full", botFullAlgae().getAsBoolean());
 
     if(Constants.DEBUG) {
-      SmartDashboard.putBoolean("Is Safe", getWristPosition() > MrPibbStates.getNeutralWrist() && getWristPosition() < 10.5);
+      SmartDashboard.putBoolean("Is Wrist Safe", Math.abs(getWristPosition() - mrPibbState.getWrist()) < 0.75);
       SmartDashboard.putBoolean("Is Turret Safe", Math.abs(getTurretPosition() - mrPibbState.getTurret()) < 0.35);
+      SmartDashboard.putNumber("x44 %", loader.get());
     }
   }
 }
