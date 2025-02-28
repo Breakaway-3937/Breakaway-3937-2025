@@ -28,12 +28,15 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import static frc.robot.OperatorController.getScoringLocation;
+
+import frc.robot.Constants;
 import frc.robot.generated.PracticeTunerConstants.TunerSwerveDrivetrain;
 
 public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
@@ -50,7 +53,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     private final SwerveRequest.ApplyRobotSpeeds pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
-    private final ProfiledPIDController yController = new ProfiledPIDController(0, 0, 0, new Constraints(7, 7));
+    private final ProfiledPIDController yController = new ProfiledPIDController(1, 0, 0, new Constraints(7, 7));
 
     PathConstraints constraints = new PathConstraints(
         7.0, 7.0,
@@ -65,6 +68,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             startSimThread();
         }
         configPathplanner();
+        yController.setTolerance(0.075);
         this.setStateStdDevs(VecBuilder.fill(0.05, 0.05, 0.05));
     }
 
@@ -78,6 +82,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             startSimThread();
         }
         configPathplanner();
+        yController.setTolerance(0.075);
         this.setStateStdDevs(VecBuilder.fill(0.05, 0.05, 0.05));
     }
 
@@ -93,6 +98,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             startSimThread();
         }
         configPathplanner();
+        yController.setTolerance(0.075);
         this.setStateStdDevs(VecBuilder.fill(0.05, 0.05, 0.05));
     }
 
@@ -138,6 +144,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public double getYSpeed() {
+        if(Constants.DEBUG) {
+            SmartDashboard.putNumber("Y Speed Calc", yController.calculate(getState().Pose.getY(), getScoringLocation().get().getYGoal()));
+            SmartDashboard.putNumber("Y Speed Clamped", MathUtil.clamp(yController.calculate(getState().Pose.getY(), getScoringLocation().get().getYGoal()), -1, 1));
+        }
         return MathUtil.clamp(yController.calculate(getState().Pose.getY(), getScoringLocation().get().getYGoal()), -1, 1);
     }
 
