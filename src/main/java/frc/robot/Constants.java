@@ -22,6 +22,7 @@ public final class Constants {
     public static final String CANIVORE_BUS = "CANivore";
     public static final String PRACTICE_SERIAL_NUM = "0324152B";
     public static final boolean PRACTICE_BOT = RobotController.getSerialNumber().equals(PRACTICE_SERIAL_NUM);
+    public static final boolean USE_LOGGER = true;
     public static final boolean DEBUG = true;
 
     public static final class Controllers{

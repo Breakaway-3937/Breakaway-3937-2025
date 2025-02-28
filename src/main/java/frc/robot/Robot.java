@@ -52,7 +52,7 @@ public class Robot extends LoggedRobot {
       pdhWidget.hashCode();
     }
     
-    if(Constants.DEBUG){
+    if(Constants.USE_LOGGER){
       Logger.start();
     }
 
