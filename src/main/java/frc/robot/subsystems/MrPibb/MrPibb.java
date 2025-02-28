@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -84,39 +85,39 @@ public class MrPibb extends SubsystemBase {
   }
 
   public Command runLoader() {
-    return runOnce(() -> loader.set(1));
+    return new ProxyCommand(runOnce(() -> loader.set(1)));
   }
 
   public Command runLoaderReverse() {
-    return runOnce(() -> loader.set(-1));
+    return new ProxyCommand(runOnce(() -> loader.set(-1)));
   }
 
   public Command runLoaderReverseTrough() {
-    return runOnce(() -> loader.set(-0.3));
+    return new ProxyCommand(runOnce(() -> loader.set(-0.3)));
   }
 
   public Command runLoaderReverseSlowly() {
-    return runOnce(() -> loader.set(-0.3));
+    return new ProxyCommand(runOnce(() -> loader.set(-0.3)));
   }
 
   public Command stopLoader() {
-    return runOnce(() -> loader.stopMotor());
+    return new ProxyCommand(runOnce(() -> loader.stopMotor()));
   }
 
   public Command runThumbForward() {
-    return runOnce(() -> thumb.set(ControlMode.PercentOutput, 1));
+    return new ProxyCommand(runOnce(() -> thumb.set(ControlMode.PercentOutput, 1)));
   }
 
   public Command runThumbForwardSlowly() {
-    return runOnce(() -> thumb.set(ControlMode.PercentOutput, 0.30));
+    return new ProxyCommand(runOnce(() -> thumb.set(ControlMode.PercentOutput, 0.30)));
   }
 
   public Command runThumbBackwardSlowly() {
-    return runOnce(() -> thumb.set(ControlMode.PercentOutput, -0.2));
+    return new ProxyCommand(runOnce(() -> thumb.set(ControlMode.PercentOutput, -0.2)));
   }
 
   public Command stopThumb() {
-    return runOnce(() -> thumb.set(ControlMode.PercentOutput, 0));
+    return new ProxyCommand(runOnce(() -> thumb.set(ControlMode.PercentOutput, 0)));
   }
 
   public Command runUntilFullCoral() {
