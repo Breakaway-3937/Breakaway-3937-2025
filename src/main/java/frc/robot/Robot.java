@@ -33,7 +33,6 @@ public class Robot extends LoggedRobot {
 
   private GenericEntry canUtil = Shuffleboard.getTab("System").add("CAN", 0).withPosition(0, 0).getEntry();
   private GenericEntry currentScoringLocation = Shuffleboard.getTab("System").add("Scoring Location", "").withPosition(1, 0).getEntry();
-  private GenericEntry currentPickUpLocation = Shuffleboard.getTab("System").add("PickUp Location", "").withPosition(2, 0).getEntry();
 
   public Robot() {
     robotContainer = new RobotContainer();
@@ -64,7 +63,6 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().run(); 
 
     currentScoringLocation.setString(OperatorController.getScoringLocation().get().name());
-    currentPickUpLocation.setString(OperatorController.getPickUpLocation().get().name());
     
     canUtil.setDouble(RobotController.getCANStatus().percentBusUtilization * 100);
     Logger.recordOutput("CAN", RobotController.getCANStatus().percentBusUtilization * 100);

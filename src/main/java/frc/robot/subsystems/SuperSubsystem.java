@@ -12,9 +12,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.lib.Conversions;
 import frc.robot.subsystems.ClimbAvator.ClimbAvator;
 import frc.robot.subsystems.ClimbAvator.ClimbAvatorStates;
-import frc.robot.subsystems.MrPibb.DrPepper;
-import frc.robot.subsystems.MrPibb.MrPibb;
-import frc.robot.subsystems.MrPibb.MrPibbStates;
+import frc.robot.subsystems.Soda.DrPepper;
+import frc.robot.subsystems.Soda.MrPibb;
+import frc.robot.subsystems.Soda.MrPibbStates;
 
 public class SuperSubsystem extends SubsystemBase {
   private final ClimbAvator s_ClimbAvator;
@@ -32,12 +32,16 @@ public class SuperSubsystem extends SubsystemBase {
     return Commands.either(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.PROTECT)).andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.waitUntilWristSafe()), Commands.none(), () -> s_ClimbAvator.getState().equals(ClimbAvatorStates.CLIMB) || s_ClimbAvator.getState().equals(ClimbAvatorStates.CLIMB_PULL));
   }
 
+  public Command mrPibbOut() {
+    return Commands.either(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.CORAL_PRESTAGE)).andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.waitUntilWristSafe()), Commands.none(), () -> s_MrPibb.getState().equals(MrPibbStates.CLIMB.name()) || s_MrPibb.getState().equals(MrPibbStates.PROTECT.name()));
+  }
+
   public Command runSubsystems() {
     return Commands.either(disperse(), condense(), () -> s_ClimbAvator.getShoulderMotorPosition() < Conversions.shoulderDegreesToRotations(30) || (s_ClimbAvator.getShoulderMotorPosition() > Conversions.shoulderDegreesToRotations(30) && s_ClimbAvator.getElevatorMotorPosition() - s_ClimbAvator.getState().getHeight() < 5));
   }
 
   public Command disperse() {
-    return Commands.either(s_ClimbAvator.setShoulderNeutral().andThen(s_ClimbAvator.waitUntilShoulderNeutralSafe()), s_ClimbAvator.setShoulder().andThen(s_ClimbAvator.waitUntilShoulderSafe()), () -> s_MrPibb.turretMoving().getAsBoolean() && s_ClimbAvator.getState().getAngle() < Conversions.shoulderDegreesToRotations(30))
+    return Commands.either(s_ClimbAvator.setShoulderNeutral().andThen(s_ClimbAvator.waitUntilShoulderNeutralSafe()), s_ClimbAvator.setShoulder().andThen(s_ClimbAvator.waitUntilShoulderSafe()), () -> (s_MrPibb.turretMoving().getAsBoolean() || s_ClimbAvator.elevatorMoving().getAsBoolean()) && s_ClimbAvator.getState().getAngle() < Conversions.shoulderDegreesToRotations(30))
                            .andThen(s_MrPibb.setWrist()).andThen(s_ClimbAvator.setElevator()).andThen(s_MrPibb.setTurret())
                            .andThen(s_MrPibb.waitUntilWristSafe()).andThen(s_ClimbAvator.waitUntilElevatorSafe()).andThen(s_MrPibb.waitUntilTurretSafe())
                            .andThen(s_ClimbAvator.setShoulder()).andThen(s_ClimbAvator.waitUntilShoulderSafe());
@@ -51,7 +55,7 @@ public class SuperSubsystem extends SubsystemBase {
 
   /* Intake States */
   public Command stationState() {
-    return saveMrPibb().andThen(runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.STATION)))
+    return saveMrPibb().andThen(mrPibbOut()).andThen(runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.STATION)))
                .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.STATION)))
                .andThen(runSubsystems());
   }

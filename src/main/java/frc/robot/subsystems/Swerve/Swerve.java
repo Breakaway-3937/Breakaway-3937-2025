@@ -148,7 +148,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         //    SmartDashboard.putNumber("Y Speed Calc", yController.calculate(getState().Pose.getY(), getScoringLocation().get().getYGoal()));
         //    SmartDashboard.putNumber("Y Speed Clamped", MathUtil.clamp(yController.calculate(getState().Pose.getY(), getScoringLocation().get().getYGoal()), -1, 1));
         //}
-        return yController.calculate(getState().Pose.getY(), getYGoal());
+        return -yController.calculate(getState().Pose.getY(), getYGoal());
     }
 
     public double getYGoal() {
@@ -162,8 +162,13 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public Rotation2d getRotationTarget() {
-        return getScoringLocation().get().getRotationTarget();
-    }
+        if(getScoringLocation().get().getPath() != null && !getScoringLocation().get().getPath().getAllPathPoints().isEmpty()) {
+            return getScoringLocation().get().getPath().getAllPathPoints().get(getScoringLocation().get().getPath().getAllPathPoints().size() - 1).rotationTarget.rotation();
+        }
+        else {
+            return getState().Pose.getRotation();
+        }
+       }
 
     public Command pathFindAndFollow(Supplier<AutoPathLocations> target) {
         if(target.get() != null && target.get().getPath() != null) {

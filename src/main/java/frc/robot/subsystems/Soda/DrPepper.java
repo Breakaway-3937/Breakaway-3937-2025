@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.MrPibb;
+package frc.robot.subsystems.Soda;
 
 import java.util.function.BooleanSupplier;
 
@@ -36,17 +36,17 @@ public class DrPepper extends SubsystemBase {
    *  @since Ankle is no longer with us.
    */
   public DrPepper() {
-    loader = new TalonFX(Constants.MrPibb.DrPepper.LOADER_CAN_ID);
-    thumb = new TalonSRX(Constants.MrPibb.DrPepper.THUMB_CAN_ID);
-    sherlock = new CANrange(Constants.MrPibb.DrPepper.SHERLOCK_CAN_ID);
-    watson = new CANrange(Constants.MrPibb.DrPepper.WATSON_CAN_ID);
+    loader = new TalonFX(Constants.Soda.DrPepper.LOADER_CAN_ID);
+    thumb = new TalonSRX(Constants.Soda.DrPepper.THUMB_CAN_ID);
+    sherlock = new CANrange(Constants.Soda.DrPepper.SHERLOCK_CAN_ID);
+    watson = new CANrange(Constants.Soda.DrPepper.WATSON_CAN_ID);
 
     configLoader();
     configThumb();
     configCANranges();
 
-    coralFull = Shuffleboard.getTab("MrPibb").add("Coral Full", botFullCoral().getAsBoolean()).withPosition(3, 0).getEntry();
-    algaeFull = Shuffleboard.getTab("MrPibb").add("Algae Full", botFullAlgae().getAsBoolean()).withPosition(4, 0).getEntry();
+    coralFull = Shuffleboard.getTab("Soda").add("Coral Full", botFullCoral().getAsBoolean()).withPosition(3, 0).getEntry();
+    algaeFull = Shuffleboard.getTab("Soda").add("Algae Full", botFullAlgae().getAsBoolean()).withPosition(4, 0).getEntry();
   }
 
   public Command runLoader() {
@@ -74,11 +74,11 @@ public class DrPepper extends SubsystemBase {
   }
 
   public Command runThumbForwardSlowly() {
-    return runOnce(() -> thumb.set(ControlMode.PercentOutput, 0.30));
+    return runOnce(() -> thumb.set(ControlMode.PercentOutput, 0.3));
   }
 
   public Command runThumbBackwardSlowly() {
-    return runOnce(() -> thumb.set(ControlMode.PercentOutput, -0.2));
+    return runOnce(() -> thumb.set(ControlMode.PercentOutput, -0.7));
   }
 
   public Command stopThumb() {
@@ -96,11 +96,11 @@ public class DrPepper extends SubsystemBase {
   }
 
   public BooleanSupplier botFullCoral() {
-    return () -> sherlock.getIsDetected().getValue() && sherlock.getDistance().getValueAsDouble() > 0.07;
+    return () -> sherlock.getIsDetected().getValue() && sherlock.getDistance().getValueAsDouble() > 0.06;
   }
 
   public BooleanSupplier botFullAlgae() {
-    return () -> watson.getIsDetected().getValue() && watson.getDistance().getValueAsDouble() > 0.07;
+    return () -> watson.getIsDetected().getValue() && watson.getDistance().getValueAsDouble() > 0.06;
   }
 
   public TalonFX getLoaderMotor() {
@@ -147,15 +147,19 @@ public class DrPepper extends SubsystemBase {
     config.ProximityParams.ProximityThreshold = 0.12;
 
     sherlock.getConfigurator().apply(config);
+
+    config.ProximityParams.ProximityThreshold = 0.25;
+
+    watson.getConfigurator().apply(config);
   }
 
   @Override
   public void periodic() {
     coralFull.setBoolean(botFullCoral().getAsBoolean());
-    Logger.recordOutput("MrPibb/Coral Full", botFullCoral().getAsBoolean());
+    Logger.recordOutput("Soda/Coral Full", botFullCoral().getAsBoolean());
 
     algaeFull.setBoolean(botFullAlgae().getAsBoolean());
-    Logger.recordOutput("MrPibb/Algae Full", botFullAlgae().getAsBoolean());
+    Logger.recordOutput("Soda/Algae Full", botFullAlgae().getAsBoolean());
 
     if(Constants.DEBUG) {
       SmartDashboard.putNumber("Loader %", loader.get());

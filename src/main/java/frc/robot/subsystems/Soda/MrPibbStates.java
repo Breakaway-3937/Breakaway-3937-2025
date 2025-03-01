@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.MrPibb;
+package frc.robot.subsystems.Soda;
 
 public enum MrPibbStates {
     //16.58 Max for wrist when elevator not extended.

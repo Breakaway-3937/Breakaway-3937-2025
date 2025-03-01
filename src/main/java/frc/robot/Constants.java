@@ -52,7 +52,7 @@ public final class Constants {
         public static final double MAX_ANGULAR_RATE = RotationsPerSecond.of(1.25).in(RadiansPerSecond);
     }
 
-    public static final class MrPibb {
+    public static final class Soda {
 
         public static final class DrPepper {
             public static final int LOADER_CAN_ID = 5; 

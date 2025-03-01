@@ -8,8 +8,8 @@ import com.ctre.phoenix6.Orchestra;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ClimbAvator.ClimbAvator;
-import frc.robot.subsystems.MrPibb.DrPepper;
-import frc.robot.subsystems.MrPibb.MrPibb;
+import frc.robot.subsystems.Soda.DrPepper;
+import frc.robot.subsystems.Soda.MrPibb;
 import frc.robot.subsystems.Swerve.Swerve;
 
 public class Music extends Command {

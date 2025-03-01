@@ -12,32 +12,19 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.OperatorController;
-import frc.robot.subsystems.SuperSubsystem;
 import frc.robot.subsystems.Swerve.Swerve;
 
 public class AutoTeleop extends SequentialCommandGroup {
   private final Swerve s_Swerve;
-  private final SuperSubsystem s_SuperSubsystem;
 
   /** Creates a new AutoTeleop. */
-  public AutoTeleop(Swerve s_Swerve, SuperSubsystem s_SuperSubsystem) {
+  public AutoTeleop(Swerve s_Swerve) {
     this.s_Swerve = s_Swerve;
-    this.s_SuperSubsystem = s_SuperSubsystem;
 
     setName("AutoTeleop");
     addRequirements(s_Swerve);
 
-    addCommands(pathFindPickup(), 
-                pathFindScore());
-  }
-
-  private Command pathFindPickup() {
-    return Commands.defer(
-      () -> {
-        return s_Swerve.pathFindAndFollow(OperatorController.getPickUpLocation()).unless(s_SuperSubsystem.botFullCoral());
-      },
-      Set.of(s_Swerve)
-    );
+    addCommands(pathFindScore());
   }
 
   private Command pathFindScore() {
@@ -47,20 +34,6 @@ public class AutoTeleop extends SequentialCommandGroup {
       },
       Set.of(s_Swerve)
     );
-  }
-
-  @SuppressWarnings("unused")
-  private BooleanSupplier robotAtPickUp() {
-    var location = OperatorController.getPickUpLocation();
-    if(location.get() != null && location.get().getPath() != null) {
-      var points = location.get().getPath().getAllPathPoints();
-      boolean nearX = MathUtil.isNear(points.get(points.size() - 1).position.getX(), s_Swerve.getState().Pose.getX(), 0);
-      boolean nearY = MathUtil.isNear(points.get(points.size() - 1).position.getY(), s_Swerve.getState().Pose.getY(), 0);
-      return () -> nearX && nearY;
-    }
-    else {
-      return () -> false;
-    }
   }
 
   @SuppressWarnings("unused")

@@ -50,10 +50,6 @@ public enum AutoPathLocations {
         }
    }*/
 
-   public Rotation2d getRotationTarget() {
-    return path.getAllPathPoints().get(path.getAllPathPoints().size() - 1).rotationTarget.rotation();
-   }
-
    private static PathPlannerPath breakaParse(String pathName) {
         try {
             if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {

@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.MrPibb;
+package frc.robot.subsystems.Soda;
 
 import java.util.function.BooleanSupplier;
 
@@ -32,8 +32,8 @@ public class MrPibb extends SubsystemBase {
    *  @since Ankle is no longer with us.
    */
   public MrPibb() {
-    wrist = new TalonFX(Constants.MrPibb.WRIST_CAN_ID);
-    turret = new TalonFX(Constants.MrPibb.TURRET_CAN_ID);
+    wrist = new TalonFX(Constants.Soda.WRIST_CAN_ID);
+    turret = new TalonFX(Constants.Soda.TURRET_CAN_ID);
 
     configWrist();
     configTurret();
@@ -41,9 +41,9 @@ public class MrPibb extends SubsystemBase {
     wristRequest = new MotionMagicVoltage(0).withEnableFOC(true);
     turretRequest = new MotionMagicVoltage(0).withEnableFOC(true);
 
-    wristPosition = Shuffleboard.getTab("MrPibb").add("Wrist", getWristPosition()).withPosition(0, 0).getEntry();
-    turretPosition = Shuffleboard.getTab("MrPibb").add("Turret", getTurretPosition()).withPosition(1, 0).getEntry();
-    currentState = Shuffleboard.getTab("MrPibb").add("State", getState()).withPosition(2, 0).getEntry();
+    wristPosition = Shuffleboard.getTab("Soda").add("Wrist", getWristPosition()).withPosition(0, 0).getEntry();
+    turretPosition = Shuffleboard.getTab("Soda").add("Turret", getTurretPosition()).withPosition(1, 0).getEntry();
+    currentState = Shuffleboard.getTab("Soda").add("State", getState()).withPosition(2, 0).getEntry();
   }
 
   public Command setWrist() {
@@ -161,13 +161,13 @@ public class MrPibb extends SubsystemBase {
   @Override
   public void periodic() {
     wristPosition.setDouble(getWristPosition());
-    Logger.recordOutput("MrPibb/Wrist", getWristPosition());
+    Logger.recordOutput("Soda/Wrist", getWristPosition());
 
     turretPosition.setDouble(getTurretPosition());
-    Logger.recordOutput("MrPibb/Turret", getTurretPosition());
+    Logger.recordOutput("Soda/Turret", getTurretPosition());
 
     currentState.setString(getState());
-    Logger.recordOutput("MrPibb/MrPibb State", getState());
+    Logger.recordOutput("Soda/MrPibb State", getState());
 
     if(Constants.DEBUG) {
       SmartDashboard.putBoolean("Is Wrist Safe", Math.abs(getWristPosition() - mrPibbState.getWrist()) < 0.75);

@@ -32,9 +32,9 @@ import frc.robot.subsystems.SuperSubsystem;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.ClimbAvator.ClimbAvator;
 import frc.robot.subsystems.ClimbAvator.ClimbAvatorStates;
-import frc.robot.subsystems.MrPibb.DrPepper;
-import frc.robot.subsystems.MrPibb.MrPibb;
-import frc.robot.subsystems.MrPibb.MrPibbStates;
+import frc.robot.subsystems.Soda.DrPepper;
+import frc.robot.subsystems.Soda.MrPibb;
+import frc.robot.subsystems.Soda.MrPibbStates;
 import frc.robot.subsystems.Swerve.Swerve;
 
 public class RobotContainer {
@@ -104,7 +104,7 @@ public class RobotContainer {
             )
         );
 
-        autoTrackButton.whileTrue(new AutoTeleop(s_Swerve, s_SuperSubsystem).andThen(holdPosition()));
+        autoTrackButton.whileTrue(new AutoTeleop(s_Swerve).andThen(holdPosition()));
 
         slowDownTrigger.whileTrue(Commands.runOnce(() -> multiplier = 0.4)).whileFalse(Commands.runOnce(() -> multiplier = 1));
 
@@ -204,7 +204,7 @@ public class RobotContainer {
     public Command holdPosition() {
         return s_Swerve.applyRequest(() ->
                 align.withVelocityX(translationController.getRawAxis(translationAxis) * multiplier * Constants.Swerve.MAX_SPEED)
-                    .withVelocityY(s_Swerve.getYSpeed() * multiplier * Constants.Swerve.MAX_SPEED) 
+                    .withVelocityY(0) 
                     .withTargetDirection(s_Swerve.getRotationTarget())
             );
     }
