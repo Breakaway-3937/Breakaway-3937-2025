@@ -80,12 +80,12 @@ public class RobotContainer {
             .withRotationalDeadband(Constants.Swerve.MAX_ANGULAR_RATE * Constants.Controllers.STICK_DEADBAND) 
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
-    private final SwerveRequest.FieldCentricFacingAngle align = new SwerveRequest.FieldCentricFacingAngle()
+    private final SwerveRequest.RobotCentricFacingAngle align = new SwerveRequest.RobotCentricFacingAngle()
             .withDeadband(Constants.Swerve.MAX_SPEED * Constants.Controllers.STICK_DEADBAND)
             .withRotationalDeadband(Constants.Swerve.MAX_ANGULAR_RATE * Constants.Controllers.STICK_DEADBAND)
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
             .withMaxAbsRotationalRate(Constants.Swerve.MAX_ANGULAR_RATE)
-            .withHeadingPID(2, 0, 0);
+            .withHeadingPID(4.5, 0, 0);
 
     /* Telemetry */
     private final Telemetry logger = new Telemetry(Constants.Swerve.MAX_SPEED);
@@ -202,20 +202,10 @@ public class RobotContainer {
 
     public Command holdPosition() {
         return s_Swerve.applyRequest(() ->
-                align.withVelocityX(getSpeeds().vxMetersPerSecond * multiplier * Constants.Swerve.MAX_SPEED)
-                    .withVelocityY(getSpeeds().vyMetersPerSecond * multiplier * Constants.Swerve.MAX_SPEED) 
+                align.withVelocityX(translationController.getRawAxis(translationAxis) * multiplier * Constants.Swerve.MAX_SPEED)
+                    .withVelocityY(s_Swerve.getYSpeed() * multiplier * Constants.Swerve.MAX_SPEED) 
                     .withTargetDirection(s_Swerve.getRotationTarget())
             );
-    }
-
-    public ChassisSpeeds getSpeeds() {
-        if(Constants.DEBUG) {
-            SmartDashboard.putNumber("Chassis Speeds X", ChassisSpeeds.fromRobotRelativeSpeeds(translationController.getRawAxis(translationAxis), s_Swerve.getYSpeed(), 0, s_Swerve.getState().Pose.getRotation()).vxMetersPerSecond);
-            SmartDashboard.putNumber("Chassis Speeds Y", ChassisSpeeds.fromRobotRelativeSpeeds(translationController.getRawAxis(translationAxis), s_Swerve.getYSpeed(), 0, s_Swerve.getState().Pose.getRotation()).vyMetersPerSecond);
-            SmartDashboard.putNumber("Chassis Speeds X Scaled", ChassisSpeeds.fromRobotRelativeSpeeds(translationController.getRawAxis(translationAxis), s_Swerve.getYSpeed(), 0, s_Swerve.getState().Pose.getRotation()).vxMetersPerSecond  * multiplier * Constants.Swerve.MAX_SPEED);
-            SmartDashboard.putNumber("Chassis Speeds Y Scaled", ChassisSpeeds.fromRobotRelativeSpeeds(translationController.getRawAxis(translationAxis), s_Swerve.getYSpeed(), 0, s_Swerve.getState().Pose.getRotation()).vyMetersPerSecond  * multiplier * Constants.Swerve.MAX_SPEED);    
-        }
-        return ChassisSpeeds.fromRobotRelativeSpeeds(translationController.getRawAxis(translationAxis), s_Swerve.getYSpeed(), 0, s_Swerve.getState().Pose.getRotation());
     }
 
     public Swerve createSwerve() {

@@ -53,7 +53,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     private final SwerveRequest.ApplyRobotSpeeds pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
-    private final ProfiledPIDController yController = new ProfiledPIDController(1, 0, 0, new Constraints(7, 7));
+    private final ProfiledPIDController yController = new ProfiledPIDController(1, 0, 0, new Constraints(1, 1));
 
     PathConstraints constraints = new PathConstraints(
         7.0, 7.0,
@@ -144,11 +144,21 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public double getYSpeed() {
-        if(Constants.DEBUG) {
-            SmartDashboard.putNumber("Y Speed Calc", yController.calculate(getState().Pose.getY(), getScoringLocation().get().getYGoal()));
-            SmartDashboard.putNumber("Y Speed Clamped", MathUtil.clamp(yController.calculate(getState().Pose.getY(), getScoringLocation().get().getYGoal()), -1, 1));
+        //if(Constants.DEBUG) {
+        //    SmartDashboard.putNumber("Y Speed Calc", yController.calculate(getState().Pose.getY(), getScoringLocation().get().getYGoal()));
+        //    SmartDashboard.putNumber("Y Speed Clamped", MathUtil.clamp(yController.calculate(getState().Pose.getY(), getScoringLocation().get().getYGoal()), -1, 1));
+        //}
+        return yController.calculate(getState().Pose.getY(), getYGoal());
+    }
+
+    public double getYGoal() {
+        if(getScoringLocation().get().toString() != "NO_TARGET") {
+            var points = getScoringLocation().get().getPath().getAllPathPoints();
+            return points.get(points.size() - 1).position.getY();
         }
-        return MathUtil.clamp(yController.calculate(getState().Pose.getY(), getScoringLocation().get().getYGoal()), -1, 1);
+        else {
+            return getState().Pose.getY();
+        }
     }
 
     public Rotation2d getRotationTarget() {

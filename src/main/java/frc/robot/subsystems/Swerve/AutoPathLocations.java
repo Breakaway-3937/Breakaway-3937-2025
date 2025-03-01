@@ -23,12 +23,12 @@ public enum AutoPathLocations {
     CORAL_K(breakaParse("K")),
     CORAL_L(breakaParse("L")),
     NO_TARGET(null),
-    STATION_ONE(breakaParse("Station Right")),
-    STATION_TWO(breakaParse("Station Right")),
-    STATION_THREE(breakaParse("Station Right")),
-    STATION_FOUR(breakaParse("Station Left")),
-    STATION_FIVE(breakaParse("Station Left")),
-    STATION_SIX(breakaParse("Station Left")),
+    STATION_ONE(breakaParse("Station Left")),
+    STATION_TWO(breakaParse("Station Left")),
+    STATION_THREE(breakaParse("Station Left")),
+    STATION_FOUR(breakaParse("Station Right")),
+    STATION_FIVE(breakaParse("Station Right")),
+    STATION_SIX(breakaParse("Station Right")),
     NO_STATION(null);
 
     private final PathPlannerPath path;
@@ -41,9 +41,14 @@ public enum AutoPathLocations {
         return path;
    }
 
-   public double getYGoal() {
-        return path.getAllPathPoints().get(path.getAllPathPoints().size() - 1).position.getY();
-   }
+   /*public double getYGoal() {
+        if(!path.getPathPoses().isEmpty()) {
+            return path.getAllPathPoints().get(path.getAllPathPoints().size() - 1).position.getY();
+        }
+        else {
+            return 0.0; //TODO get y
+        }
+   }*/
 
    public Rotation2d getRotationTarget() {
     return path.getAllPathPoints().get(path.getAllPathPoints().size() - 1).rotationTarget.rotation();
