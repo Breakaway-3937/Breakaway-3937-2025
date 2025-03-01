@@ -7,15 +7,15 @@ package frc.robot.subsystems.ClimbAvator;
 public enum ClimbAvatorStates {
     //57.251 Max for Shoulder
     GROUND_CORAL(4.77, 0.25),
-    GROUND_ALGAE(7.6, 9.7), //TODO
+    GROUND_ALGAE(7.6, 9.7),
     PROCESSOR(0.25, 19),
     BARGE(73.5, 50),
     CLIMB(19.7, 47),
     STATION(0.25, 48.5),
     L1(0.25, 21.3),
-    L2(6.4, 33.2), //TODO
-    L3(27.98, 41.5), //TODO
-    L4(73.5, 47.475), //TODO
+    L2(6.4, 33.2),
+    L3(27.98, 41.5),
+    L4(73.5, 47.475),
     PROTECT(0.25, 0.25),
     CORAL_PRESTAGE(0.25, 40),
     LOWER_ALGAE(21.7, 36),

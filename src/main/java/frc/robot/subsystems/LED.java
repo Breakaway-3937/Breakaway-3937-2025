@@ -119,7 +119,7 @@ public class LED extends SubsystemBase {
         }
         break;
       case AUTONOMOUS:
-        if(DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)) {
+        if(DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get().equals(DriverStation.Alliance.Blue)) {
           flow.setR(0);
           flow.setB(254);
         }

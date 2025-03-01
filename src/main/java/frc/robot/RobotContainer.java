@@ -32,6 +32,7 @@ import frc.robot.subsystems.SuperSubsystem;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.ClimbAvator.ClimbAvator;
 import frc.robot.subsystems.ClimbAvator.ClimbAvatorStates;
+import frc.robot.subsystems.MrPibb.DrPepper;
 import frc.robot.subsystems.MrPibb.MrPibb;
 import frc.robot.subsystems.MrPibb.MrPibbStates;
 import frc.robot.subsystems.Swerve.Swerve;
@@ -67,14 +68,15 @@ public class RobotContainer {
     private final Swerve s_Swerve = createSwerve();
     private final Vision s_Vision = new Vision(s_Swerve);
     private final MrPibb s_MrPibb = new MrPibb();
+    private final DrPepper s_DrPepper = new DrPepper();
     private final ClimbAvator s_ClimbAvator = new ClimbAvator();
     private final LED s_LED = new LED();
-    private final SuperSubsystem s_SuperSubsystem = new SuperSubsystem(s_ClimbAvator, s_MrPibb);
+    private final SuperSubsystem s_SuperSubsystem = new SuperSubsystem(s_ClimbAvator, s_MrPibb, s_DrPepper);
 
     private double multiplier = 1;
 
     /* Commands */
-    private final Music c_Music = new Music(s_Swerve, s_MrPibb, s_ClimbAvator);
+    private final Music c_Music = new Music(s_Swerve, s_MrPibb, s_DrPepper, s_ClimbAvator);
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(Constants.Swerve.MAX_SPEED * Constants.Controllers.STICK_DEADBAND)
             .withRotationalDeadband(Constants.Swerve.MAX_ANGULAR_RATE * Constants.Controllers.STICK_DEADBAND) 
@@ -104,7 +106,7 @@ public class RobotContainer {
 
         autoTrackButton.whileTrue(new AutoTeleop(s_Swerve, s_SuperSubsystem).andThen(holdPosition()));
 
-        slowDownTrigger.whileTrue(Commands.runOnce(() -> multiplier = 0.5)).whileFalse(Commands.runOnce(() -> multiplier = 1));
+        slowDownTrigger.whileTrue(Commands.runOnce(() -> multiplier = 0.4)).whileFalse(Commands.runOnce(() -> multiplier = 1));
 
         translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
 
@@ -124,12 +126,11 @@ public class RobotContainer {
         /* Intake States */
         xboxController.y().onTrue(s_SuperSubsystem.stationState());
         xboxController.rightBumper().onTrue(s_SuperSubsystem.preStageState());
-        xboxController.leftTrigger(0.3).and(xboxController.rightTrigger(0.3).negate()).whileTrue(s_MrPibb.runLoader().asProxy()).onFalse(s_MrPibb.stopLoader().asProxy().andThen(s_MrPibb.stopThumb().asProxy()));
-        xboxController.leftBumper().onTrue(Commands.either(s_MrPibb.runLoaderReverseTrough(), s_MrPibb.runLoaderReverse(), () -> s_MrPibb.getState().equals(MrPibbStates.L1.name()))).onFalse(s_MrPibb.runUntilFullAlgae().asProxy());
-        xboxController.rightTrigger(0.3).and(xboxController.leftTrigger(0.3).negate()).onTrue(s_MrPibb.runThumbForward().asProxy()).onFalse(s_MrPibb.stopThumb().asProxy());
+        xboxController.leftTrigger(0.3).and(xboxController.rightTrigger(0.3).negate()).whileTrue(s_DrPepper.runUntilFullCoral()).onFalse(s_DrPepper.stopLoader().andThen(s_DrPepper.stopThumb()));
+        xboxController.leftBumper().onTrue(Commands.either(s_DrPepper.runLoaderReverseTrough(), s_DrPepper.runLoaderReverse(), () -> s_MrPibb.getState().equals(MrPibbStates.L1.name()))).onFalse(s_DrPepper.runUntilFullAlgae());
+        xboxController.rightTrigger(0.3).and(xboxController.leftTrigger(0.3).negate()).onTrue(s_DrPepper.runThumbForward()).onFalse(s_DrPepper.stopThumb());
         xboxController.povLeft().onTrue(s_SuperSubsystem.groundCoralState());
         xboxController.povRight().onTrue(s_SuperSubsystem.groundAlgaeState());
-        new Trigger(s_MrPibb.botFullAlgae()).onFalse(Commands.runOnce(() -> s_MrPibb.stopLoader(), s_MrPibb));
         
         /* Climbing States */
         xboxController.povUp().onTrue(s_SuperSubsystem.climbState());
@@ -146,7 +147,7 @@ public class RobotContainer {
         /* LEDs */
         climbLEDTrigger.whileTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.CLIMBED), s_LED));
         funeralLEDTrigger.whileTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.FUNERAL), s_LED).ignoringDisable(true));
-        botFullAlgaeLEDTrigger.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.ALGAE_FULL), s_LED));
+        botFullAlgaeLEDTrigger.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.ALGAE_FULL), s_LED)).onFalse(Commands.runOnce(() -> s_DrPepper.stopLoader(), s_DrPepper));
         botFullCoralLEDTrigger.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.CORAL_FULL), s_LED));
         botFullAlgaeLEDTrigger.and(botFullCoralLEDTrigger).and(funeralLEDTrigger).and(climbLEDTrigger).whileFalse(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED));
 
