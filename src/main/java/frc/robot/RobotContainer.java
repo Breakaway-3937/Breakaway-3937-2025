@@ -129,6 +129,7 @@ public class RobotContainer {
         xboxController.rightTrigger(0.3).and(xboxController.leftTrigger(0.3).negate()).onTrue(s_MrPibb.runThumbForward().asProxy()).onFalse(s_MrPibb.stopThumb().asProxy());
         xboxController.povLeft().onTrue(s_SuperSubsystem.groundCoralState());
         xboxController.povRight().onTrue(s_SuperSubsystem.groundAlgaeState());
+        new Trigger(s_MrPibb.botFullAlgae()).onFalse(Commands.runOnce(() -> s_MrPibb.stopLoader(), s_MrPibb));
         
         /* Climbing States */
         xboxController.povUp().onTrue(s_SuperSubsystem.climbState());

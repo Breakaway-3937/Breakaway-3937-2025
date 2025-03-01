@@ -14,11 +14,11 @@ public enum MrPibbStates {
     CLIMB(-2, 0),
     STATION(-1.15, -3.55),
     L1(17.3, 0),
-    L2(10.3, -1.86),
-    L3(11.9, -1.731),
-    L4(16.8, -1.701),
+    L2(10.3, -1.7),
+    L3(11.9, -1.7),
+    L4(16.8, -1.7),
     PROTECT(3.5, 0),
-    CORAL_PRESTAGE(9.788, -1.824),
+    CORAL_PRESTAGE(9.788, -1.7),
     LOWER_ALGAE(16, -3.5),
     UPPER_ALGAE(16, -3.5);
 

@@ -148,7 +148,7 @@ public class MrPibb extends SubsystemBase {
   }
 
   public Command waitUntilWristSafe() {
-    return Commands.waitUntil(() -> Math.abs(getWristPosition() - mrPibbState.getWrist()) < 0.75);
+    return Commands.waitUntil(() -> Math.abs(getWristPosition() - mrPibbState.getWrist()) < 1);
   }
 
   public Command waitUntilWristNeutralSafe() {

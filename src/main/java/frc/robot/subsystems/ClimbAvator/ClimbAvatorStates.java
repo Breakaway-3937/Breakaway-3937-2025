@@ -8,7 +8,7 @@ public enum ClimbAvatorStates {
     //57.251 Max for Shoulder
     GROUND_CORAL(4.77, 0.25),
     GROUND_ALGAE(7.6, 9.7), //TODO
-    PROCESSOR(0.25, 17.825),
+    PROCESSOR(0.25, 19),
     BARGE(73.5, 50),
     CLIMB(19.7, 47),
     STATION(0.25, 48.5),

@@ -176,11 +176,11 @@ public class Vision extends SubsystemBase {
       }
 
       if(!frontTagsUsed.isEmpty()) {
-        Logger.recordOutput("Vision/Front Camera Tags Used", frontTagsUsed.toArray(new Pose3d[frontTagsUsed.size()]));
+        //Logger.recordOutput("Vision/Front Camera Tags Used", frontTagsUsed.toArray(new Pose3d[frontTagsUsed.size()]));
       }
     }
     else {
-      Logger.recordOutput("Vision/Front Camera Tags Used", new Pose3d[] {});
+      //Logger.recordOutput("Vision/Front Camera Tags Used", new Pose3d[] {});
     }
     
     /* Back Camera */
@@ -204,11 +204,11 @@ public class Vision extends SubsystemBase {
       }
 
       if(!backTagsUsed.isEmpty()) {
-        Logger.recordOutput("Vision/Back Camera Tags Used", backTagsUsed.toArray(new Pose3d[backTagsUsed.size()]));
+        //Logger.recordOutput("Vision/Back Camera Tags Used", backTagsUsed.toArray(new Pose3d[backTagsUsed.size()]));
       }
     }
     else {
-      Logger.recordOutput("Vision/Back Camera Tags Used", new Pose3d[] {});
+      //Logger.recordOutput("Vision/Back Camera Tags Used", new Pose3d[] {});
     }
 
     Logger.recordOutput("Vision/X Distance Result Empty", xDistanceBad);
