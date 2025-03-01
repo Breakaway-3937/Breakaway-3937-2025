@@ -8,13 +8,8 @@ import java.util.function.BooleanSupplier;
 
 import org.littletonrobotics.junction.Logger;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
-import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -24,16 +19,13 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class MrPibb extends SubsystemBase {
-  private final TalonFX wrist, turret, loader;
-  private final TalonSRX thumb;
-  private final CANrange sherlock, watson;
+  private final TalonFX wrist, turret;
   private final MotionMagicVoltage wristRequest, turretRequest;
-  private final GenericEntry wristPosition, turretPosition, currentState, coralFull, algaeFull;
+  private final GenericEntry wristPosition, turretPosition, currentState;
   private MrPibbStates mrPibbState = MrPibbStates.PROTECT;
 
   /** Creates a new MrPibb.
@@ -42,16 +34,9 @@ public class MrPibb extends SubsystemBase {
   public MrPibb() {
     wrist = new TalonFX(Constants.MrPibb.WRIST_CAN_ID);
     turret = new TalonFX(Constants.MrPibb.TURRET_CAN_ID);
-    loader = new TalonFX(Constants.MrPibb.LOADER_CAN_ID);
-    thumb = new TalonSRX(Constants.MrPibb.THUMB_CAN_ID);
-    sherlock = new CANrange(Constants.MrPibb.SHERLOCK_CAN_ID);
-    watson = new CANrange(Constants.MrPibb.WATSON_CAN_ID);
 
     configWrist();
     configTurret();
-    configLoader();
-    configThumb();
-    configCANranges();
 
     wristRequest = new MotionMagicVoltage(0).withEnableFOC(true);
     turretRequest = new MotionMagicVoltage(0).withEnableFOC(true);
@@ -59,17 +44,10 @@ public class MrPibb extends SubsystemBase {
     wristPosition = Shuffleboard.getTab("MrPibb").add("Wrist", getWristPosition()).withPosition(0, 0).getEntry();
     turretPosition = Shuffleboard.getTab("MrPibb").add("Turret", getTurretPosition()).withPosition(1, 0).getEntry();
     currentState = Shuffleboard.getTab("MrPibb").add("State", getState()).withPosition(2, 0).getEntry();
-    coralFull = Shuffleboard.getTab("MrPibb").add("Coral Full", botFullCoral().getAsBoolean()).withPosition(3, 0).getEntry();
-    algaeFull = Shuffleboard.getTab("MrPibb").add("Algae Full", botFullAlgae().getAsBoolean()).withPosition(4, 0).getEntry();
-
   }
 
   public Command setWrist() {
     return runOnce(() -> wrist.setControl(wristRequest.withPosition(mrPibbState.getWrist())));
-  }
-
-  public Command setWristNeutral() {
-    return runOnce(() -> wrist.setControl(wristRequest.withPosition(MrPibbStates.getNeutralWrist())));
   }
 
   public Command stopWrist() {
@@ -84,61 +62,6 @@ public class MrPibb extends SubsystemBase {
     return runOnce(() -> turret.stopMotor());
   }
 
-  public Command runLoader() {
-    return new ProxyCommand(runOnce(() -> loader.set(1)));
-  }
-
-  public Command runLoaderReverse() {
-    return new ProxyCommand(runOnce(() -> loader.set(-1)));
-  }
-
-  public Command runLoaderReverseTrough() {
-    return new ProxyCommand(runOnce(() -> loader.set(-0.3)));
-  }
-
-  public Command runLoaderReverseSlowly() {
-    return new ProxyCommand(runOnce(() -> loader.set(-0.3)));
-  }
-
-  public Command stopLoader() {
-    return new ProxyCommand(runOnce(() -> loader.stopMotor()));
-  }
-
-  public Command runThumbForward() {
-    return new ProxyCommand(runOnce(() -> thumb.set(ControlMode.PercentOutput, 1)));
-  }
-
-  public Command runThumbForwardSlowly() {
-    return new ProxyCommand(runOnce(() -> thumb.set(ControlMode.PercentOutput, 0.30)));
-  }
-
-  public Command runThumbBackwardSlowly() {
-    return new ProxyCommand(runOnce(() -> thumb.set(ControlMode.PercentOutput, -0.2)));
-  }
-
-  public Command stopThumb() {
-    return new ProxyCommand(runOnce(() -> thumb.set(ControlMode.PercentOutput, 0)));
-  }
-
-  public Command runUntilFullCoral() {
-    return runLoader().andThen(runThumbForwardSlowly()).andThen(Commands.waitUntil(botFullCoral())).andThen(stopLoader())
-                      .andThen(runThumbBackwardSlowly()).andThen(Commands.waitUntil(() -> !botFullCoral().getAsBoolean()))
-                      .andThen(runThumbForwardSlowly()).andThen(Commands.waitUntil(botFullCoral()))
-                      .andThen(stopThumb());
-  }
-
-  public Command runUntilFullAlgae() {
-    return Commands.either(runLoaderReverseSlowly(), stopLoader(), botFullAlgae());
-  }
-
-  public BooleanSupplier botFullCoral() {
-    return () -> sherlock.getIsDetected().getValue() && sherlock.getDistance().getValueAsDouble() > 0.07;
-  }
-
-  public BooleanSupplier botFullAlgae() {
-    return () -> watson.getIsDetected().getValue() && watson.getDistance().getValueAsDouble() > 0.07;
-  }
-
   public BooleanSupplier turretMoving() {
     return () -> Math.abs(getTurretPosition() - mrPibbState.getTurret()) > 0.35;
   }
@@ -148,15 +71,7 @@ public class MrPibb extends SubsystemBase {
   }
 
   public Command waitUntilWristSafe() {
-    return Commands.waitUntil(() -> Math.abs(getWristPosition() - mrPibbState.getWrist()) < 1);
-  }
-
-  public Command waitUntilWristNeutralSafe() {
-    return Commands.waitUntil(() -> getWristPosition() > 3.5 && getWristPosition() < 10.5);
-  }
-
-  public BooleanSupplier isWristNeutralSafe() {
-    return () -> getWristPosition() > 3.5 && getWristPosition() < 10.5;
+    return Commands.waitUntil(() -> Math.abs(getWristPosition() - mrPibbState.getWrist()) < 0.75);
   }
 
   public Command waitUntilTurretSafe() {
@@ -179,25 +94,8 @@ public class MrPibb extends SubsystemBase {
     return turret;
   }
 
-  public TalonFX getLoaderMotor() {
-    return loader;
-  }
-
   public void setMrPibbState(MrPibbStates mrPibbState) {
     this.mrPibbState = mrPibbState;
-  }
-
-  public void configThumb() {
-    thumb.configFactoryDefault();
-
-    TalonSRXConfiguration config = new TalonSRXConfiguration();
-
-    config.peakCurrentDuration = 100;
-    config.peakCurrentLimit = 50;
-    config.continuousCurrentLimit = 35;
-
-    thumb.configAllSettings(config);
-    thumb.enableCurrentLimit(true);
   }
 
   public void configWrist() {
@@ -238,6 +136,7 @@ public class MrPibb extends SubsystemBase {
     config.Audio.AllowMusicDurDisable = true;
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     config.Slot0.kS = 0.25;
     config.Slot0.kV = 0.12;
@@ -259,35 +158,6 @@ public class MrPibb extends SubsystemBase {
     turret.setPosition(0);
   }
 
-  public void configLoader() {
-    loader.getConfigurator().apply(new TalonFXConfiguration());
-
-    TalonFXConfiguration config = new TalonFXConfiguration();
-
-    config.Audio.AllowMusicDurDisable = true;
-
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-
-    config.CurrentLimits.SupplyCurrentLimit = 80;
-    config.CurrentLimits.SupplyCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLowerLimit = 40;
-    config.CurrentLimits.SupplyCurrentLowerTime = 1;
-
-    loader.getConfigurator().apply(config);
-  }
-
-  public void configCANranges() {
-    sherlock.getConfigurator().apply(new CANrangeConfiguration());
-    watson.getConfigurator().apply(new CANrangeConfiguration());
-
-    CANrangeConfiguration config = new CANrangeConfiguration();
-    config.ProximityParams.ProximityThreshold = 0.12;
-
-    sherlock.getConfigurator().apply(config);
-  }
-
   @Override
   public void periodic() {
     wristPosition.setDouble(getWristPosition());
@@ -299,16 +169,9 @@ public class MrPibb extends SubsystemBase {
     currentState.setString(getState());
     Logger.recordOutput("MrPibb/MrPibb State", getState());
 
-    coralFull.setBoolean(botFullCoral().getAsBoolean());
-    Logger.recordOutput("MrPibb/Coral Full", botFullCoral().getAsBoolean());
-
-    algaeFull.setBoolean(botFullAlgae().getAsBoolean());
-    Logger.recordOutput("MrPibb/Algae Full", botFullAlgae().getAsBoolean());
-
     if(Constants.DEBUG) {
       SmartDashboard.putBoolean("Is Wrist Safe", Math.abs(getWristPosition() - mrPibbState.getWrist()) < 0.75);
       SmartDashboard.putBoolean("Is Turret Safe", Math.abs(getTurretPosition() - mrPibbState.getTurret()) < 0.35);
-      SmartDashboard.putNumber("x44 %", loader.get());
     }
   }
 }
