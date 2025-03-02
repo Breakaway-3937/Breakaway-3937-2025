@@ -8,7 +8,10 @@ import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.lib.Conversions;
 import frc.robot.subsystems.ClimbAvator.ClimbAvator;
 import frc.robot.subsystems.ClimbAvator.ClimbAvatorStates;
@@ -160,5 +163,25 @@ public class SuperSubsystem extends SubsystemBase {
 
   public BooleanSupplier botFullAlgae() {
     return s_DrPepper.botFullAlgae();
+  }
+
+  public Command hitReef(Command hit, Command stop) {
+    return new ParallelDeadlineGroup(Commands.waitSeconds(0.45), hit).andThen(Commands.waitSeconds(0.01).raceWith(stop)).andThen(() -> stop.cancel());
+  }
+
+  public Command unhitReef(Command unhit, Command stop) {
+    return new ParallelDeadlineGroup(Commands.waitSeconds(0.25), unhit).andThen(Commands.waitSeconds(0.01).raceWith(stop)).andThen(() -> stop.cancel());
+  }
+
+  public Command scoreCoral(Command hit, Command unhit, Command stop, Command stopAgain) {
+    return hitReef(hit, stop).andThen(l4State()).andThen(s_DrPepper.runThumbForward()).andThen(s_DrPepper.runLoaderSlowly()).andThen(Commands.waitSeconds(0.5).andThen(s_DrPepper.stopThumb()).andThen(s_DrPepper.stopLoader()));//.andThen(unhitReef(unhit, stopAgain)));
+  }
+
+  public Command load() {
+    return s_DrPepper.runUntilFullCoral();
+  }
+
+  public Command condenseAuto() {
+    return preStageState().andThen(stationState());
   }
 }
