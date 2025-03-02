@@ -14,10 +14,10 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.pathfinding.LocalADStar;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -28,7 +28,6 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -36,16 +35,12 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import static frc.robot.OperatorController.getScoringLocation;
 
-import frc.robot.Constants;
-import frc.robot.Robot;
 import frc.robot.generated.PracticeTunerConstants.TunerSwerveDrivetrain;
 
 public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private static final double simLoopPeriod = 0.005; // 5 ms
     private Notifier simNotifier = null;
     private double lastSimTime;
-
-    private String selctedAuto;
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d blueAlliancePerspectiveRotation = Rotation2d.fromDegrees(0);
@@ -149,24 +144,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         Pathfinding.setPathfinder(new LocalADStar());
     }
 
-    public double getYSpeed() {
-        //if(Constants.DEBUG) {
-        //    SmartDashboard.putNumber("Y Speed Calc", yController.calculate(getState().Pose.getY(), getScoringLocation().get().getYGoal()));
-        //    SmartDashboard.putNumber("Y Speed Clamped", MathUtil.clamp(yController.calculate(getState().Pose.getY(), getScoringLocation().get().getYGoal()), -1, 1));
-        //}
-        return -yController.calculate(getState().Pose.getY(), getYGoal());
-    }
-
-    public double getYGoal() {
-        if(getScoringLocation().get().toString() != "NO_TARGET") {
-            var points = getScoringLocation().get().getPath().getAllPathPoints();
-            return points.get(points.size() - 1).position.getY();
-        }
-        else {
-            return getState().Pose.getY();
-        }
-    }
-
     public Rotation2d getRotationTarget() {
         if(getScoringLocation().get().getPath() != null && !getScoringLocation().get().getPath().getAllPathPoints().isEmpty()) {
             return getScoringLocation().get().getPath().getAllPathPoints().get(getScoringLocation().get().getPath().getAllPathPoints().size() - 1).rotationTarget.rotation();
@@ -174,11 +151,41 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         else {
             return getState().Pose.getRotation();
         }
-       }
+    }
 
-    public Command pathFindAndFollow(Supplier<AutoPathLocations> target) {
+    public Command pathFindAndFollow(Supplier<AutoPathLocations> target, boolean isAlgea) {
         if(target.get() != null && target.get().getPath() != null) {
-            return AutoBuilder.pathfindThenFollowPath(target.get().getPath(), constraints);
+            PathPlannerPath location;
+
+            if(isAlgea) {
+                switch (target.get().name()) {
+                    case "CORAL_A", "CORAL_B":
+                        location = AutoPathLocations.ALGAE_AB.getPath();
+                        break;
+                    case "CORAL_C", "CORAL_D":
+                        location = AutoPathLocations.ALGAE_CD.getPath();
+                        break;
+                    case "CORAL_E", "CORAL_F":
+                        location = AutoPathLocations.ALGAE_EF.getPath();
+                        break;
+                    case "CORAL_G", "CORAL_H":
+                        location = AutoPathLocations.ALGAE_GH.getPath();
+                        break;
+                    case "CORAL_I", "CORAL_J":
+                        location = AutoPathLocations.ALGAE_IJ.getPath();
+                        break;
+                    case "CORAL_K", "CORAL_L":
+                        location = AutoPathLocations.ALGAE_KL.getPath();
+                        break;
+                    default:
+                        location = target.get().getPath();
+                }
+            }
+            else {
+                location = target.get().getPath();
+            }
+
+            return AutoBuilder.pathfindThenFollowPath(location, constraints);
         }
         else {
             return Commands.none();
@@ -195,10 +202,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     public Command stop() {
         return applyRequest(() -> auto.withVelocityX(0).withVelocityY(0));
-    }
-
-    public void setSelectedAuto(String auto) {
-        selctedAuto = auto;
     }
 
     @Override

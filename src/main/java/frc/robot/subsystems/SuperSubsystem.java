@@ -184,4 +184,12 @@ public class SuperSubsystem extends SubsystemBase {
   public Command condenseAuto() {
     return preStageState().andThen(stationState());
   }
+
+  public ClimbAvatorStates getClimbAvatorState() {
+    return s_ClimbAvator.getState();
+  }
+
+  public MrPibbStates getMrPibbState() {
+    return s_MrPibb.getStateAsEnum();
+  }
 }

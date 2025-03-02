@@ -4,7 +4,6 @@ import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.path.PathPlannerPath;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
@@ -22,6 +21,12 @@ public enum AutoPathLocations {
     CORAL_J(breakaParse("J")),
     CORAL_K(breakaParse("K")),
     CORAL_L(breakaParse("L")),
+    ALGAE_AB(breakaParse("ALGAE AB")),
+    ALGAE_CD(breakaParse("ALGAE CD")),
+    ALGAE_EF(breakaParse("ALGAE EF")),
+    ALGAE_GH(breakaParse("ALGAE GH")),
+    ALGAE_IJ(breakaParse("ALGAE IJ")),
+    ALGAE_KL(breakaParse("ALGAE KL")),
     NO_TARGET(null);
 
     private final PathPlannerPath path;
@@ -33,15 +38,6 @@ public enum AutoPathLocations {
    public PathPlannerPath getPath() {
         return path;
    }
-
-   /*public double getYGoal() {
-        if(!path.getPathPoses().isEmpty()) {
-            return path.getAllPathPoints().get(path.getAllPathPoints().size() - 1).position.getY();
-        }
-        else {
-            return 0.0; //TODO get y
-        }
-   }*/
 
    private static PathPlannerPath breakaParse(String pathName) {
         try {

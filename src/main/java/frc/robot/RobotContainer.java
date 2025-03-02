@@ -105,7 +105,7 @@ public class RobotContainer {
             )
         );
 
-        autoTrackButton.whileTrue(new AutoTeleop(s_Swerve).andThen(holdPosition()));
+        autoTrackButton.whileTrue(new AutoTeleop(s_Swerve, s_SuperSubsystem).andThen(holdPosition()));
 
         slowDownTrigger.whileTrue(Commands.runOnce(() -> multiplier = 0.4)).whileFalse(Commands.runOnce(() -> multiplier = 1));
 

@@ -90,6 +90,10 @@ public class MrPibb extends SubsystemBase {
     return mrPibbState.name();
   }
 
+  public MrPibbStates getStateAsEnum() {
+    return mrPibbState;
+  }
+
   public TalonFX getTurretMotor() {
     return turret;
   }

@@ -3,9 +3,7 @@
   "robotLength": 0.92,
   "holonomicMode": true,
   "pathFolders": [
-    "Algae",
-    "L4 Right",
-    "Aligning"
+    "New Folder"
   ],
   "autoFolders": [],
   "defaultMaxVel": 5.0,
