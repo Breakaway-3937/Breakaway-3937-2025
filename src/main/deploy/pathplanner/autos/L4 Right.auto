@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "L4 Right #1"
+            "pathName": "L4 Right #123"
           }
         },
         {
@@ -17,33 +17,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "L4 Right #2"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Load"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "L4 Right #3"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ScoreCoral"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "L4 Right #4"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Condense"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "L4 Right #4"
+                }
+              }
+            ]
           }
         },
         {
@@ -65,9 +54,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "L4 Right #6"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Condense"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "L4 Right #6"
+                }
+              }
+            ]
           }
         },
         {
@@ -89,15 +91,9 @@
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "L4 Right #8"
-          }
-        },
-        {
           "type": "named",
           "data": {
-            "name": "Load"
+            "name": "Condense"
           }
         }
       ]

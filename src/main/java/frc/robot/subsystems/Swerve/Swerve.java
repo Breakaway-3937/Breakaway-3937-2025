@@ -37,12 +37,15 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import static frc.robot.OperatorController.getScoringLocation;
 
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.generated.PracticeTunerConstants.TunerSwerveDrivetrain;
 
 public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private static final double simLoopPeriod = 0.005; // 5 ms
     private Notifier simNotifier = null;
     private double lastSimTime;
+
+    private String selctedAuto;
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d blueAlliancePerspectiveRotation = Rotation2d.fromDegrees(0);
@@ -53,10 +56,13 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     private final SwerveRequest.ApplyRobotSpeeds pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
+    private final SwerveRequest.RobotCentric auto = new SwerveRequest.RobotCentric()
+            .withVelocityX(0).withVelocityY(0);
+
     private final ProfiledPIDController yController = new ProfiledPIDController(1, 0, 0, new Constraints(1, 1));
 
     PathConstraints constraints = new PathConstraints(
-        7.0, 7.0,
+        4.0, 4.0,
         Units.degreesToRadians(720.0), Units.degreesToRadians(720.0));
 
     public Swerve(
@@ -177,6 +183,22 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         else {
             return Commands.none();
         }
+    }
+
+    public Command hitReef() {
+        return applyRequest(() -> auto.withVelocityX(1).withVelocityY(0));
+    }
+
+    public Command unhitReef() {
+        return applyRequest(() -> auto.withVelocityX(-1).withVelocityY(0));
+    }
+
+    public Command stop() {
+        return applyRequest(() -> auto.withVelocityX(0).withVelocityY(0));
+    }
+
+    public void setSelectedAuto(String auto) {
+        selctedAuto = auto;
     }
 
     @Override

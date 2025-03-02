@@ -9,6 +9,7 @@ import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -155,6 +156,9 @@ public class RobotContainer {
     }
 
     public RobotContainer() {
+        NamedCommands.registerCommand("ScoreCoral", s_SuperSubsystem.scoreCoral(s_Swerve.hitReef(), s_Swerve.unhitReef(), s_Swerve.stop(), s_Swerve.stop()));
+        NamedCommands.registerCommand("Load", s_SuperSubsystem.load());
+        NamedCommands.registerCommand("Condense", s_SuperSubsystem.condenseAuto());
         autoChooser = AutoBuilder.buildAutoChooser();
         autoChooser.setDefaultOption("DO NOTHING", Commands.none());
         autoChooser.addOption("L4 Left", new PathPlannerAuto("L4 Right", true));
@@ -177,10 +181,6 @@ public class RobotContainer {
         return autoChooser.getSelected();
     }
 
-    public Command getInitialProtectCommand() {
-        return s_SuperSubsystem.protectState();
-    }
-
     public Vision getVisionSystem() {
         return s_Vision;
     }
@@ -199,6 +199,14 @@ public class RobotContainer {
 
     public Command getMusicCommand() {
         return c_Music;
+    }
+
+    public Command getInitialPrestageCommand() {
+        return s_SuperSubsystem.preStageState();
+    }
+
+    public Command getInitialProtectCommand() {
+        return s_SuperSubsystem.protectState();
     }
 
     public Command holdPosition() {

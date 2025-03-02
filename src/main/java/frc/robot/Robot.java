@@ -25,9 +25,9 @@ import frc.robot.subsystems.LED.LEDStates;
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
 
-  private final RobotContainer robotContainer;
+  public final RobotContainer robotContainer;
 
-  private boolean teleop, deathToMarkFlag, deathToJackFlag = false;
+  private boolean teleop, auto, deathToMarkFlag, deathToJackFlag = false;
 
   private PowerDistribution pdh;
 
@@ -84,6 +84,10 @@ public class Robot extends LoggedRobot {
     if(DriverStation.isFMSAttached() && DriverStation.isTeleopEnabled()){
       teleop = true;
     }
+
+    if(DriverStation.isAutonomousEnabled()){
+      auto = true;
+    }
   }
 
   @Override
@@ -102,6 +106,8 @@ public class Robot extends LoggedRobot {
   public void autonomousInit() {
     robotContainer.getClimbAvatorSystem().setShoulderBrakeMode();
 
+    robotContainer.getInitialPrestageCommand().schedule();
+
     autonomousCommand = robotContainer.getAutonomousCommand();
 
     if(autonomousCommand != null) {
@@ -118,11 +124,13 @@ public class Robot extends LoggedRobot {
   public void teleopInit() {
     robotContainer.getClimbAvatorSystem().setShoulderBrakeMode();
 
+    if(!auto) {
+      robotContainer.getInitialProtectCommand().schedule();
+    }
+
     if(autonomousCommand != null) {
       autonomousCommand.cancel();
     }
-
-    robotContainer.getInitialProtectCommand().schedule();
   }
 
   @Override

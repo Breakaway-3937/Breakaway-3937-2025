@@ -43,8 +43,7 @@ public final class Constants {
         public static final String BACK_CAMERA_NAME = "BackCamera";
         public static final Transform3d FRONT_CAMERA_TRANSFORM = new Transform3d(new Translation3d(-0.022582, 0, 0.138568), new Rotation3d(0, 1.74533, 0));
         public static final Transform3d BACK_CAMERA_TRANSFORM = new Transform3d(new Translation3d(-0.264378, 0.235461, 0.187954), new Rotation3d(0, 2.491458, Math.PI));
-        public static final Vector<N3> TAG_VISION_STDS_FRONT = VecBuilder.fill(0.716, 0.162, 9999999);
-        public static final Vector<N3> TAG_VISION_STDS_BACK = VecBuilder.fill(0.716, 0.162, 9999999);
+        public static final Vector<N3> TAG_VISION_STDS = VecBuilder.fill(0.846, 0.364, 9999999);
     }
 
     public static final class Swerve {
@@ -61,8 +60,10 @@ public final class Constants {
             public static final int WATSON_CAN_ID = 29;
         }
 
-        public static final int WRIST_CAN_ID = 3; 
-        public static final int TURRET_CAN_ID = 4;
+        public static final class MrPibb {
+            public static final int WRIST_CAN_ID = 3; 
+            public static final int TURRET_CAN_ID = 4;
+        }
     }
     
     public static final class ClimbAvator {
