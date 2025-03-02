@@ -53,6 +53,10 @@ public class DrPepper extends SubsystemBase {
     return runOnce(() -> loader.set(1));
   }
 
+  public Command runLoaderSlowly() {
+    return runOnce(() -> loader.set(0.3));
+  }
+
   public Command runLoaderReverse() {
     return runOnce(() -> loader.set(-1));
   }
@@ -86,13 +90,17 @@ public class DrPepper extends SubsystemBase {
   }
 
   public Command runUntilFullCoral() {
-    return runLoader().andThen(runThumbForwardSlowly()).andThen(Commands.waitUntil(botFullCoral())).andThen(stopLoader())
+    return runLoader().andThen(Commands.waitSeconds(0.5)).andThen(Commands.waitUntil(intakeFull())).andThen(stopLoader())
                       .andThen(runThumbBackwardSlowly()).andThen(Commands.waitUntil(() -> !botFullCoral().getAsBoolean()))
                       .andThen(stopThumb());
   }
 
   public Command runUntilFullAlgae() {
     return Commands.either(runLoaderReverseSlowly(), stopLoader(), botFullAlgae());
+  }
+
+  public BooleanSupplier intakeFull() {
+    return () -> loader.getStatorCurrent().getValueAsDouble() > 40;
   }
 
   public BooleanSupplier botFullCoral() {
@@ -160,6 +168,8 @@ public class DrPepper extends SubsystemBase {
 
     algaeFull.setBoolean(botFullAlgae().getAsBoolean());
     Logger.recordOutput("Soda/Algae Full", botFullAlgae().getAsBoolean());
+
+    Logger.recordOutput("Soda/Loader Current", loader.getStatorCurrent().getValueAsDouble());
 
     if(Constants.DEBUG) {
       SmartDashboard.putNumber("Loader %", loader.get());

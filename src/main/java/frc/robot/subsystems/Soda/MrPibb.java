@@ -32,8 +32,8 @@ public class MrPibb extends SubsystemBase {
    *  @since Ankle is no longer with us.
    */
   public MrPibb() {
-    wrist = new TalonFX(Constants.Soda.WRIST_CAN_ID);
-    turret = new TalonFX(Constants.Soda.TURRET_CAN_ID);
+    wrist = new TalonFX(Constants.Soda.MrPibb.WRIST_CAN_ID);
+    turret = new TalonFX(Constants.Soda.MrPibb.TURRET_CAN_ID);
 
     configWrist();
     configTurret();
