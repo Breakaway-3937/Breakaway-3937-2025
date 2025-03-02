@@ -22,14 +22,7 @@ public enum AutoPathLocations {
     CORAL_J(breakaParse("J")),
     CORAL_K(breakaParse("K")),
     CORAL_L(breakaParse("L")),
-    NO_TARGET(null),
-    STATION_ONE(breakaParse("Station Left")),
-    STATION_TWO(breakaParse("Station Left")),
-    STATION_THREE(breakaParse("Station Left")),
-    STATION_FOUR(breakaParse("Station Right")),
-    STATION_FIVE(breakaParse("Station Right")),
-    STATION_SIX(breakaParse("Station Right")),
-    NO_STATION(null);
+    NO_TARGET(null);
 
     private final PathPlannerPath path;
 
