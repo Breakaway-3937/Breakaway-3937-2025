@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public enum AutoPathLocations {
-    //TODO: Update with new values.
     CORAL_A(breakaParse("A")),
     CORAL_B(breakaParse("B")),
     CORAL_C(breakaParse("C")),
