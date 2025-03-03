@@ -30,7 +30,7 @@ public class ClimbAvator extends SubsystemBase {
   private final Follower followerShoulderRequest;
   private final Follower followerElevatorRequest;
   private final MotionMagicExpoVoltage shoulderRequest;
-  private final MotionMagicVoltage elevatorRequest;
+  private final MotionMagicVoltage elevatorRequest, bilboRequest;
   private final GenericEntry elevatorPosition, shoulderPosition, currentState;
   private ClimbAvatorStates climbAvatorState = ClimbAvatorStates.PROTECT;
 
@@ -47,6 +47,7 @@ public class ClimbAvator extends SubsystemBase {
 
     shoulderRequest = new MotionMagicExpoVoltage(0);
     elevatorRequest = new MotionMagicVoltage(0);
+    bilboRequest = new MotionMagicVoltage(0);
 
     configShoulderMotors();
     configElevatorMotors();
@@ -87,6 +88,10 @@ public class ClimbAvator extends SubsystemBase {
 
   public Command bilboBagginsTheBackStop() {
     return runOnce(() -> bilboBagginsTheBack.set(0));
+  }
+
+  public Command preStageBilboBagginsTheBack() {
+    return runOnce(() -> bilboBagginsTheBack.setControl(bilboRequest.withPosition(0))); //TODO get value
   }
 
   public double getShoulderMotorPosition() {
@@ -228,12 +233,26 @@ public class ClimbAvator extends SubsystemBase {
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
+    config.Slot0.kS = 0.25; 
+    config.Slot0.kV = 0.12; 
+    config.Slot0.kA = 0.01; 
+    config.Slot0.kP = 4.8; 
+    config.Slot0.kI = 0; 
+    config.Slot0.kD = 0.1; 
+
+    config.MotionMagic.MotionMagicAcceleration = 380;
+    config.MotionMagic.MotionMagicCruiseVelocity = 445;
+    config.MotionMagic.MotionMagicJerk = 1600;
+
     config.CurrentLimits.SupplyCurrentLimit = 80;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLowerLimit = 40;
     config.CurrentLimits.SupplyCurrentLowerTime = 1;
 
     bilboBagginsTheBack.getConfigurator().apply(config);
+
+    bilboBagginsTheBack.setPosition(0);
+
   }
 
   @Override
