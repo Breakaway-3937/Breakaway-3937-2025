@@ -1,9 +1,13 @@
 package frc.robot.subsystems.Swerve;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Supplier;
 
 import org.json.simple.parser.ParseException;
+import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
@@ -20,18 +24,21 @@ import com.pathplanner.lib.pathfinding.Pathfinding;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import static frc.robot.OperatorController.getScoringLocation;
+
+import static edu.wpi.first.wpilibj2.command.Commands.either;
 
 import frc.robot.generated.PracticeTunerConstants.TunerSwerveDrivetrain;
 
@@ -46,6 +53,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private static final Rotation2d redAlliancePerspectiveRotation = Rotation2d.fromDegrees(180);
     /* Keep track if we've ever applied the operator perspective before or not */
     private boolean hasAppliedOperatorPerspective = false; 
+
+    ArrayList<Pose2d> poseList;
+    List<AutoPathLocations> leftTargets = Arrays.asList(AutoPathLocations.CORAL_A, AutoPathLocations.CORAL_C, AutoPathLocations.CORAL_E, AutoPathLocations.CORAL_G, AutoPathLocations.CORAL_I, AutoPathLocations.CORAL_K); 
+    List<AutoPathLocations> rightTargets = Arrays.asList(AutoPathLocations.CORAL_B, AutoPathLocations.CORAL_D, AutoPathLocations.CORAL_F, AutoPathLocations.CORAL_H, AutoPathLocations.CORAL_J, AutoPathLocations.CORAL_L); 
 
     private final SwerveRequest.ApplyRobotSpeeds pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
@@ -138,17 +149,94 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public Rotation2d getRotationTarget() {
-        if(getScoringLocation().get().getPath() != null && !getScoringLocation().get().getPath().getAllPathPoints().isEmpty()) {
-            return getScoringLocation().get().getPath().getAllPathPoints().get(getScoringLocation().get().getPath().getAllPathPoints().size() - 1).rotationTarget.rotation();
+        if(findNearestTarget(false).get() != null && !findNearestTarget(false).get().getAllPathPoints().isEmpty()) {
+            return findNearestTarget(false).get().getAllPathPoints().get(findNearestTarget(false).get().getAllPathPoints().size() - 1).rotationTarget.rotation();
         }
         else {
             return getState().Pose.getRotation();
         }
     }
 
-    public Command pathFindAndFollow(Supplier<AutoPathLocations> target, boolean isAlgea) {
+    public Supplier<PathPlannerPath> findNearestTarget(boolean right) {
+        makePoseList();
+        var near = getState().Pose.nearest(poseList);
+        var target = lookUpPath(near);
+        AutoPathLocations goTo;
+
+        if(target == null) {
+            return null;
+        }
+
+        if(right) {
+            if(leftTargets.contains(target)) {
+                goTo = rightTargets.get(leftTargets.indexOf(target));
+            }
+            else {
+                goTo = target;
+            }
+        }
+        else {
+            if(rightTargets.contains(target)) {
+                goTo = leftTargets.get(rightTargets.indexOf(target));
+            }
+            else {
+                goTo = target;
+            }
+        }
+
+        Logger.recordOutput("Auto Path Location", goTo.name());
+
+        return () -> goTo.getPath();
+    }
+
+    public void makePoseList() {
+        poseList = new ArrayList<>();
+        var locationList = Arrays.asList(AutoPathLocations.values());
+        PathPlannerPath path;
+
+        for(int i = 0; i < locationList.size(); i++) {
+            if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+                path = locationList.get(i).getPath().flipPath();
+            }
+            else {
+                path = locationList.get(i).getPath();
+            }
+            
+            var point = path.getAllPathPoints().get(0).position;
+            var rotation = path.getIdealStartingState().rotation();
+            poseList.add(new Pose2d(point, rotation));
+        }
+    }
+
+    public AutoPathLocations lookUpPath(Pose2d nearest) {
+        var locationList = Arrays.asList(AutoPathLocations.values());
+        PathPlannerPath path;
+        for(int i = 0; i < locationList.size(); i++) {
+            if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+                path = locationList.get(i).getPath().flipPath();
+            }
+            else {
+                path = locationList.get(i).getPath();
+            }
+
+            if(nearest.getTranslation().equals(path.getAllPathPoints().get(0).position)) {
+                return locationList.get(i);
+            }
+        }
+        return null;
+    }
+
+    public Command pathFindToCloset(boolean right) {
+        //var target = findNearestTarget();
+        //PathPlannerPath goTo = target.get().getPath();
+
+        //SmartDashboard.putString("Go To", goTo.name);
+        return defer(() -> either(AutoBuilder.pathfindThenFollowPath((findNearestTarget(right).get()), constraints), Commands.none(), () -> findNearestTarget(right) != null) ); //TODO defer
+    }
+
+    /*public Command pathFindAndFollow(Supplier<AutoPathLocations> target, boolean isAlgea) {
         if(target.get() != null && target.get().getPath() != null) {
-            PathPlannerPath location;
+            PathPlannerPath location = target.get().getPath();
 
             if(isAlgea) {
                 switch (target.get().name()) {
@@ -178,12 +266,18 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                 location = target.get().getPath();
             }
 
-            return AutoBuilder.pathfindThenFollowPath(location, constraints);
+            return defer(() -> AutoBuilder.pathfindThenFollowPath(location, constraints));
         }
         else {
             return Commands.none();
         }
-    }
+    }*/
+
+    //  public boolean isAlgae() {
+    // boolean isAlgaeClimbAvator = s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.LOWER_ALGAE) || s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.UPPER_ALGAE);
+    // boolean isAlgaeMrPibb = s_SuperSubsystem.getMrPibbState().equals(MrPibbStates.LOWER_ALGAE) || s_SuperSubsystem.getMrPibbState().equals(MrPibbStates.UPPER_ALGAE);
+    // return isAlgaeClimbAvator && isAlgaeMrPibb;
+  // }
 
     public Command hitReef() {
         return applyRequest(() -> auto.withVelocityX(1).withVelocityY(0));
@@ -212,6 +306,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                 hasAppliedOperatorPerspective = true;
             });
         }
+
+        SmartDashboard.putString("look p", findNearestTarget(true).get().name);
+        SmartDashboard.putNumber("Rot target", getRotationTarget().getDegrees());
+        Logger.recordOutput("Rotation Target", getRotationTarget());
     }
 
     private void startSimThread() {

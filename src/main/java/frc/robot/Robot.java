@@ -32,7 +32,6 @@ public class Robot extends LoggedRobot {
   private PowerDistribution pdh;
 
   private GenericEntry canUtil = Shuffleboard.getTab("System").add("CAN", 0).withPosition(0, 0).getEntry();
-  private GenericEntry currentScoringLocation = Shuffleboard.getTab("System").add("Scoring Location", "").withPosition(1, 0).getEntry();
 
   public Robot() {
     robotContainer = new RobotContainer();
@@ -61,8 +60,6 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run(); 
-
-    currentScoringLocation.setString(OperatorController.getScoringLocation().get().name());
     
     canUtil.setDouble(RobotController.getCANStatus().percentBusUtilization * 100);
     Logger.recordOutput("CAN", RobotController.getCANStatus().percentBusUtilization * 100);

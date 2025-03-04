@@ -17,11 +17,9 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.AutoTeleop;
 import frc.robot.commands.Music;
 import frc.robot.generated.CompTunerConstants;
 import frc.robot.generated.PracticeTunerConstants;
@@ -51,6 +49,10 @@ public class RobotContainer {
     /* Driver Buttons */
     private final JoystickButton translationButton = new JoystickButton(translationController, Constants.Controllers.TRANSLATION_BUTTON);
     private final JoystickButton autoTrackButton = new JoystickButton(buttons, 1);
+    private final JoystickButton leftTrack = new JoystickButton(buttons, 2);
+    private final JoystickButton rightTrack = new JoystickButton(buttons, 3);
+
+
 
     /* Triggers */
     private final Trigger slowDownTrigger;
@@ -84,6 +86,13 @@ public class RobotContainer {
             .withMaxAbsRotationalRate(Constants.Swerve.MAX_ANGULAR_RATE)
             .withHeadingPID(4.5, 0, 0);
 
+    private final SwerveRequest.FieldCentricFacingAngle snap = new SwerveRequest.FieldCentricFacingAngle()
+        .withDeadband(Constants.Swerve.MAX_SPEED * Constants.Controllers.STICK_DEADBAND)
+        .withRotationalDeadband(Constants.Swerve.MAX_ANGULAR_RATE * Constants.Controllers.STICK_DEADBAND)
+        .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+        .withMaxAbsRotationalRate(Constants.Swerve.MAX_ANGULAR_RATE)
+        .withHeadingPID(4.5, 0, 0);
+
     /* Telemetry */
     private final Telemetry logger = new Telemetry(Constants.Swerve.MAX_SPEED);
 
@@ -99,16 +108,19 @@ public class RobotContainer {
             )
         );
 
-        autoTrackButton.whileTrue(new AutoTeleop(s_Swerve, s_SuperSubsystem).andThen(holdPosition()));
+        //autoTrackButton.whileTrue(new AutoTeleop(s_Swerve, s_SuperSubsystem).andThen(holdPosition()));
 
         slowDownTrigger.whileTrue(Commands.runOnce(() -> multiplier = 0.4)).whileFalse(Commands.runOnce(() -> multiplier = 1));
 
         translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
 
-        xboxController.a().onTrue(Commands.either(s_SuperSubsystem.processorState(), s_SuperSubsystem.l1State().alongWith(new InstantCommand(() -> OperatorController.clearLevelEntry())), xboxController.back()));
-        xboxController.b().onTrue(Commands.either(s_SuperSubsystem.bargeState(), s_SuperSubsystem.l2State().alongWith(new InstantCommand(() -> OperatorController.clearLevelEntry())), xboxController.back()));
-        xboxController.x().onTrue(Commands.either(s_SuperSubsystem.protectState(), s_SuperSubsystem.l3State().alongWith(new InstantCommand(() -> OperatorController.clearLevelEntry())), xboxController.back()));
-        xboxController.y().onTrue(Commands.either(s_SuperSubsystem.stationState(), s_SuperSubsystem.l4State().alongWith(new InstantCommand(() -> OperatorController.clearLevelEntry())), xboxController.back()));
+        leftTrack.whileTrue(s_Swerve.pathFindToCloset(false).andThen(holdPosition()));
+        rightTrack.whileTrue(s_Swerve.pathFindToCloset(true).andThen(holdPosition()));
+
+        xboxController.a().onTrue(Commands.either(s_SuperSubsystem.processorState(), s_SuperSubsystem.l1State(), xboxController.back()));
+        xboxController.b().onTrue(Commands.either(s_SuperSubsystem.bargeState(), s_SuperSubsystem.l2State(), xboxController.back()));
+        xboxController.x().onTrue(Commands.either(s_SuperSubsystem.protectState(), s_SuperSubsystem.l3State(), xboxController.back()));
+        xboxController.y().onTrue(Commands.either(s_SuperSubsystem.stationState(), s_SuperSubsystem.l4State(), xboxController.back()));
 
         /* Intake States */
         xboxController.rightBumper().onTrue(s_SuperSubsystem.preStageState());
@@ -139,6 +151,7 @@ public class RobotContainer {
     }
 
     public RobotContainer() {
+        s_Swerve.makePoseList();
         NamedCommands.registerCommand("ScoreCoral", s_SuperSubsystem.scoreCoral(s_Swerve.hitReef(), s_Swerve.unhitReef(), s_Swerve.stop(), s_Swerve.stop()));
         NamedCommands.registerCommand("Load", s_SuperSubsystem.load());
         NamedCommands.registerCommand("Condense", s_SuperSubsystem.condenseAuto());
@@ -198,6 +211,14 @@ public class RobotContainer {
                     .withVelocityY(0) 
                     .withTargetDirection(s_Swerve.getRotationTarget())
             );
+    }
+
+    public Command snapGyro() {
+        return s_Swerve.applyRequest(() ->
+                snap.withVelocityX(translationController.getRawAxis(translationAxis) * multiplier * Constants.Swerve.MAX_SPEED)
+                    .withVelocityY(translationController.getRawAxis(strafeAxis) * multiplier * Constants.Swerve.MAX_SPEED) 
+                    .withTargetDirection(s_Swerve.getRotationTarget())
+            ); 
     }
 
     public Swerve createSwerve() {

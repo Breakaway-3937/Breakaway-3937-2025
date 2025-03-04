@@ -1,11 +1,7 @@
 package frc.robot.subsystems.Swerve;
 
 import org.littletonrobotics.junction.Logger;
-
 import com.pathplanner.lib.path.PathPlannerPath;
-
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public enum AutoPathLocations {
     CORAL_A(breakaParse("A")),
@@ -19,14 +15,7 @@ public enum AutoPathLocations {
     CORAL_I(breakaParse("I")),
     CORAL_J(breakaParse("J")),
     CORAL_K(breakaParse("K")),
-    CORAL_L(breakaParse("L")),
-    ALGAE_AB(breakaParse("ALGAE AB")),
-    ALGAE_CD(breakaParse("ALGAE CD")),
-    ALGAE_EF(breakaParse("ALGAE EF")),
-    ALGAE_GH(breakaParse("ALGAE GH")),
-    ALGAE_IJ(breakaParse("ALGAE IJ")),
-    ALGAE_KL(breakaParse("ALGAE KL")),
-    NO_TARGET(null);
+    CORAL_L(breakaParse("L"));
 
     private final PathPlannerPath path;
 
@@ -39,16 +28,12 @@ public enum AutoPathLocations {
    }
 
    private static PathPlannerPath breakaParse(String pathName) {
-        try {
-            if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
-                return PathPlannerPath.fromPathFile(pathName).flipPath();
-            }
-            else {
-                return PathPlannerPath.fromPathFile(pathName);
-            }
+        try {            
+            return PathPlannerPath.fromPathFile(pathName);
         } 
         catch (Exception e) {
             Logger.recordOutput("Path File Alert", pathName);
+            System.out.println(e);
             return null;
         }
    }
