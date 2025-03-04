@@ -5,9 +5,7 @@
 package frc.robot.commands;
 
 import java.util.Set;
-import java.util.function.BooleanSupplier;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -35,29 +33,15 @@ public class AutoTeleop extends SequentialCommandGroup {
   private Command pathFindScore() {
     return Commands.defer(
       () -> {
-        return s_Swerve.pathFindAndFollow(OperatorController.getScoringLocation(), isAlgea());
+        return s_Swerve.pathFindAndFollow(OperatorController.getScoringLocation(), isAlgae());
       },
       Set.of(s_Swerve)
     );
   }
 
-  public boolean isAlgea() {
-    boolean isAlgeaClimbAvator = s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.LOWER_ALGAE) || s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.UPPER_ALGAE);
-    boolean isAlgeaMrPibb = s_SuperSubsystem.getMrPibbState().equals(MrPibbStates.LOWER_ALGAE) || s_SuperSubsystem.getMrPibbState().equals(MrPibbStates.UPPER_ALGAE);
-    return isAlgeaClimbAvator && isAlgeaMrPibb;
-  }
-
-  @SuppressWarnings("unused")
-  private BooleanSupplier robotAtScoring() {
-    var location = OperatorController.getScoringLocation();
-    if(location.get() != null && location.get().getPath() != null) {
-      var points = location.get().getPath().getAllPathPoints();
-      boolean nearX = MathUtil.isNear(points.get(points.size() - 1).position.getX(), s_Swerve.getState().Pose.getX(), 0);
-      boolean nearY = MathUtil.isNear(points.get(points.size() - 1).position.getY(), s_Swerve.getState().Pose.getY(), 0);
-      return () -> nearX && nearY;
-    }
-    else {
-      return () -> false;
-    }
+  public boolean isAlgae() {
+    boolean isAlgaeClimbAvator = s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.LOWER_ALGAE) || s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.UPPER_ALGAE);
+    boolean isAlgaeMrPibb = s_SuperSubsystem.getMrPibbState().equals(MrPibbStates.LOWER_ALGAE) || s_SuperSubsystem.getMrPibbState().equals(MrPibbStates.UPPER_ALGAE);
+    return isAlgaeClimbAvator && isAlgaeMrPibb;
   }
 }

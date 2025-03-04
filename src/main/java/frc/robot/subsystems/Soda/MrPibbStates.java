@@ -4,13 +4,15 @@
 
 package frc.robot.subsystems.Soda;
 
+import frc.robot.Constants;
+
 public enum MrPibbStates {
     //16.58 Max for wrist when elevator not extended.
-    GROUND_CORAL(16.7, 0),
+    GROUND_CORAL(15.84, 0),
     GROUND_ALGAE(11.5, 3.5),
     PROCESSOR(10.435, 3.62),
     BARGE(19.5, 0),
-    CLIMB(-2, 0),
+    CLIMB(-1, 0),
     STATION(-1.15, 3.55),
     L1(17.3, 0),
     L2(10.3, 1.7),
@@ -29,7 +31,7 @@ public enum MrPibbStates {
     } 
 
     public double getWrist() {
-        return wrist;
+        return Constants.PRACTICE_BOT ? wrist : wrist * 14.7 / 15.6;
     }
 
     public double getTurret() {

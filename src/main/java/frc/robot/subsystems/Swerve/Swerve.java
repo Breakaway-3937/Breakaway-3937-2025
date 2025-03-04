@@ -20,11 +20,9 @@ import com.pathplanner.lib.pathfinding.Pathfinding;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -54,8 +52,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private final SwerveRequest.RobotCentric auto = new SwerveRequest.RobotCentric()
             .withVelocityX(0).withVelocityY(0);
 
-    private final ProfiledPIDController yController = new ProfiledPIDController(1, 0, 0, new Constraints(1, 1));
-
     PathConstraints constraints = new PathConstraints(
         4.0, 4.0,
         Units.degreesToRadians(720.0), Units.degreesToRadians(720.0));
@@ -69,7 +65,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             startSimThread();
         }
         configPathplanner();
-        yController.setTolerance(0.075);
         this.setStateStdDevs(VecBuilder.fill(0.05, 0.05, 0.05));
     }
 
@@ -83,7 +78,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             startSimThread();
         }
         configPathplanner();
-        yController.setTolerance(0.075);
         this.setStateStdDevs(VecBuilder.fill(0.05, 0.05, 0.05));
     }
 
@@ -99,7 +93,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             startSimThread();
         }
         configPathplanner();
-        yController.setTolerance(0.075);
         this.setStateStdDevs(VecBuilder.fill(0.05, 0.05, 0.05));
     }
 

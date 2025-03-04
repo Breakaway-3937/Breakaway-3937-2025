@@ -53,10 +53,6 @@ public class RobotContainer {
     private final JoystickButton autoTrackButton = new JoystickButton(buttons, 1);
 
     /* Triggers */
-    private final Trigger l1Trigger = OperatorController.getL1Trigger();
-    private final Trigger l2Trigger = OperatorController.getL2Trigger();
-    private final Trigger l3Trigger = OperatorController.getL3Trigger();
-    private final Trigger l4Trigger = OperatorController.getL4Trigger();
     private final Trigger slowDownTrigger;
     private final Trigger climbLEDTrigger;
     private final Trigger funeralLEDTrigger;
@@ -109,21 +105,12 @@ public class RobotContainer {
 
         translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
 
-        xboxController.x().onTrue(s_SuperSubsystem.protectState());
-
-        /* Coral Scoring States */
-        xboxController.back().and(xboxController.a()).whileTrue(s_SuperSubsystem.l1State().alongWith(new InstantCommand(() -> OperatorController.clearLevelEntry())));
-        xboxController.back().and(xboxController.b()).whileTrue(s_SuperSubsystem.l2State().alongWith(new InstantCommand(() -> OperatorController.clearLevelEntry())));
-        xboxController.back().and(xboxController.x()).whileTrue(s_SuperSubsystem.l3State().alongWith(new InstantCommand(() -> OperatorController.clearLevelEntry())));
-        xboxController.back().and(xboxController.y()).whileTrue(s_SuperSubsystem.l4State().alongWith(new InstantCommand(() -> OperatorController.clearLevelEntry())));
-
-        l1Trigger.onTrue(s_SuperSubsystem.l1State().alongWith(new InstantCommand(() -> OperatorController.clearLevelEntry())));
-        l2Trigger.onTrue(s_SuperSubsystem.l2State().alongWith(new InstantCommand(() -> OperatorController.clearLevelEntry())));
-        l3Trigger.onTrue(s_SuperSubsystem.l3State().alongWith(new InstantCommand(() -> OperatorController.clearLevelEntry())));
-        l4Trigger.onTrue(s_SuperSubsystem.l4State().alongWith(new InstantCommand(() -> OperatorController.clearLevelEntry())));
+        xboxController.a().onTrue(Commands.either(s_SuperSubsystem.processorState(), s_SuperSubsystem.l1State().alongWith(new InstantCommand(() -> OperatorController.clearLevelEntry())), xboxController.back()));
+        xboxController.b().onTrue(Commands.either(s_SuperSubsystem.bargeState(), s_SuperSubsystem.l2State().alongWith(new InstantCommand(() -> OperatorController.clearLevelEntry())), xboxController.back()));
+        xboxController.x().onTrue(Commands.either(s_SuperSubsystem.protectState(), s_SuperSubsystem.l3State().alongWith(new InstantCommand(() -> OperatorController.clearLevelEntry())), xboxController.back()));
+        xboxController.y().onTrue(Commands.either(s_SuperSubsystem.stationState(), s_SuperSubsystem.l4State().alongWith(new InstantCommand(() -> OperatorController.clearLevelEntry())), xboxController.back()));
 
         /* Intake States */
-        xboxController.y().onTrue(s_SuperSubsystem.stationState());
         xboxController.rightBumper().onTrue(s_SuperSubsystem.preStageState());
         xboxController.leftTrigger(0.3).and(xboxController.rightTrigger(0.3).negate()).whileTrue(s_DrPepper.runUntilFullCoral()).onFalse(s_DrPepper.stopLoader().andThen(s_DrPepper.stopThumb()));
         xboxController.leftBumper().onTrue(Commands.either(s_DrPepper.runLoaderReverseTrough(), s_DrPepper.runLoaderReverse(), () -> s_MrPibb.getState().equals(MrPibbStates.L1.name()))).onFalse(s_DrPepper.runUntilFullAlgae());
@@ -140,8 +127,6 @@ public class RobotContainer {
         /* Algae States */
         xboxController.rightStick().onTrue(s_SuperSubsystem.lowerAlgaeState());
         xboxController.leftStick().onTrue(s_SuperSubsystem.upperAlgaeState());
-        xboxController.a().onTrue(s_SuperSubsystem.processorState());
-        xboxController.b().onTrue(s_SuperSubsystem.bargeState());
 
         /* LEDs */
         climbLEDTrigger.whileTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.CLIMBED), s_LED));

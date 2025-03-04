@@ -31,7 +31,7 @@ public class ClimbAvator extends SubsystemBase {
   private final Follower followerElevatorRequest;
   private final MotionMagicExpoVoltage shoulderRequest;
   private final MotionMagicVoltage elevatorRequest, bilboRequest;
-  private final GenericEntry elevatorPosition, shoulderPosition, currentState;
+  private final GenericEntry elevatorPosition, shoulderPosition, bilboPosition, currentState;
   private ClimbAvatorStates climbAvatorState = ClimbAvatorStates.PROTECT;
 
   /** Creates a new ClimbAvator.*/
@@ -55,7 +55,8 @@ public class ClimbAvator extends SubsystemBase {
 
     elevatorPosition = Shuffleboard.getTab("ClimbAvator").add("Elevator", getElevatorMotorPosition()).withPosition(0, 0).getEntry();
     shoulderPosition = Shuffleboard.getTab("ClimbAvator").add("Shoulder", getShoulderMotorPosition()).withPosition(1, 0).getEntry();
-    currentState = Shuffleboard.getTab("ClimbAvator").add("State", getState().name()).withPosition(2, 0).getEntry();
+    bilboPosition = Shuffleboard.getTab("ClimbAvator").add("Bilbo", getBilboMotorPosition()).withPosition(2, 0).getEntry();
+    currentState = Shuffleboard.getTab("ClimbAvator").add("State", getState().name()).withPosition(3, 0).getEntry();
   }
 
   public Command setElevator() {
@@ -91,7 +92,7 @@ public class ClimbAvator extends SubsystemBase {
   }
 
   public Command preStageBilboBagginsTheBack() {
-    return runOnce(() -> bilboBagginsTheBack.setControl(bilboRequest.withPosition(0))); //TODO get value
+    return runOnce(() -> bilboBagginsTheBack.setControl(bilboRequest.withPosition(3.79)));
   }
 
   public double getShoulderMotorPosition() {
@@ -100,6 +101,10 @@ public class ClimbAvator extends SubsystemBase {
 
   public double getElevatorMotorPosition() {
     return elevatorMotor.getPosition().getValueAsDouble();
+  }
+
+  public double getBilboMotorPosition() {
+    return bilboBagginsTheBack.getPosition().getValueAsDouble();
   }
 
   public ClimbAvatorStates getState() {
@@ -238,7 +243,7 @@ public class ClimbAvator extends SubsystemBase {
     config.Slot0.kA = 0.01; 
     config.Slot0.kP = 4.8; 
     config.Slot0.kI = 0; 
-    config.Slot0.kD = 0.1; 
+    config.Slot0.kD = 0; 
 
     config.MotionMagic.MotionMagicAcceleration = 380;
     config.MotionMagic.MotionMagicCruiseVelocity = 445;
@@ -262,6 +267,9 @@ public class ClimbAvator extends SubsystemBase {
 
     shoulderPosition.setDouble(getShoulderMotorPosition());
     Logger.recordOutput("ClimbAvator/Shoulder", getShoulderMotorPosition());
+
+    bilboPosition.setDouble(getBilboMotorPosition());
+    Logger.recordOutput("ClimbAvator/Bilbo", getBilboMotorPosition());
     
     currentState.setString(getState().name());
     Logger.recordOutput("ClimbAvator/ClimbAvator State", getState().name());

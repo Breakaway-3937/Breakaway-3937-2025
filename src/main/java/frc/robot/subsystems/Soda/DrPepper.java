@@ -82,7 +82,7 @@ public class DrPepper extends SubsystemBase {
   }
 
   public Command runThumbBackwardSlowly() {
-    return runOnce(() -> thumb.set(ControlMode.PercentOutput, -0.7));
+    return runOnce(() -> thumb.set(ControlMode.PercentOutput, -0.3));
   }
 
   public Command stopThumb() {

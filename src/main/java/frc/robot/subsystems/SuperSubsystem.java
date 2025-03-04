@@ -132,11 +132,12 @@ public class SuperSubsystem extends SubsystemBase {
   /* Other States */
   public Command climbState() {
     return Commands.either(runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.CLIMB))
-               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.CLIMB)))
+               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.CORAL_PRESTAGE)))
                .andThen(s_ClimbAvator.setShoulder()).andThen(s_ClimbAvator.waitUntilShoulderSafe())
                .andThen(s_ClimbAvator.setElevator()).andThen(s_MrPibb.setTurret())
                .andThen(s_ClimbAvator.waitUntilElevatorSafe()).andThen(s_MrPibb.waitUntilTurretSafe())
-               .andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.waitUntilWristSafe()),
+               .andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.waitUntilWristSafe())
+               .andThen(s_ClimbAvator.preStageBilboBagginsTheBack()),
                Commands.none(),
                () -> s_ClimbAvator.getState().equals(ClimbAvatorStates.CORAL_PRESTAGE));
   }
@@ -144,7 +145,10 @@ public class SuperSubsystem extends SubsystemBase {
   public Command climbPullState() {
     return Commands.either(runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.CLIMB_PULL))
                .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.CLIMB)))
-               .andThen(s_ClimbAvator.setShoulder()).andThen(s_ClimbAvator.waitUntilShoulderSafe()),
+               .andThen(s_ClimbAvator.setShoulder()).andThen(s_ClimbAvator.waitUntilShoulderSafe())
+               .andThen(s_ClimbAvator.setElevator()).andThen(s_ClimbAvator.waitUntilElevatorSafe())
+               .andThen(s_MrPibb.setTurret()).andThen(s_MrPibb.waitUntilTurretSafe())
+               .andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.waitUntilWristSafe()),
                Commands.none(),
                () -> s_ClimbAvator.getState().equals(ClimbAvatorStates.CLIMB));
   }
@@ -172,7 +176,7 @@ public class SuperSubsystem extends SubsystemBase {
   }
 
   public Command scoreCoral(Command hit, Command unhit, Command stop, Command stopAgain) {
-    return hitReef(hit, stop).andThen(l4State()).andThen(s_DrPepper.runThumbForward()).andThen(s_DrPepper.runLoaderSlowly()).andThen(Commands.waitSeconds(0.5).andThen(s_DrPepper.stopThumb()).andThen(s_DrPepper.stopLoader()));//.andThen(unhitReef(unhit, stopAgain)));
+    return hitReef(hit, stop).andThen(l4State()).andThen(s_DrPepper.runThumbForward()).andThen(s_DrPepper.runLoaderSlowly()).andThen(Commands.waitSeconds(0.5).andThen(s_DrPepper.stopThumb()).andThen(s_DrPepper.stopLoader()));
   }
 
   public Command load() {
