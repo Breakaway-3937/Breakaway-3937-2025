@@ -23,7 +23,7 @@ public final class Constants {
     public static final String COMP_SERIAL_NUM = "032D2164";
     public static final boolean PRACTICE_BOT = !RobotController.getSerialNumber().equals(COMP_SERIAL_NUM);
     public static final boolean USE_LOGGER = true;
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
 
     public static final class Controllers{
         public static final GenericHID TRANSLATION_CONTROLLER = new GenericHID(0);

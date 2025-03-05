@@ -31,7 +31,6 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -54,9 +53,9 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     /* Keep track if we've ever applied the operator perspective before or not */
     private boolean hasAppliedOperatorPerspective = false; 
 
-    ArrayList<Pose2d> poseList;
-    List<AutoPathLocations> leftTargets = Arrays.asList(AutoPathLocations.CORAL_A, AutoPathLocations.CORAL_C, AutoPathLocations.CORAL_E, AutoPathLocations.CORAL_G, AutoPathLocations.CORAL_I, AutoPathLocations.CORAL_K); 
-    List<AutoPathLocations> rightTargets = Arrays.asList(AutoPathLocations.CORAL_B, AutoPathLocations.CORAL_D, AutoPathLocations.CORAL_F, AutoPathLocations.CORAL_H, AutoPathLocations.CORAL_J, AutoPathLocations.CORAL_L); 
+    private ArrayList<Pose2d> poseList;
+    private List<AutoPathLocations> leftTargets = Arrays.asList(AutoPathLocations.CORAL_A, AutoPathLocations.CORAL_C, AutoPathLocations.CORAL_E, AutoPathLocations.CORAL_G, AutoPathLocations.CORAL_I, AutoPathLocations.CORAL_K); 
+    private List<AutoPathLocations> rightTargets = Arrays.asList(AutoPathLocations.CORAL_B, AutoPathLocations.CORAL_D, AutoPathLocations.CORAL_F, AutoPathLocations.CORAL_H, AutoPathLocations.CORAL_J, AutoPathLocations.CORAL_L); 
 
     private final SwerveRequest.ApplyRobotSpeeds pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
@@ -149,8 +148,9 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public Rotation2d getRotationTarget() {
-        if(findNearestTarget(false).get() != null && !findNearestTarget(false).get().getAllPathPoints().isEmpty()) {
-            return findNearestTarget(false).get().getAllPathPoints().get(findNearestTarget(false).get().getAllPathPoints().size() - 1).rotationTarget.rotation();
+        var target = findNearestTarget(false);
+        if(target.get() != null && !target.get().getAllPathPoints().isEmpty()) {
+            return target.get().getAllPathPoints().get(target.get().getAllPathPoints().size() - 1).rotationTarget.rotation();
         }
         else {
             return getState().Pose.getRotation();
@@ -227,57 +227,51 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public Command pathFindToCloset(boolean right) {
-        //var target = findNearestTarget();
-        //PathPlannerPath goTo = target.get().getPath();
-
-        //SmartDashboard.putString("Go To", goTo.name);
-        return defer(() -> either(AutoBuilder.pathfindThenFollowPath((findNearestTarget(right).get()), constraints), Commands.none(), () -> findNearestTarget(right) != null) ); //TODO defer
+        return defer(() -> 
+            {
+                var target = findNearestTarget(right);
+                return either(AutoBuilder.pathfindThenFollowPath(target.get(), constraints), Commands.none(), () -> target != null);
+            });
     }
 
-    /*public Command pathFindAndFollow(Supplier<AutoPathLocations> target, boolean isAlgea) {
-        if(target.get() != null && target.get().getPath() != null) {
-            PathPlannerPath location = target.get().getPath();
+    public Command pathFindAndFollowToAlgae() {
+        return defer(() -> {
+            var target = findNearestTarget(false);
+            if(target.get() != null) {
+                PathPlannerPath location = target.get();
 
-            if(isAlgea) {
-                switch (target.get().name()) {
-                    case "CORAL_A", "CORAL_B":
-                        location = AutoPathLocations.ALGAE_AB.getPath();
+                switch (target.get().name) {
+                    case "A", "B":
+                        location = AlgaeAutoPathLocations.ALGAE_AB.getPath();
                         break;
-                    case "CORAL_C", "CORAL_D":
-                        location = AutoPathLocations.ALGAE_CD.getPath();
+                    case "C", "D":
+                        location = AlgaeAutoPathLocations.ALGAE_CD.getPath();
                         break;
-                    case "CORAL_E", "CORAL_F":
-                        location = AutoPathLocations.ALGAE_EF.getPath();
+                    case "E", "F":
+                        location = AlgaeAutoPathLocations.ALGAE_EF.getPath();
                         break;
-                    case "CORAL_G", "CORAL_H":
-                        location = AutoPathLocations.ALGAE_GH.getPath();
+                    case "G", "H":
+                        location = AlgaeAutoPathLocations.ALGAE_GH.getPath();
                         break;
-                    case "CORAL_I", "CORAL_J":
-                        location = AutoPathLocations.ALGAE_IJ.getPath();
+                    case "I", "J":
+                        location = AlgaeAutoPathLocations.ALGAE_IJ.getPath();
                         break;
-                    case "CORAL_K", "CORAL_L":
-                        location = AutoPathLocations.ALGAE_KL.getPath();
+                    case "K", "L":
+                        location = AlgaeAutoPathLocations.ALGAE_KL.getPath();
                         break;
                     default:
-                        location = target.get().getPath();
+                        location = target.get();
+                        break;
                 }
+
+                PathPlannerPath finalLocation = location;
+                return defer(() -> AutoBuilder.pathfindThenFollowPath(finalLocation, constraints));
             }
             else {
-                location = target.get().getPath();
+                return Commands.none();
             }
-
-            return defer(() -> AutoBuilder.pathfindThenFollowPath(location, constraints));
-        }
-        else {
-            return Commands.none();
-        }
-    }*/
-
-    //  public boolean isAlgae() {
-    // boolean isAlgaeClimbAvator = s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.LOWER_ALGAE) || s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.UPPER_ALGAE);
-    // boolean isAlgaeMrPibb = s_SuperSubsystem.getMrPibbState().equals(MrPibbStates.LOWER_ALGAE) || s_SuperSubsystem.getMrPibbState().equals(MrPibbStates.UPPER_ALGAE);
-    // return isAlgaeClimbAvator && isAlgaeMrPibb;
-  // }
+        });
+    }
 
     public Command hitReef() {
         return applyRequest(() -> auto.withVelocityX(1).withVelocityY(0));
@@ -307,8 +301,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             });
         }
 
-        SmartDashboard.putString("look p", findNearestTarget(true).get().name);
-        SmartDashboard.putNumber("Rot target", getRotationTarget().getDegrees());
         Logger.recordOutput("Rotation Target", getRotationTarget());
     }
 

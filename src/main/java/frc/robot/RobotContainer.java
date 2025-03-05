@@ -48,11 +48,8 @@ public class RobotContainer {
 
     /* Driver Buttons */
     private final JoystickButton translationButton = new JoystickButton(translationController, Constants.Controllers.TRANSLATION_BUTTON);
-    private final JoystickButton autoTrackButton = new JoystickButton(buttons, 1);
-    private final JoystickButton leftTrack = new JoystickButton(buttons, 2);
-    private final JoystickButton rightTrack = new JoystickButton(buttons, 3);
-
-
+    private final JoystickButton leftTrack = new JoystickButton(buttons, 7);
+    private final JoystickButton rightTrack = new JoystickButton(buttons, 8);
 
     /* Triggers */
     private final Trigger slowDownTrigger;
@@ -108,14 +105,12 @@ public class RobotContainer {
             )
         );
 
-        //autoTrackButton.whileTrue(new AutoTeleop(s_Swerve, s_SuperSubsystem).andThen(holdPosition()));
-
         slowDownTrigger.whileTrue(Commands.runOnce(() -> multiplier = 0.4)).whileFalse(Commands.runOnce(() -> multiplier = 1));
 
         translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
 
-        leftTrack.whileTrue(s_Swerve.pathFindToCloset(false).andThen(holdPosition()));
-        rightTrack.whileTrue(s_Swerve.pathFindToCloset(true).andThen(holdPosition()));
+        leftTrack.whileTrue(Commands.either(s_Swerve.pathFindAndFollowToAlgae(), s_Swerve.pathFindToCloset(false).andThen(holdPosition()), s_SuperSubsystem.isAlgae()));
+        rightTrack.whileTrue(Commands.either(s_Swerve.pathFindAndFollowToAlgae(), s_Swerve.pathFindToCloset(true).andThen(holdPosition()), s_SuperSubsystem.isAlgae()));
 
         xboxController.a().onTrue(Commands.either(s_SuperSubsystem.processorState(), s_SuperSubsystem.l1State(), xboxController.back()));
         xboxController.b().onTrue(Commands.either(s_SuperSubsystem.bargeState(), s_SuperSubsystem.l2State(), xboxController.back()));
@@ -153,6 +148,7 @@ public class RobotContainer {
     public RobotContainer() {
         s_Swerve.makePoseList();
         NamedCommands.registerCommand("ScoreCoral", s_SuperSubsystem.scoreCoral(s_Swerve.hitReef(), s_Swerve.unhitReef(), s_Swerve.stop(), s_Swerve.stop()));
+        NamedCommands.registerCommand("ScoreCoralL1", s_SuperSubsystem.scoreCoralL1(s_Swerve.hitReef(), s_Swerve.unhitReef(), s_Swerve.stop(), s_Swerve.stop()));
         NamedCommands.registerCommand("Load", s_SuperSubsystem.load());
         NamedCommands.registerCommand("Condense", s_SuperSubsystem.condenseAuto());
         autoChooser = AutoBuilder.buildAutoChooser();

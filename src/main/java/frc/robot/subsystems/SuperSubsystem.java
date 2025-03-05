@@ -167,6 +167,10 @@ public class SuperSubsystem extends SubsystemBase {
     return s_DrPepper.botFullAlgae();
   }
 
+  public BooleanSupplier isAlgae() {
+    return () -> getClimbAvatorState().equals(ClimbAvatorStates.LOWER_ALGAE) || getClimbAvatorState().equals(ClimbAvatorStates.UPPER_ALGAE);
+  }
+
   public Command hitReef(Command hit, Command stop) {
     return new ParallelDeadlineGroup(Commands.waitSeconds(0.45), hit).andThen(Commands.waitSeconds(0.01).raceWith(stop)).andThen(() -> stop.cancel());
   }
@@ -178,13 +182,25 @@ public class SuperSubsystem extends SubsystemBase {
   public Command scoreCoral(Command hit, Command unhit, Command stop, Command stopAgain) {
     return hitReef(hit, stop).andThen(l4State()).andThen(s_DrPepper.runThumbForward()).andThen(s_DrPepper.runLoaderSlowly()).andThen(Commands.waitSeconds(0.5).andThen(s_DrPepper.stopThumb()).andThen(s_DrPepper.stopLoader()));
   }
+  
+  public Command scoreCoralL1(Command hit, Command unhit, Command stop, Command stopAgain) {
+    return hitReef(hit, stop).andThen(l1State()).andThen(s_DrPepper.runLoaderReverseTrough()).andThen(Commands.waitSeconds(0.5).andThen(s_DrPepper.stopLoader()));
+  }
 
   public Command load() {
     return s_DrPepper.runUntilFullCoral();
   }
 
   public Command condenseAuto() {
-    return preStageState().andThen(stationState());
+    return saveMrPibb().andThen(runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.CORAL_PRESTAGE)))
+                       .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.CORAL_PRESTAGE)))
+                       .andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.setTurret()).andThen(s_ClimbAvator.setElevator())
+                       .andThen(s_MrPibb.waitUntilWristSafe()).andThen(s_MrPibb.waitUntilTurretSafe()).andThen(s_ClimbAvator.waitUntilElevatorSafe())
+                       .andThen(runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.STATION)))
+                       .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.STATION)))
+                       .andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.setTurret()).andThen(s_ClimbAvator.setElevator())
+                       .andThen(s_MrPibb.waitUntilWristSafe()).andThen(s_MrPibb.waitUntilTurretSafe()).andThen(s_ClimbAvator.waitUntilElevatorSafe())
+                       .andThen(s_ClimbAvator.setShoulder()).andThen(s_ClimbAvator.waitUntilShoulderSafe());
   }
 
   public ClimbAvatorStates getClimbAvatorState() {
