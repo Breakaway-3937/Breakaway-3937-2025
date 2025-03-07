@@ -226,9 +226,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return null;
     }
 
-    public Command pathFindToCloset(boolean right) {
+    public Command pathFindToClosest(boolean right) {
         return defer(() -> 
             {
+                Logger.recordOutput("Swerve/Algae Align", false);
                 var target = findNearestTarget(right);
                 return either(AutoBuilder.pathfindThenFollowPath(target.get(), constraints), Commands.none(), () -> target != null);
             });
@@ -236,6 +237,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     public Command pathFindAndFollowToAlgae() {
         return defer(() -> {
+            Logger.recordOutput("Swerve/Algae Align", true);
             var target = findNearestTarget(false);
             if(target.get() != null) {
                 PathPlannerPath location = target.get();
