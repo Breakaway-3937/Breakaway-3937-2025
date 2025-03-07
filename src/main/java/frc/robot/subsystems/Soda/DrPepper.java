@@ -30,7 +30,7 @@ public class DrPepper extends SubsystemBase {
   private final TalonFX loader;
   private final TalonSRX thumb;
   private final CANrange sherlock, watson;
-  private final GenericEntry coralFull, algaeFull;
+  private final GenericEntry coralFull, algaeFull, robotFull;
 
   /** Creates a new DrPepper.
    *  @since Ankle is no longer with us.
@@ -47,6 +47,7 @@ public class DrPepper extends SubsystemBase {
 
     coralFull = Shuffleboard.getTab("Soda").add("Coral Full", botFullCoral().getAsBoolean()).withPosition(3, 0).getEntry();
     algaeFull = Shuffleboard.getTab("Soda").add("Algae Full", botFullAlgae().getAsBoolean()).withPosition(4, 0).getEntry();
+    robotFull = Shuffleboard.getTab("Driver").add("Robot Full", botFullAlgae().getAsBoolean() || botFullCoral().getAsBoolean()).withPosition(0, 0).withSize(10, 4).getEntry();
   }
 
   public Command runLoader() {
@@ -74,7 +75,7 @@ public class DrPepper extends SubsystemBase {
   }
 
   public Command runThumbForward() {
-    return runOnce(() -> thumb.set(ControlMode.PercentOutput, 1));
+    return runOnce(() -> thumb.set(ControlMode.PercentOutput, 0.8));
   }
 
   public Command runThumbForwardSlowly() {
@@ -168,6 +169,8 @@ public class DrPepper extends SubsystemBase {
 
     algaeFull.setBoolean(botFullAlgae().getAsBoolean());
     Logger.recordOutput("Soda/Algae Full", botFullAlgae().getAsBoolean());
+
+    robotFull.setBoolean(botFullAlgae().getAsBoolean() || botFullCoral().getAsBoolean());
 
     Logger.recordOutput("Soda/Loader Current", loader.getStatorCurrent().getValueAsDouble());
 
