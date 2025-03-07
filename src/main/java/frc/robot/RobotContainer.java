@@ -62,7 +62,7 @@ public class RobotContainer {
     private final Swerve s_Swerve = createSwerve();
     private final Vision s_Vision = new Vision(s_Swerve);
     private final MrPibb s_MrPibb = new MrPibb();
-    private final DrPepper s_DrPepper = new DrPepper();
+    private final DrPepper s_DrPepper = new DrPepper(() -> s_MrPibb.getStateAsEnum());
     private final ClimbAvator s_ClimbAvator = new ClimbAvator();
     private final LED s_LED = new LED();
     private final SuperSubsystem s_SuperSubsystem = new SuperSubsystem(s_ClimbAvator, s_MrPibb, s_DrPepper);
@@ -109,19 +109,19 @@ public class RobotContainer {
 
         translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
 
-        leftTrack.whileTrue(Commands.either(s_Swerve.pathFindAndFollowToAlgae(), s_Swerve.pathFindToCloset(false).andThen(holdPosition()), s_SuperSubsystem.isAlgae()));
-        rightTrack.whileTrue(Commands.either(s_Swerve.pathFindAndFollowToAlgae(), s_Swerve.pathFindToCloset(true).andThen(holdPosition()), s_SuperSubsystem.isAlgae()));
+        leftTrack.whileTrue(Commands.either(s_Swerve.pathFindAndFollowToAlgae().andThen(holdPosition()), s_Swerve.pathFindToClosest(false).andThen(holdPosition()), s_SuperSubsystem.isAlgae()));
+        rightTrack.whileTrue(Commands.either(s_Swerve.pathFindAndFollowToAlgae().andThen(holdPosition()), s_Swerve.pathFindToClosest(true).andThen(holdPosition()), s_SuperSubsystem.isAlgae()));
 
-        xboxController.a().onTrue(Commands.either(s_SuperSubsystem.processorState(), s_SuperSubsystem.l1State(), xboxController.back()));
-        xboxController.b().onTrue(Commands.either(s_SuperSubsystem.bargeState(), s_SuperSubsystem.l2State(), xboxController.back()));
-        xboxController.x().onTrue(Commands.either(s_SuperSubsystem.protectState(), s_SuperSubsystem.l3State(), xboxController.back()));
-        xboxController.y().onTrue(Commands.either(s_SuperSubsystem.stationState(), s_SuperSubsystem.l4State(), xboxController.back()));
+        xboxController.a().onTrue(Commands.either(s_SuperSubsystem.l1State(), s_SuperSubsystem.processorState(), xboxController.back()));
+        xboxController.b().onTrue(Commands.either(s_SuperSubsystem.l2State(), s_SuperSubsystem.bargeState(), xboxController.back()));
+        xboxController.x().onTrue(Commands.either(s_SuperSubsystem.l3State(), s_SuperSubsystem.protectState(), xboxController.back()));
+        xboxController.y().onTrue(Commands.either(s_SuperSubsystem.l4State(), s_SuperSubsystem.stationState(), xboxController.back()));
 
         /* Intake States */
         xboxController.rightBumper().onTrue(s_SuperSubsystem.preStageState());
         xboxController.leftTrigger(0.3).and(xboxController.rightTrigger(0.3).negate()).whileTrue(s_DrPepper.runUntilFullCoral()).onFalse(s_DrPepper.stopLoader().andThen(s_DrPepper.stopThumb()));
         xboxController.leftBumper().onTrue(Commands.either(s_DrPepper.runLoaderReverseTrough(), s_DrPepper.runLoaderReverse(), () -> s_MrPibb.getState().equals(MrPibbStates.L1.name()))).onFalse(s_DrPepper.runUntilFullAlgae());
-        xboxController.rightTrigger(0.3).and(xboxController.leftTrigger(0.3).negate()).onTrue(s_DrPepper.runThumbForward()).onFalse(s_DrPepper.stopThumb());
+        xboxController.rightTrigger(0.3).and(xboxController.leftTrigger(0.3).negate()).onTrue(s_DrPepper.runThumbForward().andThen(s_DrPepper.runLoaderSlowly())).onFalse(s_DrPepper.stopThumb().andThen(s_DrPepper.stopLoader()));
         xboxController.povLeft().onTrue(s_SuperSubsystem.groundCoralState());
         xboxController.povRight().onTrue(s_SuperSubsystem.groundAlgaeState());
         
@@ -138,7 +138,7 @@ public class RobotContainer {
         /* LEDs */
         climbLEDTrigger.whileTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.CLIMBED), s_LED));
         funeralLEDTrigger.whileTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.FUNERAL), s_LED).ignoringDisable(true));
-        botFullAlgaeLEDTrigger.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.ALGAE_FULL), s_LED)).onFalse(Commands.runOnce(() -> s_DrPepper.stopLoader(), s_DrPepper));
+        botFullAlgaeLEDTrigger.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.ALGAE_FULL), s_LED));
         botFullCoralLEDTrigger.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.CORAL_FULL), s_LED));
         botFullAlgaeLEDTrigger.and(botFullCoralLEDTrigger).and(funeralLEDTrigger).and(climbLEDTrigger).whileFalse(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED));
 
