@@ -114,7 +114,7 @@ public class Vision extends SubsystemBase {
     }
     
     /* Back Camera */
-    if(!backResult.isEmpty()) {
+    if(!backResult.isEmpty() && (frontCameraBad || frontResult.isEmpty())) {
       double averageDistanceX = getAverageTagDistanceX(backResult);
 
       if(averageDistanceX > maxDistance) {
