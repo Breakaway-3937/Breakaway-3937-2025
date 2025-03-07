@@ -71,7 +71,7 @@ public class Robot extends LoggedRobot {
       Shuffleboard.selectTab("Death");
     }
 
-    if(DriverStation.isAutonomous() && DriverStation.isFMSAttached() && DriverStation.getMatchTime() < 10 && DriverStation.isDisabled() && !deathToJackFlag) {
+    if(DriverStation.isAutonomous() && auto && DriverStation.isFMSAttached() && DriverStation.getMatchTime() < 10 && DriverStation.isDisabled() && !deathToJackFlag) {
       deathToJackFlag = true;
       Shuffleboard.getTab("Death").add("Death", "We have failed!!! :(").withPosition(1, 0);
       Shuffleboard.getTab("Death").add("Death2", "JACKKKKKKKK!!!!!!").withPosition(1, 1);
