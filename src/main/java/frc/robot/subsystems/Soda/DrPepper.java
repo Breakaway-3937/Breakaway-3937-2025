@@ -5,6 +5,7 @@
 package frc.robot.subsystems.Soda;
 
 import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -31,15 +32,18 @@ public class DrPepper extends SubsystemBase {
   private final TalonSRX thumb;
   private final CANrange sherlock, watson;
   private final GenericEntry coralFull, algaeFull, robotFull;
+  private final Supplier<MrPibbStates> state;
 
   /** Creates a new DrPepper.
    *  @since Ankle is no longer with us.
    */
-  public DrPepper() {
+  public DrPepper(Supplier<MrPibbStates> state) {
     loader = new TalonFX(Constants.Soda.DrPepper.LOADER_CAN_ID);
     thumb = new TalonSRX(Constants.Soda.DrPepper.THUMB_CAN_ID);
     sherlock = new CANrange(Constants.Soda.DrPepper.SHERLOCK_CAN_ID);
     watson = new CANrange(Constants.Soda.DrPepper.WATSON_CAN_ID);
+    
+    this.state = state;
 
     configLoader();
     configThumb();
@@ -91,9 +95,9 @@ public class DrPepper extends SubsystemBase {
   }
 
   public Command runUntilFullCoral() {
-    return runLoader().andThen(Commands.waitSeconds(0.5)).andThen(Commands.waitUntil(intakeFull())).andThen(stopLoader())
+    return runLoader().andThen(Commands.either(Commands.waitSeconds(0.5).andThen(Commands.waitUntil(intakeFull())).andThen(stopLoader())
                       .andThen(runThumbBackwardSlowly()).andThen(Commands.waitUntil(() -> !botFullCoral().getAsBoolean()))
-                      .andThen(stopThumb());
+                      .andThen(stopThumb()), Commands.none(), () -> !state.get().equals(MrPibbStates.GROUND_CORAL)));
   }
 
   public Command runUntilFullAlgae() {
