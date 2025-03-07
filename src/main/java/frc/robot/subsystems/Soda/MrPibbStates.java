@@ -8,7 +8,7 @@ import frc.robot.Constants;
 
 public enum MrPibbStates {
     //16.58 Max for wrist when elevator not extended.
-    GROUND_CORAL(15.84, 0),
+    GROUND_CORAL(16.67, 0),
     GROUND_ALGAE(11.5, 3.5),
     PROCESSOR(10.435, 3.62),
     BARGE(19.5, 0),
@@ -17,7 +17,7 @@ public enum MrPibbStates {
     L1(17.3, 0),
     L2(10.3, 1.7),
     L3(11.9, 1.7),
-    L4(16.8, 1.7),
+    L4(17.4, 1.7),
     PROTECT(3.5, 0),
     CORAL_PRESTAGE(9.788, 1.7),
     LOWER_ALGAE(16, 3.5),
