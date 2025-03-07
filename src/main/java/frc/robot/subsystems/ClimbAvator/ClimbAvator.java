@@ -80,11 +80,11 @@ public class ClimbAvator extends SubsystemBase {
   }
 
   public Command bilboBagginsTheBackForward() {
-    return runOnce(() -> bilboBagginsTheBack.set(1));
+    return runOnce(() -> bilboBagginsTheBack.set(0.8));
   }
 
   public Command bilboBagginsTheBackBackward() {
-    return runOnce(() -> bilboBagginsTheBack.set(-1));
+    return runOnce(() -> bilboBagginsTheBack.set(-0.8));
   }
 
   public Command bilboBagginsTheBackStop() {
