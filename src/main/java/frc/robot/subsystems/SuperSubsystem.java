@@ -30,7 +30,7 @@ public class SuperSubsystem extends SubsystemBase {
   }
 
   public Command saveMrPibb() {
-    return Commands.either(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.PROTECT)).andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.waitUntilWristSafe()), Commands.none(), () -> s_ClimbAvator.getState().equals(ClimbAvatorStates.CLIMB) || s_ClimbAvator.getState().equals(ClimbAvatorStates.CLIMB_PULL));
+    return Commands.either(s_ClimbAvator.configShoulderFast().andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.PROTECT))).andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.waitUntilWristSafe()), Commands.none(), () -> s_ClimbAvator.getState().equals(ClimbAvatorStates.CLIMB) || s_ClimbAvator.getState().equals(ClimbAvatorStates.CLIMB_PULL));
   }
 
   public Command mrPibbOut() {
@@ -134,6 +134,7 @@ public class SuperSubsystem extends SubsystemBase {
     return Commands.either(runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.CLIMB))
                .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.CORAL_PRESTAGE)))
                .andThen(s_ClimbAvator.setShoulder()).andThen(s_ClimbAvator.waitUntilShoulderSafe())
+               .andThen(s_ClimbAvator.configShoulderSlow())
                .andThen(s_ClimbAvator.setElevator()).andThen(s_MrPibb.setTurret())
                .andThen(s_ClimbAvator.waitUntilElevatorSafe()).andThen(s_MrPibb.waitUntilTurretSafe())
                .andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.waitUntilWristSafe())

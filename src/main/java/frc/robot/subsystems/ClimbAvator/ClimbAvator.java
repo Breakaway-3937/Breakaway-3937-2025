@@ -8,6 +8,7 @@ import java.util.function.BooleanSupplier;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
@@ -80,11 +81,11 @@ public class ClimbAvator extends SubsystemBase {
   }
 
   public Command bilboBagginsTheBackForward() {
-    return runOnce(() -> bilboBagginsTheBack.set(0.8));
+    return runOnce(() -> bilboBagginsTheBack.set(1));
   }
 
   public Command bilboBagginsTheBackBackward() {
-    return runOnce(() -> bilboBagginsTheBack.set(-0.8));
+    return runOnce(() -> bilboBagginsTheBack.set(-1));
   }
 
   public Command bilboBagginsTheBackStop() {
@@ -191,6 +192,28 @@ public class ClimbAvator extends SubsystemBase {
     boulderMotor.setPosition(0);
 
     boulderMotor.setControl(followerShoulderRequest);
+  }
+
+  public Command configShoulderFast() {
+    MotionMagicConfigs config = new MotionMagicConfigs();
+    config.MotionMagicCruiseVelocity = 0;
+    config.MotionMagicExpo_kV = 0.03;
+    config.MotionMagicExpo_kA = 0.025;
+    return runOnce(() -> {
+      shoulderMotor.getConfigurator().apply(config);
+      boulderMotor.getConfigurator().apply(config);
+    });
+  }
+
+  public Command configShoulderSlow() {
+    MotionMagicConfigs config = new MotionMagicConfigs();
+    config.MotionMagicCruiseVelocity = 0;
+    config.MotionMagicExpo_kV = 0.3;
+    config.MotionMagicExpo_kA = 0.05;
+    return runOnce(() -> {
+      shoulderMotor.getConfigurator().apply(config);
+      boulderMotor.getConfigurator().apply(config);
+    });
   }
 
   public void configElevatorMotors() {

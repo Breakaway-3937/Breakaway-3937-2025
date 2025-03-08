@@ -18,7 +18,7 @@ public enum MrPibbStates {
     L2(10.3, 1.7),
     L3(11.9, 1.7),
     L4(17.4, 1.7),
-    PROTECT(3.5, 0),
+    PROTECT(1.5, 0),
     CORAL_PRESTAGE(9.788, 1.7),
     LOWER_ALGAE(16, 3.5),
     UPPER_ALGAE(16, 3.5);
