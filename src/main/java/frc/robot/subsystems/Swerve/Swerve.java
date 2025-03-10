@@ -74,7 +74,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        configPathplanner();
+        //configPathplanner();
         this.setStateStdDevs(VecBuilder.fill(0.05, 0.05, 0.05));
     }
 
@@ -87,7 +87,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        configPathplanner();
+        //configPathplanner();
         this.setStateStdDevs(VecBuilder.fill(0.05, 0.05, 0.05));
     }
 
@@ -102,7 +102,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        configPathplanner();
+        //configPathplanner();
         this.setStateStdDevs(VecBuilder.fill(0.05, 0.05, 0.05));
     }
 
@@ -231,6 +231,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             {
                 Logger.recordOutput("Swerve/Algae Align", false);
                 var target = findNearestTarget(right);
+                Logger.recordOutput("Final Auto Align Path", target.get().name);
                 return either(AutoBuilder.pathfindThenFollowPath(target.get(), constraints), Commands.none(), () -> target != null);
             });
     }
@@ -267,6 +268,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                 }
 
                 PathPlannerPath finalLocation = location;
+                Logger.recordOutput("Final Auto Align Path", finalLocation.name);
                 return defer(() -> AutoBuilder.pathfindThenFollowPath(finalLocation, constraints));
             }
             else {
