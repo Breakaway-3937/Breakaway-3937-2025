@@ -48,6 +48,7 @@ public class RobotContainer {
 
     /* Driver Buttons */
     private final JoystickButton translationButton = new JoystickButton(translationController, Constants.Controllers.TRANSLATION_BUTTON);
+    private final JoystickButton coralTrack = new JoystickButton(buttons, 1);
     private final JoystickButton leftTrack = new JoystickButton(buttons, 7);
     private final JoystickButton rightTrack = new JoystickButton(buttons, 8);
 
@@ -71,6 +72,7 @@ public class RobotContainer {
 
     /* Commands */
     private final Music c_Music = new Music(s_Swerve, s_MrPibb, s_DrPepper, s_ClimbAvator);
+
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(Constants.Swerve.MAX_SPEED * Constants.Controllers.STICK_DEADBAND)
             .withRotationalDeadband(Constants.Swerve.MAX_ANGULAR_RATE * Constants.Controllers.STICK_DEADBAND) 
@@ -105,13 +107,14 @@ public class RobotContainer {
             )
         );
 
-        slowDownTrigger.whileTrue(Commands.runOnce(() -> multiplier = 0.4)).whileFalse(Commands.runOnce(() -> multiplier = 1));
-
+        /* Driver Buttons */
+        //coralTrack.whileTrue(rotateToCoral());
         translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
-
+        slowDownTrigger.whileTrue(Commands.runOnce(() -> multiplier = 0.4)).whileFalse(Commands.runOnce(() -> multiplier = 1));
         leftTrack.whileTrue(Commands.either(s_Swerve.pathFindAndFollowToAlgae().andThen(holdPosition()), s_Swerve.pathFindToClosest(false).andThen(holdPosition()), s_SuperSubsystem.isAlgae()));
         rightTrack.whileTrue(Commands.either(s_Swerve.pathFindAndFollowToAlgae().andThen(holdPosition()), s_Swerve.pathFindToClosest(true).andThen(holdPosition()), s_SuperSubsystem.isAlgae()));
 
+        /* Weird Button States */
         xboxController.a().onTrue(Commands.either(s_SuperSubsystem.l1State(), s_SuperSubsystem.processorState(), xboxController.back()));
         xboxController.b().onTrue(Commands.either(s_SuperSubsystem.l2State(), s_SuperSubsystem.bargeState(), xboxController.back()));
         xboxController.x().onTrue(Commands.either(s_SuperSubsystem.l3State(), s_SuperSubsystem.protectState(), xboxController.back()));
@@ -199,6 +202,14 @@ public class RobotContainer {
 
     public Command getInitialProtectCommand() {
         return s_SuperSubsystem.protectState();
+    }
+
+    public Command rotateToCoral() {
+        return s_Swerve.applyRequest(() ->
+                drive.withVelocityX(translationController.getRawAxis(translationAxis) * multiplier * Constants.Swerve.MAX_SPEED)
+                    .withVelocityY(translationController.getRawAxis(strafeAxis) * multiplier * Constants.Swerve.MAX_SPEED) 
+                    .withRotationalRate(s_Vision.getCoralTargetSpeed()  * Constants.Swerve.MAX_ANGULAR_RATE)
+            );
     }
 
     public Command holdPosition() {

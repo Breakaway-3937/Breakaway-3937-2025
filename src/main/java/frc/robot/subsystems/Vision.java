@@ -16,6 +16,7 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.swerve.utility.PhoenixPIDController;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -25,12 +26,15 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants;
 import frc.robot.lib.Vision.BreakaCamera;
+import frc.robot.lib.Vision.LimeAway;
 import frc.robot.subsystems.Swerve.Swerve;
 
 public class Vision extends SubsystemBase {
   private AprilTagFieldLayout atfl;
   private final BreakaCamera frontCamera;
   private final BreakaCamera backCamera;
+  private final LimeAway coralCamera;
+  private final PhoenixPIDController rotationController;
   private final Swerve s_Swerve;
   private final double maxDistance = 6; // In meters
   private boolean frontCameraBad, backCameraBad;
@@ -49,6 +53,11 @@ public class Vision extends SubsystemBase {
 
     frontCamera = new BreakaCamera(Constants.Vision.FRONT_CAMERA_NAME, new PhotonPoseEstimator(atfl, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.Vision.FRONT_CAMERA_TRANSFORM));
     backCamera = new BreakaCamera(Constants.Vision.BACK_CAMERA_NAME, new PhotonPoseEstimator(atfl, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.Vision.BACK_CAMERA_TRANSFORM));
+    coralCamera = new LimeAway(Constants.Vision.CORAL_CAMERA_NAME);
+
+    rotationController = new PhoenixPIDController(4.5, 0, 0);
+    rotationController.enableContinuousInput(-Math.PI, Math.PI);
+    rotationController.setTolerance(0.1);
 
     frontTagsUsed = new ArrayList<Pose3d>();
     backTagsUsed = new ArrayList<Pose3d>();
@@ -60,6 +69,15 @@ public class Vision extends SubsystemBase {
 
   public PhotonPipelineResult getLatestFront() {
     return frontCamera.getLatest();
+  }
+
+  public double getCoralTargetSpeed() {
+    if(coralCamera.hasTarget()) {
+      return rotationController.calculate(coralCamera.getTX(), 0, Utils.getCurrentTimeSeconds());
+    }
+    else {
+      return 0;
+    }
   }
 
   public double getAverageTagDistanceX(Optional<EstimatedRobotPose> result) {
@@ -138,6 +156,7 @@ public class Vision extends SubsystemBase {
       backTagsUsed.clear();
     }
 
+    Logger.recordOutput("Coral Rotation Speed", getCoralTargetSpeed());
     Logger.recordOutput("Vision/X Distance Result Empty", xDistanceBad);
     Logger.recordOutput("Vision/Y Distance Result Empty", yDistanceBad);
     Logger.recordOutput("Vision/Front Camera Dead", frontCamera.isDead());
