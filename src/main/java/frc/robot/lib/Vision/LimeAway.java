@@ -26,6 +26,27 @@ public class LimeAway {
         return LimelightHelpers.getTY(name);
     }
 
+    /**
+     * Gets the target area as a percentage of the image (0-100%).
+     */
+    public double getAreaOfTarget() {
+        return LimelightHelpers.getTA(name);
+    }
+
+    /**
+     * Gets the primary neural detector result class name.
+     */
+    public String getDetectorClass() {
+        return LimelightHelpers.getDetectorClass(name);
+    }
+
+    /**
+     * Gets the detector class index from the primary result of the currently running neural detector pipeline.
+     */
+    public int getDetectorIndex() {
+        return LimelightHelpers.getDetectorClassIndex(name);
+    }
+
     public boolean hasTarget() {
         return LimelightHelpers.getTV(name);
     }

@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.lib.Vision.BreakaCamera;
 import frc.robot.lib.Vision.LimeAway;
@@ -168,5 +169,13 @@ public class Vision extends SubsystemBase {
 
     frontCameraBad = false;
     backCameraBad = false;
+
+    if(Constants.DEBUG) {
+      SmartDashboard.putString("Detector Class", coralCamera.getDetectorClass());
+      SmartDashboard.putNumber("Detector Index", coralCamera.getDetectorIndex());
+      SmartDashboard.putNumber("Area Of Target", coralCamera.getAreaOfTarget());
+      SmartDashboard.putNumber("TX", coralCamera.getTX());
+      SmartDashboard.putNumber("TY", coralCamera.getTY());
+    }
   }
 }
