@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Radians;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -76,7 +79,17 @@ public class Vision extends SubsystemBase {
 
   public double getCoralTargetSpeed() {
     if(coralCamera.hasTarget()) {
-      return rotationController.calculate(coralCamera.getTX(), 0, Utils.getCurrentTimeSeconds());
+      //If setpoint changes needs to be in radians
+      double speed = rotationController.calculate(coralCamera.getTX().in(Radians), 0, Utils.getCurrentTimeSeconds());
+
+      if (speed > Constants.Swerve.MAX_ANGULAR_RATE) {
+        speed = Constants.Swerve.MAX_ANGULAR_RATE;
+      } 
+      else if (speed < -Constants.Swerve.MAX_ANGULAR_RATE) {
+        speed = -Constants.Swerve.MAX_ANGULAR_RATE;
+      }
+
+      return speed;
     }
     else {
       return 0;
@@ -174,8 +187,8 @@ public class Vision extends SubsystemBase {
       SmartDashboard.putString("Detector Class", coralCamera.getDetectorClass());
       SmartDashboard.putNumber("Detector Index", coralCamera.getDetectorIndex());
       SmartDashboard.putNumber("Area Of Target", coralCamera.getAreaOfTarget());
-      SmartDashboard.putNumber("TX", coralCamera.getTX());
-      SmartDashboard.putNumber("TY", coralCamera.getTY());
+      SmartDashboard.putNumber("TX", coralCamera.getTX().in(Degrees));
+      SmartDashboard.putNumber("TY", coralCamera.getTY().in(Degrees));
     }
   }
 }
