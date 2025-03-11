@@ -61,6 +61,8 @@ public class Vision extends SubsystemBase {
 
     frontTagsUsed = new ArrayList<Pose3d>();
     backTagsUsed = new ArrayList<Pose3d>();
+
+    coralCamera.turnLedsOff();
   }
 
   public boolean hasFrontTargets() {
