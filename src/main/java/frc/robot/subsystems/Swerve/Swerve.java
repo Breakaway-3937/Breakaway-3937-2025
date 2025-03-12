@@ -74,7 +74,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        //configPathplanner();
+        configPathplanner();
         this.setStateStdDevs(VecBuilder.fill(0.05, 0.05, 0.05));
     }
 
@@ -87,7 +87,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        //configPathplanner();
+        configPathplanner();
         this.setStateStdDevs(VecBuilder.fill(0.05, 0.05, 0.05));
     }
 
@@ -102,7 +102,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        //configPathplanner();
+        configPathplanner();
         this.setStateStdDevs(VecBuilder.fill(0.05, 0.05, 0.05));
     }
 
@@ -287,6 +287,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public Command unhitReef() {
+        return applyRequest(() -> auto.withVelocityX(-1).withVelocityY(0));
+    }
+
+    public Command hitRobot() {
         return applyRequest(() -> auto.withVelocityX(-1).withVelocityY(0));
     }
 

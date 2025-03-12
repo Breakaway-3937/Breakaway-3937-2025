@@ -54,10 +54,9 @@ public class RobotContainer {
 
     /* Triggers */
     private final Trigger slowDownTrigger;
-    private final Trigger climbLEDTrigger;
-    private final Trigger funeralLEDTrigger;
     private final Trigger botFullAlgaeLEDTrigger;
     private final Trigger botFullCoralLEDTrigger;
+    private final Trigger botEmptyLEDTrigger;
 
     /* Subsystems */
     private final Swerve s_Swerve = createSwerve();
@@ -139,11 +138,9 @@ public class RobotContainer {
         xboxController.leftStick().onTrue(s_SuperSubsystem.upperAlgaeState());
 
         /* LEDs */
-        climbLEDTrigger.whileTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.CLIMBED), s_LED));
-        funeralLEDTrigger.whileTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.FUNERAL), s_LED).ignoringDisable(true));
-        botFullAlgaeLEDTrigger.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.ALGAE_FULL), s_LED));
-        botFullCoralLEDTrigger.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.CORAL_FULL), s_LED));
-        botFullAlgaeLEDTrigger.and(botFullCoralLEDTrigger).and(funeralLEDTrigger).and(climbLEDTrigger).whileFalse(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED));
+        botFullAlgaeLEDTrigger.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.ALGAE_FULL), s_LED).ignoringDisable(true));
+        botFullCoralLEDTrigger.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.CORAL_FULL), s_LED).ignoringDisable(true));
+        botEmptyLEDTrigger.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED).ignoringDisable(true));
 
         s_Swerve.registerTelemetry(logger::telemeterize);
     }
@@ -154,16 +151,17 @@ public class RobotContainer {
         NamedCommands.registerCommand("ScoreCoralL1", s_SuperSubsystem.scoreCoralL1(s_Swerve.hitReef(), s_Swerve.unhitReef(), s_Swerve.stop(), s_Swerve.stop()));
         NamedCommands.registerCommand("Load", s_SuperSubsystem.load());
         NamedCommands.registerCommand("Condense", s_SuperSubsystem.condenseAuto());
+        NamedCommands.registerCommand("TushPush", s_SuperSubsystem.tushPush(s_Swerve.hitRobot(), s_Swerve.stop()));
         autoChooser = AutoBuilder.buildAutoChooser();
         autoChooser.setDefaultOption("DO NOTHING", Commands.none());
+        autoChooser.addOption("Tush Push L4 Left", new PathPlannerAuto("Tush Push L4 Right", true));
         autoChooser.addOption("L4 Left", new PathPlannerAuto("L4 Right", true));
         autoChooser.addOption("L4 Left CAC DS", new PathPlannerAuto("L4 Right CAC DS", true));
         Shuffleboard.getTab("Auto").add(autoChooser).withPosition(0, 0).withSize(2, 1);
         slowDownTrigger = new Trigger(() -> s_ClimbAvator.getState().equals(ClimbAvatorStates.L4) || s_ClimbAvator.getState().equals(ClimbAvatorStates.BARGE));
-        climbLEDTrigger = new Trigger(() -> s_ClimbAvator.getState().equals(ClimbAvatorStates.CLIMB_PULL) && s_ClimbAvator.waitUntilShoulderSafe().isFinished());
-        funeralLEDTrigger = new Trigger(s_Vision.funeral());
         botFullAlgaeLEDTrigger = new Trigger(s_SuperSubsystem.botFullAlgae());
         botFullCoralLEDTrigger = new Trigger(s_SuperSubsystem.botFullCoral());
+        botEmptyLEDTrigger = new Trigger(() -> !s_DrPepper.botFullCoral().getAsBoolean() && !s_DrPepper.botFullAlgae().getAsBoolean());
 
         align.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
         align.HeadingController.setTolerance(0.1);

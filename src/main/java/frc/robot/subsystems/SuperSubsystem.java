@@ -192,6 +192,10 @@ public class SuperSubsystem extends SubsystemBase {
     return s_DrPepper.runUntilFullCoral();
   }
 
+  public Command tushPush(Command hit, Command stop) {
+    return new ParallelDeadlineGroup(Commands.waitSeconds(0.75), hit).andThen(Commands.waitSeconds(0.01).raceWith(stop)).andThen(() -> stop.cancel());
+  }
+
   public Command condenseAuto() {
     return saveMrPibb().andThen(runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.CORAL_PRESTAGE)))
                        .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.CORAL_PRESTAGE)))

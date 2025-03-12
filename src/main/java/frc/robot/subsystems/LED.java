@@ -8,7 +8,6 @@ import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.CANdleConfiguration;
-import com.ctre.phoenix.led.ColorFlowAnimation;
 import com.ctre.phoenix.led.FireAnimation;
 import com.ctre.phoenix.led.LarsonAnimation;
 import com.ctre.phoenix.led.SingleFadeAnimation;
@@ -29,17 +28,15 @@ public class LED extends SubsystemBase {
   private final CANdle candle;
   private final CANdleConfiguration config;
   private final GenericEntry ledStateEntry;
-  private LEDStates ledState = LEDStates.DISABLED;
+  private LEDStates ledState = LEDStates.BOT_EMPTY;
   private final Timer timer;
   private boolean flag, flag1;
 
-  private final ColorFlowAnimation flow = new ColorFlowAnimation(0, 0, 0, 0, 0.1, Constants.NUM_LEDS, ColorFlowAnimation.Direction.Forward, 0);
   private final FireAnimation fire = new FireAnimation(1, 0.1, Constants.NUM_LEDS, 0.1, 0.1, false, 0);
   private final LarsonAnimation pocket = new LarsonAnimation(255, 0, 0, 0, 0.1, Constants.NUM_LEDS, LarsonAnimation.BounceMode.Center, 1);
   private final TwinkleOffAnimation twinkle = new TwinkleOffAnimation(0, 255, 0, 0, 0.1, Constants.NUM_LEDS, TwinkleOffPercent.Percent100, 0);
   private final SingleFadeAnimation fade = new SingleFadeAnimation(0, 0, 0, 0, 1, Constants.NUM_LEDS, 0);
   private final StrobeAnimation strobe = new StrobeAnimation(0, 0, 0, 0, 0.5, Constants.NUM_LEDS, 0);
-  private final LarsonAnimation bad = new LarsonAnimation(179, 83, 97, 0, 0.1, Constants.NUM_LEDS, LarsonAnimation.BounceMode.Center, 1, 0);
 
   /** Creates a new LED.*/
   public LED() {
@@ -48,7 +45,7 @@ public class LED extends SubsystemBase {
 
     config.statusLedOffWhenActive = false;
     config.disableWhenLOS = false;
-    config.stripType = LEDStripType.RGBW;
+    config.stripType = LEDStripType.RGB;
     config.brightnessScalar = 0.25;
     config.vBatOutputMode = VBatOutputMode.On;
     config.v5Enabled = false;
@@ -68,9 +65,6 @@ public class LED extends SubsystemBase {
 
   public enum LEDStates {
     DISABLED,
-    AUTONOMOUS,
-    CLIMBED,
-    FUNERAL,
     ALGAE_FULL,
     CORAL_FULL,
     BOT_EMPTY
@@ -78,10 +72,16 @@ public class LED extends SubsystemBase {
 
   public void setState(LEDStates ledState) {
     this.ledState  = ledState;
+    reset();
   }
 
   public LEDStates getState() {
     return ledState;
+  }
+
+  public void reset() {
+    flag = false;
+    flag1 = false;
   }
 
   @Override
@@ -117,24 +117,6 @@ public class LED extends SubsystemBase {
           pocket.setG((int) (Math.random() * 255));
           pocket.setB((int) (Math.random() * 255));
         }
-        break;
-      case AUTONOMOUS:
-        if(DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get().equals(DriverStation.Alliance.Blue)) {
-          flow.setR(0);
-          flow.setB(254);
-        }
-        else {
-          flow.setR(255);
-          flow.setB(0);
-        }
-        candle.animate(flow);
-        break;
-      case CLIMBED:
-        candle.clearAnimation(0);
-        candle.setLEDs(0, 255, 0);
-        break;
-      case FUNERAL:
-        candle.animate(bad);
         break;
       case ALGAE_FULL:
         if(!flag) {
@@ -184,7 +166,7 @@ public class LED extends SubsystemBase {
         break;
       case BOT_EMPTY:
         candle.clearAnimation(0);
-        candle.setLEDs(255, 0, 0);
+        candle.setLEDs(0, 255, 0, 0, 8, Constants.NUM_LEDS - 8);
         break;
     }
   }

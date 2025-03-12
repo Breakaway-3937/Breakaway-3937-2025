@@ -18,7 +18,7 @@ import frc.robot.generated.PracticeTunerConstants;
 public final class Constants {
     public static final int CANDLE_ID = 26;
     public static final int PDH_ID = 27;
-    public static final int NUM_LEDS = 8;
+    public static final int NUM_LEDS = 278;
     public static final String CANIVORE_BUS = "CANivore";
     public static final String COMP_SERIAL_NUM = "032D2164";
     public static final boolean PRACTICE_BOT = !RobotController.getSerialNumber().equals(COMP_SERIAL_NUM);

@@ -96,7 +96,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void disabledPeriodic() {
-    robotContainer.getLEDSystem().setState(LEDStates.DISABLED);
+    //robotContainer.getLEDSystem().setState(LEDStates.DISABLED);
   }
 
   @Override
@@ -113,9 +113,7 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void autonomousPeriodic() {
-    robotContainer.getLEDSystem().setState(LEDStates.AUTONOMOUS);
-  }
+  public void autonomousPeriodic() {}
 
   @Override
   public void teleopInit() {
