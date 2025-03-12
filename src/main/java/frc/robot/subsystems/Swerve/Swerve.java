@@ -148,16 +148,23 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public Rotation2d getRotationTarget() {
-        var target = findNearestTarget(false);
-        if(target.get() != null && !target.get().getAllPathPoints().isEmpty()) {
-            return target.get().getAllPathPoints().get(target.get().getAllPathPoints().size() - 1).rotationTarget.rotation();
+        try {
+            var target = findNearestTarget(false);
+            if(target.get() != null && !target.get().getAllPathPoints().isEmpty()) {
+                return target.get().getAllPathPoints().get(target.get().getAllPathPoints().size() - 1).rotationTarget.rotation();
+            }
+            else {
+                return getState().Pose.getRotation();
+            }
         }
-        else {
+        catch(Exception e) {
+            Logger.recordOutput("Swerve/pathFindToClosest Exception", e.getMessage());
             return getState().Pose.getRotation();
         }
+
     }
 
-    public Supplier<PathPlannerPath> findNearestTarget(boolean right) {
+    public Supplier<PathPlannerPath> findNearestTarget(boolean right) throws Exception {
         makePoseList();
         var near = getState().Pose.nearest(poseList);
         var target = lookUpPath(near);
@@ -184,7 +191,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             }
         }
 
-        Logger.recordOutput("Auto Path Location", goTo.name());
+        Logger.recordOutput("Swerve/Auto Path Location", goTo.name());
 
         return () -> goTo.getPath();
     }
@@ -229,13 +236,14 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     public Command pathFindToClosest(boolean right) {
         return defer(() -> 
             {
-                Logger.recordOutput("Swerve/Algae Align", false);
-                var target = findNearestTarget(right);
-                Logger.recordOutput("Swerve/Final Auto Align Path", target.get().name);
                 try {
+                    Logger.recordOutput("Swerve/Algae Align", false);
+                    var target = findNearestTarget(right);
+                    Logger.recordOutput("Swerve/Final Auto Align Path", target.get().name);
                     return either(AutoBuilder.pathfindThenFollowPath(target.get(), constraints), Commands.none(), () -> target != null);
                 }
                 catch(Exception e) {
+                    Logger.recordOutput("Swerve/pathFindToClosest Exception", e.getMessage());
                     return Commands.none();
                 }
             });
@@ -243,40 +251,46 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     public Command pathFindAndFollowToAlgae() {
         return defer(() -> {
-            Logger.recordOutput("Swerve/Algae Align", true);
-            var target = findNearestTarget(false);
-            if(target.get() != null) {
-                PathPlannerPath location = target.get();
+            try {
+                Logger.recordOutput("Swerve/Algae Align", true);
+                var target = findNearestTarget(false);
+                if(target.get() != null) {
+                    PathPlannerPath location = target.get();
 
-                switch (target.get().name) {
-                    case "A", "B":
-                        location = AlgaeAutoPathLocations.ALGAE_AB.getPath();
-                        break;
-                    case "C", "D":
-                        location = AlgaeAutoPathLocations.ALGAE_CD.getPath();
-                        break;
-                    case "E", "F":
-                        location = AlgaeAutoPathLocations.ALGAE_EF.getPath();
-                        break;
-                    case "G", "H":
-                        location = AlgaeAutoPathLocations.ALGAE_GH.getPath();
-                        break;
-                    case "I", "J":
-                        location = AlgaeAutoPathLocations.ALGAE_IJ.getPath();
-                        break;
-                    case "K", "L":
-                        location = AlgaeAutoPathLocations.ALGAE_KL.getPath();
-                        break;
-                    default:
-                        location = target.get();
-                        break;
+                    switch (target.get().name) {
+                        case "A", "B":
+                            location = AlgaeAutoPathLocations.ALGAE_AB.getPath();
+                            break;
+                        case "C", "D":
+                            location = AlgaeAutoPathLocations.ALGAE_CD.getPath();
+                            break;
+                        case "E", "F":
+                            location = AlgaeAutoPathLocations.ALGAE_EF.getPath();
+                            break;
+                        case "G", "H":
+                            location = AlgaeAutoPathLocations.ALGAE_GH.getPath();
+                            break;
+                        case "I", "J":
+                            location = AlgaeAutoPathLocations.ALGAE_IJ.getPath();
+                            break;
+                        case "K", "L":
+                            location = AlgaeAutoPathLocations.ALGAE_KL.getPath();
+                            break;
+                        default:
+                            location = target.get();
+                            break;
+                    }
+
+                    PathPlannerPath finalLocation = location;
+                    Logger.recordOutput("Swerve/Final Auto Align Path", finalLocation.name);
+                    return defer(() -> AutoBuilder.pathfindThenFollowPath(finalLocation, constraints));
                 }
-
-                PathPlannerPath finalLocation = location;
-                Logger.recordOutput("Swerve/Final Auto Align Path", finalLocation.name);
-                return defer(() -> AutoBuilder.pathfindThenFollowPath(finalLocation, constraints));
+                else {
+                    return Commands.none();
+                }
             }
-            else {
+            catch(Exception e) {
+                Logger.recordOutput("pathFindAndFollowToAlgae Exception", e.getMessage());
                 return Commands.none();
             }
         });
