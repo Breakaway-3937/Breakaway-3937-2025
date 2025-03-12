@@ -206,7 +206,7 @@ public class RobotContainer {
         return s_Swerve.applyRequest(() ->
                 drive.withVelocityX(translationController.getRawAxis(translationAxis) * multiplier * Constants.Swerve.MAX_SPEED)
                     .withVelocityY(translationController.getRawAxis(strafeAxis) * multiplier * Constants.Swerve.MAX_SPEED) 
-                    .withRotationalRate(s_Vision.getCoralTargetSpeed()  * Constants.Swerve.MAX_ANGULAR_RATE)
+                    .withRotationalRate(s_Vision.getCoralTargetSpeed())
             );
     }
 
