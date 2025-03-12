@@ -232,7 +232,12 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                 Logger.recordOutput("Swerve/Algae Align", false);
                 var target = findNearestTarget(right);
                 Logger.recordOutput("Swerve/Final Auto Align Path", target.get().name);
-                return either(AutoBuilder.pathfindThenFollowPath(target.get(), constraints), Commands.none(), () -> target != null);
+                try {
+                    return either(AutoBuilder.pathfindThenFollowPath(target.get(), constraints), Commands.none(), () -> target != null);
+                }
+                catch(Exception e) {
+                    return Commands.none();
+                }
             });
     }
 
