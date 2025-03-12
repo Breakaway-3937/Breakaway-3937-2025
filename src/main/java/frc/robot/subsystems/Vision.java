@@ -42,7 +42,7 @@ public class Vision extends SubsystemBase {
   private final Swerve s_Swerve;
   private final double maxDistance = 6; // In meters
   private boolean frontCameraBad, backCameraBad;
-  private boolean xDistanceBad = false, yDistanceBad = false;
+  private boolean xDistanceBad = false;
   private final ArrayList<Pose3d> frontTagsUsed, backTagsUsed;
 
   /** Creates a new Vision. */
@@ -174,7 +174,6 @@ public class Vision extends SubsystemBase {
 
     Logger.recordOutput("Coral Rotation Speed", getCoralTargetSpeed());
     Logger.recordOutput("Vision/X Distance Result Empty", xDistanceBad);
-    Logger.recordOutput("Vision/Y Distance Result Empty", yDistanceBad);
     Logger.recordOutput("Vision/Front Camera Dead", frontCamera.isDead());
     Logger.recordOutput("Vision/Back Camera Dead", backCamera.isDead());
     Logger.recordOutput("Vision/Front Camera Bad", frontCameraBad);
