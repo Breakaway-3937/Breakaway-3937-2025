@@ -107,8 +107,8 @@ public class RobotContainer {
         translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
         slowDownTrigger.whileTrue(Commands.runOnce(() -> multiplier = 0.4)).whileFalse(Commands.runOnce(() -> multiplier = 1));
         //coralTrack.whileTrue(rotateToCoral());
-        leftTrack.whileTrue(Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(holdPosition()), s_Swerve.pathFindToClosest(false).andThen(holdPosition()), s_SuperSubsystem.isAlgae()));
-        rightTrack.whileTrue(Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(holdPosition()), s_Swerve.pathFindToClosest(true).andThen(holdPosition()), s_SuperSubsystem.isAlgae()));
+        leftTrack.whileTrue(Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(holdPosition()), s_Swerve.pathFindToClosest(false).andThen(holdPosition()), s_SuperSubsystem.isAlgae())).onFalse(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED));
+        rightTrack.whileTrue(Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(holdPosition()), s_Swerve.pathFindToClosest(true).andThen(holdPosition()), s_SuperSubsystem.isAlgae())).onFalse(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED));
 
         /* Weird Button States */
         xboxController.a().onTrue(Commands.either(s_SuperSubsystem.l1State(), s_SuperSubsystem.processorState(), xboxController.back()));
@@ -206,7 +206,7 @@ public class RobotContainer {
                 align.withVelocityX(translationController.getRawAxis(translationAxis) * multiplier * Constants.Swerve.MAX_SPEED)
                     .withVelocityY(0) 
                     .withTargetDirection(s_Swerve.getRotationTarget())
-            ).alongWith(Commands.either(Commands.runOnce(() -> s_LED.setState(LEDStates.CORAL_ALIGN_TOO_FAR)), Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY)), s_Vision.coralAlignTooFar()));
+            ).alongWith(Commands.run(() -> Commands.either(Commands.runOnce(() -> s_LED.setState(LEDStates.CORAL_ALIGN_TOO_FAR)), Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY)), s_Vision.coralAlignTooFar()), s_LED));
     }
 
     public Command snapGyro() {
