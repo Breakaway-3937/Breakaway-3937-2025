@@ -111,6 +111,18 @@ public class Vision extends SubsystemBase {
     }
   }
 
+  public BooleanSupplier coralAlignTooFar() {
+    return () -> {
+      var result = frontCamera.getEstimatedPose();
+      if(result.isPresent()) {
+        return getAverageTagDistanceX(result) > 0.3;
+      }
+      else {
+        return false;
+      }
+    };
+  }
+
   public BooleanSupplier funeral() {
     return () -> frontCamera.isDead() || backCamera.isDead();
   }

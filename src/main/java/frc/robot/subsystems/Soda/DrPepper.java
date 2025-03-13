@@ -95,9 +95,9 @@ public class DrPepper extends SubsystemBase {
   }
 
   public Command runUntilFullCoral() {
-    return runLoader().andThen(Commands.either(/*Commands.waitSeconds(0.5).andThen(Commands.waitUntil(intakeFull())).andThen(stopLoader())
-                      .andThen*/(runThumbBackwardSlowly()).andThen(Commands.waitUntil(() -> !botFullCoral().getAsBoolean()))
-                      .andThen(stopThumb()), Commands.none(), () -> !state.get().equals(MrPibbStates.GROUND_CORAL)));
+    return runLoader().andThen(Commands.either(Commands.waitSeconds(0.5), Commands.waitSeconds(1.5), () -> !state.get().equals(MrPibbStates.GROUND_CORAL)).andThen(Commands.waitUntil(intakeFull())).andThen(stopLoader())
+                      .andThen(runThumbBackwardSlowly()).andThen(Commands.waitUntil(() -> !botFullCoral().getAsBoolean()))
+                      .andThen(stopThumb()));
   }
 
   public Command runUntilFullAlgae() {

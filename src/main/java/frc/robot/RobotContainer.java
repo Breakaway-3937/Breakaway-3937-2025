@@ -24,11 +24,11 @@ import frc.robot.commands.Music;
 import frc.robot.generated.CompTunerConstants;
 import frc.robot.generated.PracticeTunerConstants;
 import frc.robot.subsystems.LED;
-import frc.robot.subsystems.LED.LEDStates;
 import frc.robot.subsystems.SuperSubsystem;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.ClimbAvator.ClimbAvator;
 import frc.robot.subsystems.ClimbAvator.ClimbAvatorStates;
+import frc.robot.subsystems.LED.LEDStates;
 import frc.robot.subsystems.Soda.DrPepper;
 import frc.robot.subsystems.Soda.MrPibb;
 import frc.robot.subsystems.Soda.MrPibbStates;
@@ -54,9 +54,6 @@ public class RobotContainer {
 
     /* Triggers */
     private final Trigger slowDownTrigger;
-    private final Trigger botFullAlgaeLEDTrigger;
-    private final Trigger botFullCoralLEDTrigger;
-    private final Trigger botEmptyLEDTrigger;
 
     /* Subsystems */
     private final Swerve s_Swerve = createSwerve();
@@ -65,7 +62,7 @@ public class RobotContainer {
     private final DrPepper s_DrPepper = new DrPepper(() -> s_MrPibb.getStateAsEnum());
     private final ClimbAvator s_ClimbAvator = new ClimbAvator();
     private final LED s_LED = new LED();
-    private final SuperSubsystem s_SuperSubsystem = new SuperSubsystem(s_ClimbAvator, s_MrPibb, s_DrPepper);
+    private final SuperSubsystem s_SuperSubsystem = new SuperSubsystem(s_ClimbAvator, s_MrPibb, s_DrPepper, s_LED, s_Vision.funeral());
 
     private double multiplier = 1;
 
@@ -107,11 +104,11 @@ public class RobotContainer {
         );
 
         /* Driver Buttons */
-        //coralTrack.whileTrue(rotateToCoral());
         translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
         slowDownTrigger.whileTrue(Commands.runOnce(() -> multiplier = 0.4)).whileFalse(Commands.runOnce(() -> multiplier = 1));
-        leftTrack.whileTrue(Commands.either(s_Swerve.pathFindAndFollowToAlgae().andThen(holdPosition()), s_Swerve.pathFindToClosest(false).andThen(holdPosition()), s_SuperSubsystem.isAlgae()));
-        rightTrack.whileTrue(Commands.either(s_Swerve.pathFindAndFollowToAlgae().andThen(holdPosition()), s_Swerve.pathFindToClosest(true).andThen(holdPosition()), s_SuperSubsystem.isAlgae()));
+        //coralTrack.whileTrue(rotateToCoral());
+        leftTrack.whileTrue(Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(holdPosition()), s_Swerve.pathFindToClosest(false).andThen(holdPosition()), s_SuperSubsystem.isAlgae()));
+        rightTrack.whileTrue(Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(holdPosition()), s_Swerve.pathFindToClosest(true).andThen(holdPosition()), s_SuperSubsystem.isAlgae()));
 
         /* Weird Button States */
         xboxController.a().onTrue(Commands.either(s_SuperSubsystem.l1State(), s_SuperSubsystem.processorState(), xboxController.back()));
@@ -121,7 +118,9 @@ public class RobotContainer {
 
         /* Intake States */
         xboxController.rightBumper().onTrue(s_SuperSubsystem.preStageState());
-        xboxController.leftTrigger(0.3).and(xboxController.rightTrigger(0.3).negate()).whileTrue(s_DrPepper.runUntilFullCoral()).onFalse(s_DrPepper.stopLoader().andThen(s_DrPepper.stopThumb()));
+        xboxController.leftTrigger(0.3).and(xboxController.rightTrigger(0.3).negate()).whileTrue(Commands.either(s_DrPepper.runLoader(), s_DrPepper.runUntilFullCoral(),                                                                                            
+                                                                                                                                    () -> s_MrPibb.getStateAsEnum().equals(MrPibbStates.BARGE) || s_MrPibb.getStateAsEnum().equals(MrPibbStates.PROCESSOR)))
+                                                                                                                                    .onFalse(s_DrPepper.stopLoader().andThen(s_DrPepper.stopThumb()));
         xboxController.leftBumper().onTrue(Commands.either(s_DrPepper.runLoaderReverseTrough(), s_DrPepper.runLoaderReverse(), () -> s_MrPibb.getState().equals(MrPibbStates.L1.name()))).onFalse(s_DrPepper.runUntilFullAlgae());
         xboxController.rightTrigger(0.3).and(xboxController.leftTrigger(0.3).negate()).onTrue(s_DrPepper.runThumbForward().andThen(s_DrPepper.runLoaderSlowly())).onFalse(s_DrPepper.stopThumb().andThen(s_DrPepper.stopLoader()));
         xboxController.povLeft().onTrue(s_SuperSubsystem.groundCoralState());
@@ -136,11 +135,6 @@ public class RobotContainer {
         /* Algae States */
         xboxController.rightStick().onTrue(s_SuperSubsystem.lowerAlgaeState());
         xboxController.leftStick().onTrue(s_SuperSubsystem.upperAlgaeState());
-
-        /* LEDs */
-        botFullAlgaeLEDTrigger.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.ALGAE_FULL), s_LED).ignoringDisable(true));
-        botFullCoralLEDTrigger.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.CORAL_FULL), s_LED).ignoringDisable(true));
-        botEmptyLEDTrigger.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED).ignoringDisable(true));
 
         s_Swerve.registerTelemetry(logger::telemeterize);
     }
@@ -159,9 +153,6 @@ public class RobotContainer {
         autoChooser.addOption("L4 Left CAC DS", new PathPlannerAuto("L4 Right CAC DS", true));
         Shuffleboard.getTab("Auto").add(autoChooser).withPosition(0, 0).withSize(2, 1);
         slowDownTrigger = new Trigger(() -> s_ClimbAvator.getState().equals(ClimbAvatorStates.L4) || s_ClimbAvator.getState().equals(ClimbAvatorStates.BARGE));
-        botFullAlgaeLEDTrigger = new Trigger(s_SuperSubsystem.botFullAlgae());
-        botFullCoralLEDTrigger = new Trigger(s_SuperSubsystem.botFullCoral());
-        botEmptyLEDTrigger = new Trigger(() -> !s_DrPepper.botFullCoral().getAsBoolean() && !s_DrPepper.botFullAlgae().getAsBoolean());
 
         align.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
         align.HeadingController.setTolerance(0.1);
@@ -215,7 +206,7 @@ public class RobotContainer {
                 align.withVelocityX(translationController.getRawAxis(translationAxis) * multiplier * Constants.Swerve.MAX_SPEED)
                     .withVelocityY(0) 
                     .withTargetDirection(s_Swerve.getRotationTarget())
-            );
+            ).alongWith(Commands.either(Commands.runOnce(() -> s_LED.setState(LEDStates.CORAL_ALIGN_TOO_FAR)), Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY)), s_Vision.coralAlignTooFar()));
     }
 
     public Command snapGyro() {
