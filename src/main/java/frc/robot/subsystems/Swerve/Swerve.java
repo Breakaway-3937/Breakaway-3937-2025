@@ -40,6 +40,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import static edu.wpi.first.wpilibj2.command.Commands.either;
 
 import frc.robot.generated.PracticeTunerConstants.TunerSwerveDrivetrain;
+import frc.robot.subsystems.ClimbAvator.ClimbAvatorStates;
 
 public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private static final double simLoopPeriod = 0.005; // 5 ms
@@ -249,44 +250,50 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             });
     }
 
-    public Command pathFindAndFollowToAlgae() {
+    public Command pathFindAndFollowToAlgae(Supplier<ClimbAvatorStates> state) {
         return defer(() -> {
             try {
                 Logger.recordOutput("Swerve/Algae Align", true);
-                var target = findNearestTarget(false);
-                if(target.get() != null) {
-                    PathPlannerPath location = target.get();
+                if(!state.get().equals(ClimbAvatorStates.PROCESSOR)) {
+                    var target = findNearestTarget(false);
+                    if(target.get() != null) {
+                        PathPlannerPath location = target.get();
 
-                    switch (target.get().name) {
-                        case "A", "B":
-                            location = AlgaeAutoPathLocations.ALGAE_AB.getPath();
-                            break;
-                        case "C", "D":
-                            location = AlgaeAutoPathLocations.ALGAE_CD.getPath();
-                            break;
-                        case "E", "F":
-                            location = AlgaeAutoPathLocations.ALGAE_EF.getPath();
-                            break;
-                        case "G", "H":
-                            location = AlgaeAutoPathLocations.ALGAE_GH.getPath();
-                            break;
-                        case "I", "J":
-                            location = AlgaeAutoPathLocations.ALGAE_IJ.getPath();
-                            break;
-                        case "K", "L":
-                            location = AlgaeAutoPathLocations.ALGAE_KL.getPath();
-                            break;
-                        default:
-                            location = target.get();
-                            break;
+                        switch (target.get().name) {
+                            case "A", "B":
+                                location = AlgaeAutoPathLocations.ALGAE_AB.getPath();
+                                break;
+                            case "C", "D":
+                                location = AlgaeAutoPathLocations.ALGAE_CD.getPath();
+                                break;
+                            case "E", "F":
+                                location = AlgaeAutoPathLocations.ALGAE_EF.getPath();
+                                break;
+                            case "G", "H":
+                                location = AlgaeAutoPathLocations.ALGAE_GH.getPath();
+                                break;
+                            case "I", "J":
+                                location = AlgaeAutoPathLocations.ALGAE_IJ.getPath();
+                                break;
+                            case "K", "L":
+                                location = AlgaeAutoPathLocations.ALGAE_KL.getPath();
+                                break;
+                            default:
+                                location = target.get();
+                                break;
+                        }
+
+                        PathPlannerPath finalLocation = location;
+                        Logger.recordOutput("Swerve/Final Auto Align Path", finalLocation.name);
+                        return defer(() -> AutoBuilder.pathfindThenFollowPath(finalLocation, constraints));
                     }
-
-                    PathPlannerPath finalLocation = location;
-                    Logger.recordOutput("Swerve/Final Auto Align Path", finalLocation.name);
-                    return defer(() -> AutoBuilder.pathfindThenFollowPath(finalLocation, constraints));
+                    else {
+                        return Commands.none();
+                    }
                 }
                 else {
-                    return Commands.none();
+                    Logger.recordOutput("Swerve/Final Auto Align Path", AlgaeAutoPathLocations.PROCESSOR.getPath().name);
+                    return defer(() -> AutoBuilder.pathfindThenFollowPath(AlgaeAutoPathLocations.PROCESSOR.getPath(), constraints));
                 }
             }
             catch(Exception e) {
