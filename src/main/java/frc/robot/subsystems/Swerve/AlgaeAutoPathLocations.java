@@ -10,7 +10,8 @@ public enum AlgaeAutoPathLocations {
     ALGAE_EF(breakaParse("ALGAE EF")),
     ALGAE_GH(breakaParse("ALGAE GH")),
     ALGAE_IJ(breakaParse("ALGAE IJ")),
-    ALGAE_KL(breakaParse("ALGAE KL"));
+    ALGAE_KL(breakaParse("ALGAE KL")),
+    PROCESSOR(breakaParse("PROCESSOR"));
 
     private final PathPlannerPath path;
 
