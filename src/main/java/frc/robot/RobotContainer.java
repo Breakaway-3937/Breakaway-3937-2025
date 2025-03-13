@@ -13,6 +13,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -107,8 +108,8 @@ public class RobotContainer {
         translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
         slowDownTrigger.whileTrue(Commands.runOnce(() -> multiplier = 0.4)).whileFalse(Commands.runOnce(() -> multiplier = 1));
         //coralTrack.whileTrue(rotateToCoral());
-        leftTrack.whileTrue(Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(holdPosition()), s_Swerve.pathFindToClosest(false).andThen(holdPosition()), s_SuperSubsystem.isAlgae())).onFalse(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED));
-        rightTrack.whileTrue(Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(holdPosition()), s_Swerve.pathFindToClosest(true).andThen(holdPosition()), s_SuperSubsystem.isAlgae())).onFalse(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED));
+        leftTrack.whileTrue(Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(holdPosition()), s_Swerve.pathFindToClosest(false).andThen(holdPosition()), s_SuperSubsystem.isAlgae()).alongWith(setRumble(RumbleType.kLeftRumble, 1))).onFalse(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED).alongWith(setRumble(RumbleType.kBothRumble, 0)));
+        rightTrack.whileTrue(Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(holdPosition()), s_Swerve.pathFindToClosest(true).andThen(holdPosition()), s_SuperSubsystem.isAlgae()).alongWith(setRumble(RumbleType.kRightRumble, 1))).onFalse(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED).alongWith(setRumble(RumbleType.kBothRumble, 0)));
 
         /* Weird Button States */
         xboxController.a().onTrue(Commands.either(s_SuperSubsystem.l1State(), s_SuperSubsystem.processorState(), xboxController.back()));
@@ -119,10 +120,10 @@ public class RobotContainer {
         /* Intake States */
         xboxController.rightBumper().onTrue(s_SuperSubsystem.preStageState());
         xboxController.leftTrigger(0.3).and(xboxController.rightTrigger(0.3).negate()).whileTrue(Commands.either(s_DrPepper.runLoader(), s_DrPepper.runUntilFullCoral(),                                                                                            
-                                                                                                                                    () -> s_MrPibb.getStateAsEnum().equals(MrPibbStates.BARGE) || s_MrPibb.getStateAsEnum().equals(MrPibbStates.PROCESSOR)))
-                                                                                                                                    .onFalse(s_DrPepper.stopLoader().andThen(s_DrPepper.stopThumb()));
+                                                                                                                                    () -> s_MrPibb.getStateAsEnum().equals(MrPibbStates.BARGE) || s_MrPibb.getStateAsEnum().equals(MrPibbStates.PROCESSOR)).alongWith(setRumble(RumbleType.kBothRumble, 1)))
+                                                                                                                                    .onFalse(s_DrPepper.stopLoader().andThen(s_DrPepper.stopThumb()).alongWith(setRumble(RumbleType.kBothRumble, 0)));
         xboxController.leftBumper().onTrue(Commands.either(s_DrPepper.runLoaderReverseTrough(), s_DrPepper.runLoaderReverse(), () -> s_MrPibb.getState().equals(MrPibbStates.L1.name()))).onFalse(s_DrPepper.runUntilFullAlgae());
-        xboxController.rightTrigger(0.3).and(xboxController.leftTrigger(0.3).negate()).onTrue(s_DrPepper.runThumbForward().andThen(s_DrPepper.runLoaderSlowly())).onFalse(s_DrPepper.stopThumb().andThen(s_DrPepper.stopLoader()));
+        xboxController.rightTrigger(0.3).and(xboxController.leftTrigger(0.3).negate()).onTrue(s_DrPepper.runThumbForward().andThen(s_DrPepper.runLoaderSlowly()).alongWith(setRumble(RumbleType.kBothRumble, 1))).onFalse(s_DrPepper.stopThumb().andThen(s_DrPepper.stopLoader()).alongWith(setRumble(RumbleType.kBothRumble, 0)));
         xboxController.povLeft().onTrue(s_SuperSubsystem.groundCoralState());
         xboxController.povRight().onTrue(s_SuperSubsystem.groundAlgaeState());
         
@@ -191,6 +192,10 @@ public class RobotContainer {
 
     public Command getInitialProtectCommand() {
         return s_SuperSubsystem.protectState();
+    }
+
+    public Command setRumble(RumbleType type, double percent) {
+        return Commands.runOnce(() -> xboxController.setRumble(type, percent));
     }
 
     public Command rotateToCoral() {
