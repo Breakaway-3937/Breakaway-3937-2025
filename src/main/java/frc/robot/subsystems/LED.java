@@ -8,6 +8,7 @@ import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.CANdleConfiguration;
+import com.ctre.phoenix.led.ColorFlowAnimation;
 import com.ctre.phoenix.led.FireAnimation;
 import com.ctre.phoenix.led.LarsonAnimation;
 import com.ctre.phoenix.led.SingleFadeAnimation;
@@ -28,15 +29,17 @@ public class LED extends SubsystemBase {
   private final CANdle candle;
   private final CANdleConfiguration config;
   private final GenericEntry ledStateEntry;
-  private LEDStates ledState = LEDStates.BOT_EMPTY;
+  private LEDStates ledState = LEDStates.DISABLED;
   private final Timer timer;
   private boolean flag, flag1;
 
-  private final FireAnimation fire = new FireAnimation(1, 0.1, Constants.NUM_LEDS, 0.1, 0.1, false, 0);
-  private final LarsonAnimation pocket = new LarsonAnimation(255, 0, 0, 0, 0.1, Constants.NUM_LEDS, LarsonAnimation.BounceMode.Center, 1);
-  private final TwinkleOffAnimation twinkle = new TwinkleOffAnimation(0, 255, 0, 0, 0.1, Constants.NUM_LEDS, TwinkleOffPercent.Percent100, 0);
-  private final SingleFadeAnimation fade = new SingleFadeAnimation(0, 0, 0, 0, 1, Constants.NUM_LEDS, 0);
-  private final StrobeAnimation strobe = new StrobeAnimation(0, 0, 0, 0, 0.5, Constants.NUM_LEDS, 0);
+  private final ColorFlowAnimation flow = new ColorFlowAnimation(0, 0, 0, 0, 0.1, Constants.NUM_LEDS, ColorFlowAnimation.Direction.Forward, 8);
+  private final FireAnimation fire = new FireAnimation(1, 0.1, Constants.NUM_LEDS, 0.1, 0.1, false, 8);
+  private final LarsonAnimation pocket = new LarsonAnimation(0, 255, 0, 0, 0.1, Constants.NUM_LEDS, LarsonAnimation.BounceMode.Center, 1);
+  private final TwinkleOffAnimation twinkle = new TwinkleOffAnimation(255, 0, 0, 0, 0.1, Constants.NUM_LEDS, TwinkleOffPercent.Percent100, 8);
+  private final SingleFadeAnimation fade = new SingleFadeAnimation(0, 0, 0, 0, 1, Constants.NUM_LEDS, 8);
+  private final StrobeAnimation strobe = new StrobeAnimation(0, 0, 0, 0, 0.5, Constants.NUM_LEDS, 8);
+  private final LarsonAnimation bad = new LarsonAnimation(83, 179, 97, 0, 0.1, Constants.NUM_LEDS, LarsonAnimation.BounceMode.Center, 1, 8);
 
   /** Creates a new LED.*/
   public LED() {
@@ -65,9 +68,13 @@ public class LED extends SubsystemBase {
 
   public enum LEDStates {
     DISABLED,
+    AUTONOMOUS,
+    CLIMBED,
+    FUNERAL,
     ALGAE_FULL,
     CORAL_FULL,
-    BOT_EMPTY
+    BOT_EMPTY,
+    CORAL_ALIGN_TOO_FAR
   }
 
   public void setState(LEDStates ledState) {
@@ -118,6 +125,24 @@ public class LED extends SubsystemBase {
           pocket.setB((int) (Math.random() * 255));
         }
         break;
+      case AUTONOMOUS:
+        if(DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get().equals(DriverStation.Alliance.Blue)) {
+          flow.setG(0);
+          flow.setB(254);
+        }
+        else {
+          flow.setG(255);
+          flow.setB(0);
+        }
+        candle.animate(flow);
+        break;
+      case CLIMBED:
+        candle.clearAnimation(0);
+        candle.setLEDs(255, 0, 0, 0, 8, Constants.NUM_LEDS);
+        break;
+      case FUNERAL:
+        candle.animate(bad);
+        break;
       case ALGAE_FULL:
         if(!flag) {
           timer.reset();
@@ -166,7 +191,30 @@ public class LED extends SubsystemBase {
         break;
       case BOT_EMPTY:
         candle.clearAnimation(0);
-        candle.setLEDs(0, 255, 0, 0, 8, Constants.NUM_LEDS - 8);
+        candle.setLEDs(0, 255, 0, 0, 8, Constants.NUM_LEDS);
+        break;
+      case CORAL_ALIGN_TOO_FAR:
+        if(!flag) {
+          timer.reset();
+          timer.start();
+          flag = true;
+          flag1 = false;
+          strobe.setR(0);
+          strobe.setG(255);
+          strobe.setB(0);
+          fade.setR(0);
+          fade.setG(255);
+          fade.setB(0);
+        }
+        else if(timer.get() > 3) {
+          flag1 = true;
+        }
+        if(!flag1) {
+          candle.animate(strobe);
+        }
+        else {
+          candle.animate(fade);
+        }
         break;
     }
   }

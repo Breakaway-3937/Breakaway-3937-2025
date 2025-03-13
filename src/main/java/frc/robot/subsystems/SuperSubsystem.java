@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.lib.Conversions;
 import frc.robot.subsystems.ClimbAvator.ClimbAvator;
 import frc.robot.subsystems.ClimbAvator.ClimbAvatorStates;
+import frc.robot.subsystems.LED.LEDStates;
 import frc.robot.subsystems.Soda.DrPepper;
 import frc.robot.subsystems.Soda.MrPibb;
 import frc.robot.subsystems.Soda.MrPibbStates;
@@ -21,12 +22,16 @@ public class SuperSubsystem extends SubsystemBase {
   private final ClimbAvator s_ClimbAvator;
   private final MrPibb s_MrPibb;
   private final DrPepper s_DrPepper;
+  private final LED s_LED;
+  private final BooleanSupplier funeral;
 
   /** Creates a new SuperSubsystem. */
-  public SuperSubsystem(ClimbAvator s_ClimbAvator, MrPibb s_MrPibb, DrPepper s_DrPepper) {
+  public SuperSubsystem(ClimbAvator s_ClimbAvator, MrPibb s_MrPibb, DrPepper s_DrPepper, LED s_LED, BooleanSupplier funeral) {
     this.s_ClimbAvator = s_ClimbAvator; 
     this.s_MrPibb = s_MrPibb;
     this.s_DrPepper = s_DrPepper;
+    this.s_LED = s_LED;
+    this.funeral = funeral;
   }
 
   public Command saveMrPibb() {
@@ -151,7 +156,8 @@ public class SuperSubsystem extends SubsystemBase {
                .andThen(s_MrPibb.setTurret()).andThen(s_MrPibb.waitUntilTurretSafe())
                .andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.waitUntilWristSafe()),
                Commands.none(),
-               () -> s_ClimbAvator.getState().equals(ClimbAvatorStates.CLIMB));
+               () -> s_ClimbAvator.getState().equals(ClimbAvatorStates.CLIMB))
+               .andThen(Commands.runOnce(() -> s_LED.setState(LEDStates.CLIMBED)));
   }
 
   public Command protectState() {
@@ -169,7 +175,7 @@ public class SuperSubsystem extends SubsystemBase {
   }
 
   public BooleanSupplier isAlgae() {
-    return () -> getClimbAvatorState().equals(ClimbAvatorStates.LOWER_ALGAE) || getClimbAvatorState().equals(ClimbAvatorStates.UPPER_ALGAE);
+    return () -> getClimbAvatorState().equals(ClimbAvatorStates.LOWER_ALGAE) || getClimbAvatorState().equals(ClimbAvatorStates.UPPER_ALGAE) || getClimbAvatorState().equals(ClimbAvatorStates.PROCESSOR);
   }
 
   public Command hitReef(Command hit, Command stop) {
@@ -214,5 +220,21 @@ public class SuperSubsystem extends SubsystemBase {
 
   public MrPibbStates getMrPibbState() {
     return s_MrPibb.getStateAsEnum();
+  }
+
+  @Override
+  public void periodic() {
+    // This method will be called once per scheduler run
+    if(!funeral.getAsBoolean() && !s_LED.getState().equals(LEDStates.CORAL_ALIGN_TOO_FAR)) {
+      if(botFullAlgae().getAsBoolean()) {
+        s_LED.setState(LEDStates.ALGAE_FULL);
+      }
+      else if(botFullCoral().getAsBoolean()) {
+        s_LED.setState(LEDStates.CORAL_FULL);
+      }
+      else {
+        s_LED.setState(LEDStates.BOT_EMPTY);
+      }
+    }
   }
 }

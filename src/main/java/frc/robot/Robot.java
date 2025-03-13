@@ -85,6 +85,10 @@ public class Robot extends LoggedRobot {
     if(DriverStation.isAutonomousEnabled()){
       auto = true;
     }
+
+    if(robotContainer.getVisionSystem().funeral().getAsBoolean()) {
+      robotContainer.getLEDSystem().setState(LEDStates.FUNERAL);
+    }
   }
 
   @Override
@@ -96,7 +100,9 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void disabledPeriodic() {
-    //robotContainer.getLEDSystem().setState(LEDStates.DISABLED);
+    if(!robotContainer.getVisionSystem().funeral().getAsBoolean()) {
+      robotContainer.getLEDSystem().setState(LEDStates.DISABLED);
+    }
   }
 
   @Override
@@ -113,7 +119,11 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    if(!robotContainer.getVisionSystem().funeral().getAsBoolean()) {
+      robotContainer.getLEDSystem().setState(LEDStates.AUTONOMOUS);
+    }
+  }
 
   @Override
   public void teleopInit() {
