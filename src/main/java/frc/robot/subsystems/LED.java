@@ -73,8 +73,7 @@ public class LED extends SubsystemBase {
     FUNERAL,
     ALGAE_FULL,
     CORAL_FULL,
-    BOT_EMPTY,
-    CORAL_ALIGN_TOO_FAR
+    BOT_EMPTY
   }
 
   public void setState(LEDStates ledState) {
@@ -192,29 +191,6 @@ public class LED extends SubsystemBase {
       case BOT_EMPTY:
         candle.clearAnimation(0);
         candle.setLEDs(0, 255, 0, 0, 8, Constants.NUM_LEDS);
-        break;
-      case CORAL_ALIGN_TOO_FAR:
-        if(!flag) {
-          timer.reset();
-          timer.start();
-          flag = true;
-          flag1 = false;
-          strobe.setR(0);
-          strobe.setG(255);
-          strobe.setB(0);
-          fade.setR(0);
-          fade.setG(255);
-          fade.setB(0);
-        }
-        else if(timer.get() > 3) {
-          flag1 = true;
-        }
-        if(!flag1) {
-          candle.animate(strobe);
-        }
-        else {
-          candle.animate(fade);
-        }
         break;
     }
   }

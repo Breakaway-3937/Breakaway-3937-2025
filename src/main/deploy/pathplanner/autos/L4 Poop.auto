@@ -5,9 +5,22 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Poop #1"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "MakeCoachTHappy"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Poop #1"
+                }
+              }
+            ]
           }
         },
         {

@@ -59,6 +59,7 @@ public final class Constants {
             public static final int THUMB_CAN_ID = 2; 
             public static final int SHERLOCK_CAN_ID = 28;
             public static final int WATSON_CAN_ID = 29;
+            public static final int MYCROFT_CAN_ID = 30;
         }
 
         public static final class MrPibb {

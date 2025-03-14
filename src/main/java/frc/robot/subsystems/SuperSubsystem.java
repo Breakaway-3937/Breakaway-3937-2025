@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import java.util.function.BooleanSupplier;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
@@ -73,9 +74,16 @@ public class SuperSubsystem extends SubsystemBase {
   }
 
   public Command groundCoralState() {
-    return saveMrPibb().andThen(runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.GROUND_CORAL)))
+    return Commands.either(saveMrPibb().andThen(runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.GROUND_CORAL)))
                 .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.GROUND_CORAL)))
-                .andThen(runSubsystems());
+                .andThen(runSubsystems()),
+                runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.GROUND_CORAL))
+                .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.GROUND_CORAL)))
+                .andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.setTurret())
+                .andThen(s_ClimbAvator.setElevator()).andThen(s_ClimbAvator.setShoulder())
+                .andThen(s_MrPibb.waitUntilWristSafe()).andThen(s_MrPibb.waitUntilTurretSafe())
+                .andThen(s_ClimbAvator.waitUntilElevatorSafe()).andThen(s_ClimbAvator.waitUntilShoulderSafe()),
+                () -> !s_ClimbAvator.getState().equals(ClimbAvatorStates.CORAL_PRESTAGE) && !s_ClimbAvator.getState().equals(ClimbAvatorStates.L1));
   }
 
   public Command groundAlgaeState() {
@@ -186,16 +194,24 @@ public class SuperSubsystem extends SubsystemBase {
     return new ParallelDeadlineGroup(Commands.waitSeconds(0.25), unhit).andThen(Commands.waitSeconds(0.01).raceWith(stop)).andThen(() -> stop.cancel());
   }
 
-  public Command scoreCoral(Command hit, Command unhit, Command stop, Command stopAgain) {
+  public Command scoreCoral(Command hit, Command stop) {
     return hitReef(hit, stop).andThen(l4State()).andThen(s_DrPepper.runThumbForward()).andThen(s_DrPepper.runLoaderSlowly()).andThen(Commands.waitSeconds(0.5).andThen(s_DrPepper.stopThumb()).andThen(s_DrPepper.stopLoader()));
   }
   
-  public Command scoreCoralL1(Command hit, Command unhit, Command stop, Command stopAgain) {
+  public Command scoreCoralL1(Command hit, Command stop) {
     return hitReef(hit, stop).andThen(l1State()).andThen(s_DrPepper.runLoaderReverseTrough()).andThen(Commands.waitSeconds(0.5).andThen(s_DrPepper.stopLoader()));
   }
 
   public Command load() {
-    return s_DrPepper.runUntilFullCoral();
+    return s_DrPepper.runLoader().andThen(Commands.waitUntil(botFullCoral()));
+  }
+
+  public Command center() {
+    return s_DrPepper.runLoaderSlowly()
+                      .andThen(Commands.either(s_DrPepper.runThumbBackwardSlowly().andThen(Commands.waitUntil(() -> !s_DrPepper.sherlockDetected().getAsBoolean()))
+                      .andThen(s_DrPepper.stopThumb()), s_DrPepper.runThumbForwardSlowly().andThen(Commands.waitUntil(() -> s_DrPepper.sherlockDetected().getAsBoolean()))
+                      .andThen(s_DrPepper.stopThumb()), s_DrPepper.sherlockDetected()))
+                      .andThen(s_DrPepper.stopLoader());
   }
 
   public Command tushPush(Command hit, Command stop) {
@@ -225,14 +241,14 @@ public class SuperSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if(!funeral.getAsBoolean() && !s_LED.getState().equals(LEDStates.CORAL_ALIGN_TOO_FAR)) {
-      if(botFullAlgae().getAsBoolean()) {
+    if(DriverStation.isEnabled() && !funeral.getAsBoolean() && !s_ClimbAvator.getState().equals(ClimbAvatorStates.CLIMB_PULL)) {
+      if(botFullAlgae().getAsBoolean() && !s_LED.getState().equals(LEDStates.ALGAE_FULL)) {
         s_LED.setState(LEDStates.ALGAE_FULL);
       }
-      else if(botFullCoral().getAsBoolean()) {
+      else if(botFullCoral().getAsBoolean() && !s_LED.getState().equals(LEDStates.CORAL_FULL)) {
         s_LED.setState(LEDStates.CORAL_FULL);
       }
-      else {
+      else if(!botFullAlgae().getAsBoolean() && !botFullCoral().getAsBoolean()) {
         s_LED.setState(LEDStates.BOT_EMPTY);
       }
     }

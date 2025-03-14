@@ -5,7 +5,6 @@
 package frc.robot.subsystems.Soda;
 
 import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -30,21 +29,19 @@ import frc.robot.Constants;
 public class DrPepper extends SubsystemBase {
   private final TalonFX loader;
   private final TalonSRX thumb;
-  private final CANrange sherlock, watson;
+  private final CANrange sherlock, watson, mycroft;
   private final GenericEntry coralFull, algaeFull, robotFull;
-  private final Supplier<MrPibbStates> state;
 
   /** Creates a new DrPepper.
    *  @since Ankle is no longer with us.
    */
-  public DrPepper(Supplier<MrPibbStates> state) {
+  public DrPepper() {
     loader = new TalonFX(Constants.Soda.DrPepper.LOADER_CAN_ID);
     thumb = new TalonSRX(Constants.Soda.DrPepper.THUMB_CAN_ID);
     sherlock = new CANrange(Constants.Soda.DrPepper.SHERLOCK_CAN_ID);
-    watson = new CANrange(Constants.Soda.DrPepper.WATSON_CAN_ID);
+    watson = new CANrange(60);//Constants.Soda.DrPepper.WATSON_CAN_ID);
+    mycroft = new CANrange(Constants.Soda.DrPepper.WATSON_CAN_ID);//MYCROFT_CAN_ID);
     
-    this.state = state;
-
     configLoader();
     configThumb();
     configCANranges();
@@ -83,11 +80,11 @@ public class DrPepper extends SubsystemBase {
   }
 
   public Command runThumbForwardSlowly() {
-    return runOnce(() -> thumb.set(ControlMode.PercentOutput, 0.3));
+    return runOnce(() -> thumb.set(ControlMode.PercentOutput, 0.35));
   }
 
   public Command runThumbBackwardSlowly() {
-    return runOnce(() -> thumb.set(ControlMode.PercentOutput, -0.3));
+    return runOnce(() -> thumb.set(ControlMode.PercentOutput, -0.35));
   }
 
   public Command stopThumb() {
@@ -95,20 +92,21 @@ public class DrPepper extends SubsystemBase {
   }
 
   public Command runUntilFullCoral() {
-    return runLoader().andThen(Commands.either(Commands.waitSeconds(0.5), Commands.waitSeconds(1.5), () -> !state.get().equals(MrPibbStates.GROUND_CORAL)).andThen(Commands.waitUntil(intakeFull())).andThen(stopLoader())
-                      .andThen(runThumbBackwardSlowly()).andThen(Commands.waitUntil(() -> !botFullCoral().getAsBoolean()))
-                      .andThen(stopThumb()));
+    return runLoader().andThen(Commands.waitUntil(botFullCoral())).andThen(runLoaderSlowly())
+          .andThen(Commands.either(runThumbBackwardSlowly().andThen(Commands.waitUntil(() -> !sherlockDetected().getAsBoolean()))
+          .andThen(stopThumb()), runThumbForwardSlowly().andThen(Commands.waitUntil(() -> sherlockDetected().getAsBoolean()))
+          .andThen(stopThumb()), sherlockDetected())).andThen(stopLoader());
   }
 
   public Command runUntilFullAlgae() {
     return Commands.either(runLoaderReverseSlowly(), stopLoader(), botFullAlgae());
   }
 
-  public BooleanSupplier intakeFull() {
-    return () -> loader.getStatorCurrent().getValueAsDouble() > 40;
+  public BooleanSupplier botFullCoral() {
+    return () -> sherlock.getIsDetected().getValue() && sherlock.getDistance().getValueAsDouble() > 0.06 || mycroft.getIsDetected().getValue() && mycroft.getDistance().getValueAsDouble() > 0.06;
   }
 
-  public BooleanSupplier botFullCoral() {
+  public BooleanSupplier sherlockDetected() {
     return () -> sherlock.getIsDetected().getValue() && sherlock.getDistance().getValueAsDouble() > 0.06;
   }
 
@@ -155,15 +153,20 @@ public class DrPepper extends SubsystemBase {
   public void configCANranges() {
     sherlock.getConfigurator().apply(new CANrangeConfiguration());
     watson.getConfigurator().apply(new CANrangeConfiguration());
+    mycroft.getConfigurator().apply(new CANrangeConfiguration());
 
     CANrangeConfiguration config = new CANrangeConfiguration();
     config.ProximityParams.ProximityThreshold = 0.12;
 
     sherlock.getConfigurator().apply(config);
 
-    config.ProximityParams.ProximityThreshold = 0.25;
+    config.ProximityParams.ProximityThreshold = 0.13;
 
     watson.getConfigurator().apply(config);
+
+    config.ProximityParams.ProximityThreshold = 0.1;
+
+    mycroft.getConfigurator().apply(config);
   }
 
   @Override

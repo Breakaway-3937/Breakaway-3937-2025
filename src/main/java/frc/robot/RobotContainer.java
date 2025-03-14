@@ -60,7 +60,7 @@ public class RobotContainer {
     private final Swerve s_Swerve = createSwerve();
     private final Vision s_Vision = new Vision(s_Swerve);
     private final MrPibb s_MrPibb = new MrPibb();
-    private final DrPepper s_DrPepper = new DrPepper(() -> s_MrPibb.getStateAsEnum());
+    private final DrPepper s_DrPepper = new DrPepper();
     private final ClimbAvator s_ClimbAvator = new ClimbAvator();
     private final LED s_LED = new LED();
     private final SuperSubsystem s_SuperSubsystem = new SuperSubsystem(s_ClimbAvator, s_MrPibb, s_DrPepper, s_LED, s_Vision.funeral());
@@ -82,13 +82,6 @@ public class RobotContainer {
             .withMaxAbsRotationalRate(Constants.Swerve.MAX_ANGULAR_RATE)
             .withHeadingPID(4.5, 0, 0);
 
-    private final SwerveRequest.FieldCentricFacingAngle snap = new SwerveRequest.FieldCentricFacingAngle()
-        .withDeadband(Constants.Swerve.MAX_SPEED * Constants.Controllers.STICK_DEADBAND)
-        .withRotationalDeadband(Constants.Swerve.MAX_ANGULAR_RATE * Constants.Controllers.STICK_DEADBAND)
-        .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-        .withMaxAbsRotationalRate(Constants.Swerve.MAX_ANGULAR_RATE)
-        .withHeadingPID(4.5, 0, 0);
-
     /* Telemetry */
     private final Telemetry logger = new Telemetry(Constants.Swerve.MAX_SPEED);
 
@@ -108,8 +101,8 @@ public class RobotContainer {
         translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
         slowDownTrigger.whileTrue(Commands.runOnce(() -> multiplier = 0.4)).whileFalse(Commands.runOnce(() -> multiplier = 1));
         //coralTrack.whileTrue(rotateToCoral());
-        leftTrack.whileTrue(Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(holdPosition()), s_Swerve.pathFindToClosest(false).andThen(holdPosition()), s_SuperSubsystem.isAlgae()).alongWith(setRumble(RumbleType.kLeftRumble, 1))).onFalse(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED).alongWith(setRumble(RumbleType.kBothRumble, 0)));
-        rightTrack.whileTrue(Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(holdPosition()), s_Swerve.pathFindToClosest(true).andThen(holdPosition()), s_SuperSubsystem.isAlgae()).alongWith(setRumble(RumbleType.kRightRumble, 1))).onFalse(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED).alongWith(setRumble(RumbleType.kBothRumble, 0)));
+        leftTrack.whileTrue(Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(s_Swerve.hitReef()), s_Swerve.pathFindToClosest(false).andThen(s_Swerve.hitReef()), s_SuperSubsystem.isAlgae()).alongWith(setRumble(RumbleType.kLeftRumble, 1))).onFalse(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED).alongWith(setRumble(RumbleType.kBothRumble, 0)));
+        rightTrack.whileTrue(Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(s_Swerve.hitReef()), s_Swerve.pathFindToClosest(true).andThen(s_Swerve.hitReef()), s_SuperSubsystem.isAlgae()).alongWith(setRumble(RumbleType.kRightRumble, 1))).onFalse(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED).alongWith(setRumble(RumbleType.kBothRumble, 0)));
 
         /* Weird Button States */
         xboxController.a().onTrue(Commands.either(s_SuperSubsystem.l1State(), s_SuperSubsystem.processorState(), xboxController.back()));
@@ -142,16 +135,17 @@ public class RobotContainer {
 
     public RobotContainer() {
         s_Swerve.makePoseList();
-        NamedCommands.registerCommand("ScoreCoral", s_SuperSubsystem.scoreCoral(s_Swerve.hitReef(), s_Swerve.unhitReef(), s_Swerve.stop(), s_Swerve.stop()));
-        NamedCommands.registerCommand("ScoreCoralL1", s_SuperSubsystem.scoreCoralL1(s_Swerve.hitReef(), s_Swerve.unhitReef(), s_Swerve.stop(), s_Swerve.stop()));
+        NamedCommands.registerCommand("ScoreCoral", s_SuperSubsystem.scoreCoral(s_Swerve.hitReef(), s_Swerve.stop()));
+        NamedCommands.registerCommand("ScoreCoralL1", s_SuperSubsystem.scoreCoralL1(s_Swerve.hitReef(), s_Swerve.stop()));
         NamedCommands.registerCommand("Load", s_SuperSubsystem.load());
+        NamedCommands.registerCommand("Center", s_SuperSubsystem.center());
         NamedCommands.registerCommand("Condense", s_SuperSubsystem.condenseAuto());
         NamedCommands.registerCommand("TushPush", s_SuperSubsystem.tushPush(s_Swerve.hitRobot(), s_Swerve.stop()));
+        NamedCommands.registerCommand("MakeCoachTHappy", getInitialPrestageCommand());
         autoChooser = AutoBuilder.buildAutoChooser();
         autoChooser.setDefaultOption("DO NOTHING", Commands.none());
         autoChooser.addOption("Tush Push L4 Left", new PathPlannerAuto("Tush Push L4 Right", true));
         autoChooser.addOption("L4 Left", new PathPlannerAuto("L4 Right", true));
-        autoChooser.addOption("L4 Left CAC DS", new PathPlannerAuto("L4 Right CAC DS", true));
         Shuffleboard.getTab("Auto").add(autoChooser).withPosition(0, 0).withSize(2, 1);
         slowDownTrigger = new Trigger(() -> s_ClimbAvator.getState().equals(ClimbAvatorStates.L4) || s_ClimbAvator.getState().equals(ClimbAvatorStates.BARGE));
 
@@ -204,22 +198,6 @@ public class RobotContainer {
                     .withVelocityY(translationController.getRawAxis(strafeAxis) * multiplier * Constants.Swerve.MAX_SPEED) 
                     .withRotationalRate(s_Vision.getCoralTargetSpeed())
             );
-    }
-
-    public Command holdPosition() {
-        return s_Swerve.applyRequest(() ->
-                align.withVelocityX(translationController.getRawAxis(translationAxis) * multiplier * Constants.Swerve.MAX_SPEED)
-                    .withVelocityY(0) 
-                    .withTargetDirection(s_Swerve.getRotationTarget())
-            ).alongWith(Commands.run(() -> Commands.either(Commands.runOnce(() -> s_LED.setState(LEDStates.CORAL_ALIGN_TOO_FAR)), Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY)), s_Vision.coralAlignTooFar()), s_LED));
-    }
-
-    public Command snapGyro() {
-        return s_Swerve.applyRequest(() ->
-                snap.withVelocityX(translationController.getRawAxis(translationAxis) * multiplier * Constants.Swerve.MAX_SPEED)
-                    .withVelocityY(translationController.getRawAxis(strafeAxis) * multiplier * Constants.Swerve.MAX_SPEED) 
-                    .withTargetDirection(s_Swerve.getRotationTarget())
-            ); 
     }
 
     public Swerve createSwerve() {

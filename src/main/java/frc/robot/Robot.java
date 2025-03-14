@@ -109,8 +109,6 @@ public class Robot extends LoggedRobot {
   public void autonomousInit() {
     robotContainer.getClimbAvatorSystem().setShoulderBrakeMode();
 
-    robotContainer.getInitialPrestageCommand().schedule();
-
     autonomousCommand = robotContainer.getAutonomousCommand();
 
     if(autonomousCommand != null) {
