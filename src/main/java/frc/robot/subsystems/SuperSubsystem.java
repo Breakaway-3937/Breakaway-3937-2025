@@ -69,7 +69,7 @@ public class SuperSubsystem extends SubsystemBase {
 
   public Command preStageState() {
     return saveMrPibb().andThen(runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.CORAL_PRESTAGE)))
-               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.CORAL_PRESTAGE)))
+               .andThen(Commands.either(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.CORAL_PRESTAGE)), Commands.none(), () -> !s_DrPepper.botFullAlgae().getAsBoolean()))
                .andThen(runSubsystems());
   }
 
@@ -203,15 +203,14 @@ public class SuperSubsystem extends SubsystemBase {
   }
 
   public Command load() {
-    return s_DrPepper.runLoader().andThen(Commands.waitUntil(botFullCoral()));
+    return s_DrPepper.runLoader().andThen(s_DrPepper.runThumbForwardSlowly()).andThen(Commands.waitUntil(botFullCoral()));
   }
 
   public Command center() {
     return s_DrPepper.runLoaderSlowly()
-                      .andThen(Commands.either(s_DrPepper.runThumbBackwardSlowly().andThen(Commands.waitUntil(() -> !s_DrPepper.sherlockDetected().getAsBoolean()))
-                      .andThen(s_DrPepper.stopThumb()), s_DrPepper.runThumbForwardSlowly().andThen(Commands.waitUntil(() -> s_DrPepper.sherlockDetected().getAsBoolean()))
-                      .andThen(s_DrPepper.stopThumb()), s_DrPepper.sherlockDetected()))
-                      .andThen(s_DrPepper.stopLoader());
+                      .andThen(s_DrPepper.runThumbForwardSlowly()).andThen(Commands.waitUntil(s_DrPepper.botFullCoral()))
+                      .andThen(s_DrPepper.runThumbBackwardSlowly()).andThen(Commands.waitUntil(() -> !s_DrPepper.botFullCoral().getAsBoolean()))
+                      .andThen(s_DrPepper.stopLoader()).andThen(s_DrPepper.stopThumb());
   }
 
   public Command tushPush(Command hit, Command stop) {
