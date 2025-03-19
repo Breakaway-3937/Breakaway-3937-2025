@@ -36,6 +36,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 import static edu.wpi.first.wpilibj2.command.Commands.either;
 
@@ -313,6 +314,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     public Command hitRobot() {
         return applyRequest(() -> auto.withVelocityX(-1).withVelocityY(0));
+    }
+
+    public Command hitRobotTelop() {
+        return Commands.deadline(new WaitCommand(0.5), hitReef());
     }
 
     public Command stop() {

@@ -101,8 +101,8 @@ public class RobotContainer {
         translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
         slowDownTrigger.whileTrue(Commands.runOnce(() -> multiplier = 0.4)).whileFalse(Commands.runOnce(() -> multiplier = 1));
         //coralTrack.whileTrue(rotateToCoral());
-        leftTrack.whileTrue(Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(s_Swerve.hitReef()), s_Swerve.pathFindToClosest(false).andThen(s_Swerve.hitReef()), s_SuperSubsystem.isAlgae()).alongWith(setRumble(RumbleType.kLeftRumble, 1))).onFalse(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED).alongWith(setRumble(RumbleType.kBothRumble, 0)));
-        rightTrack.whileTrue(Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(s_Swerve.hitReef()), s_Swerve.pathFindToClosest(true).andThen(s_Swerve.hitReef()), s_SuperSubsystem.isAlgae()).alongWith(setRumble(RumbleType.kRightRumble, 1))).onFalse(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED).alongWith(setRumble(RumbleType.kBothRumble, 0)));
+        leftTrack.whileTrue(Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(s_Swerve.hitRobotTelop()).andThen(holdPosition()), s_Swerve.pathFindToClosest(false).andThen(s_Swerve.hitRobotTelop()).andThen(holdPosition()), s_SuperSubsystem.isAlgae()).alongWith(setRumble(RumbleType.kLeftRumble, 1))).onFalse(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED).alongWith(setRumble(RumbleType.kBothRumble, 0)));
+        rightTrack.whileTrue(Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(s_Swerve.hitRobotTelop()).andThen(holdPosition()), s_Swerve.pathFindToClosest(true).andThen(s_Swerve.hitRobotTelop()).andThen(holdPosition()), s_SuperSubsystem.isAlgae()).alongWith(setRumble(RumbleType.kRightRumble, 1))).onFalse(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED).alongWith(setRumble(RumbleType.kBothRumble, 0)));
 
         /* Weird Button States */
         xboxController.a().onTrue(Commands.either(s_SuperSubsystem.l1State(), s_SuperSubsystem.processorState(), xboxController.back()));
@@ -190,6 +190,14 @@ public class RobotContainer {
 
     public Command setRumble(RumbleType type, double percent) {
         return Commands.runOnce(() -> xboxController.setRumble(type, percent));
+    }
+
+    public Command holdPosition() {
+        return s_Swerve.applyRequest(() -> 
+                align.withVelocityX(translationController.getRawAxis(translationAxis) * multiplier * Constants.Swerve.MAX_SPEED)
+                    .withVelocityY(translationController.getRawAxis(strafeAxis) * multiplier * Constants.Swerve.MAX_SPEED)
+                    .withTargetDirection(s_Swerve.getRotationTarget())
+            );
     }
 
     public Command rotateToCoral() {
