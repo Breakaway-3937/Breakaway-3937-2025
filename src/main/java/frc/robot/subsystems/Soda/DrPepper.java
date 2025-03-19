@@ -15,7 +15,6 @@ import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.networktables.GenericEntry;
@@ -29,7 +28,7 @@ import frc.robot.Constants;
 public class DrPepper extends SubsystemBase {
   private final TalonFX loader;
   private final TalonSRX thumb;
-  private final CANrange sherlock, watson, mycroft;
+  private final CANrange sherlock, watson;
   private final GenericEntry coralFull, algaeFull, robotFull;
 
   /** Creates a new DrPepper.
@@ -39,8 +38,7 @@ public class DrPepper extends SubsystemBase {
     loader = new TalonFX(Constants.Soda.DrPepper.LOADER_CAN_ID);
     thumb = new TalonSRX(Constants.Soda.DrPepper.THUMB_CAN_ID);
     sherlock = new CANrange(Constants.Soda.DrPepper.SHERLOCK_CAN_ID);
-    watson = new CANrange(60);//Constants.Soda.DrPepper.WATSON_CAN_ID);
-    mycroft = new CANrange(Constants.Soda.DrPepper.WATSON_CAN_ID);//MYCROFT_CAN_ID);
+    watson = new CANrange(Constants.Soda.DrPepper.WATSON_CAN_ID);
     
     configLoader();
     configThumb();
@@ -68,7 +66,7 @@ public class DrPepper extends SubsystemBase {
   }
 
   public Command runLoaderReverseSlowly() {
-    return runOnce(() -> loader.set(-0.3));
+    return runOnce(() -> loader.set(-0.25));
   }
 
   public Command stopLoader() {
@@ -92,10 +90,9 @@ public class DrPepper extends SubsystemBase {
   }
 
   public Command runUntilFullCoral() {
-    return runLoader().andThen(Commands.waitUntil(botFullCoral())).andThen(runLoaderSlowly())
-          .andThen(Commands.either(runThumbBackwardSlowly().andThen(Commands.waitUntil(() -> !sherlockDetected().getAsBoolean()))
-          .andThen(stopThumb()), runThumbForwardSlowly().andThen(Commands.waitUntil(() -> sherlockDetected().getAsBoolean()))
-          .andThen(stopThumb()), sherlockDetected())).andThen(stopLoader());
+    return runLoader().andThen(runThumbForwardSlowly()).andThen(Commands.waitUntil(botFullCoral()))
+                      .andThen(runLoaderSlowly()).andThen(runThumbBackwardSlowly()).andThen(Commands.waitUntil(() -> !botFullCoral().getAsBoolean()))
+                      .andThen(stopLoader()).andThen(stopThumb());
   }
 
   public Command runUntilFullAlgae() {
@@ -103,15 +100,11 @@ public class DrPepper extends SubsystemBase {
   }
 
   public BooleanSupplier botFullCoral() {
-    return () -> sherlock.getIsDetected().getValue() && sherlock.getDistance().getValueAsDouble() > 0.06 || mycroft.getIsDetected().getValue() && mycroft.getDistance().getValueAsDouble() > 0.06;
-  }
-
-  public BooleanSupplier sherlockDetected() {
     return () -> sherlock.getIsDetected().getValue() && sherlock.getDistance().getValueAsDouble() > 0.06;
   }
 
   public BooleanSupplier botFullAlgae() {
-    return () -> watson.getIsDetected().getValue() && watson.getDistance().getValueAsDouble() > 0.06;
+    return () -> watson.getIsDetected().getValue();
   }
 
   public TalonFX getLoaderMotor() {
@@ -140,8 +133,6 @@ public class DrPepper extends SubsystemBase {
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-
     config.CurrentLimits.SupplyCurrentLimit = 80;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLowerLimit = 40;
@@ -153,20 +144,20 @@ public class DrPepper extends SubsystemBase {
   public void configCANranges() {
     sherlock.getConfigurator().apply(new CANrangeConfiguration());
     watson.getConfigurator().apply(new CANrangeConfiguration());
-    mycroft.getConfigurator().apply(new CANrangeConfiguration());
+    //mycroft.getConfigurator().apply(new CANrangeConfiguration());
 
     CANrangeConfiguration config = new CANrangeConfiguration();
     config.ProximityParams.ProximityThreshold = 0.12;
 
     sherlock.getConfigurator().apply(config);
 
-    config.ProximityParams.ProximityThreshold = 0.13;
+    config.ProximityParams.ProximityThreshold = 0.36;
 
     watson.getConfigurator().apply(config);
 
     config.ProximityParams.ProximityThreshold = 0.1;
 
-    mycroft.getConfigurator().apply(config);
+    //mycroft.getConfigurator().apply(config);
   }
 
   @Override
