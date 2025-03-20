@@ -316,7 +316,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return applyRequest(() -> auto.withVelocityX(-1).withVelocityY(0));
     }
 
-    public Command hitRobotTelop() {
+    public Command hitRobotTeleop() {
         return Commands.deadline(new WaitCommand(0.5), hitReef());
     }
 

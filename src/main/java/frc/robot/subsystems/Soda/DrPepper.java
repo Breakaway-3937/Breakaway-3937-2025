@@ -28,6 +28,7 @@ import frc.robot.Constants;
 public class DrPepper extends SubsystemBase {
   private final TalonFX loader;
   private final TalonSRX thumb;
+  private boolean flag; //Yay flag
   private final CANrange sherlock, watson;
   private final GenericEntry coralFull, algaeFull, robotFull;
 
@@ -47,6 +48,8 @@ public class DrPepper extends SubsystemBase {
     coralFull = Shuffleboard.getTab("Soda").add("Coral Full", botFullCoral().getAsBoolean()).withPosition(3, 0).getEntry();
     algaeFull = Shuffleboard.getTab("Soda").add("Algae Full", botFullAlgae().getAsBoolean()).withPosition(4, 0).getEntry();
     robotFull = Shuffleboard.getTab("Driver").add("Robot Full", botFullAlgae().getAsBoolean() || botFullCoral().getAsBoolean()).withPosition(0, 0).withSize(10, 4).getEntry();
+
+    flag = false;
   }
 
   public Command runLoader() {
@@ -99,8 +102,12 @@ public class DrPepper extends SubsystemBase {
     return Commands.either(runLoaderReverseSlowly(), stopLoader(), botFullAlgae());
   }
 
+  public Command noMoreCoral() {
+    return runOnce(() -> flag = false);
+  }
+
   public BooleanSupplier botFullCoral() {
-    return () -> sherlock.getIsDetected().getValue() && sherlock.getDistance().getValueAsDouble() > 0.06;
+    return () -> flag;
   }
 
   public BooleanSupplier botFullAlgae() {
@@ -174,6 +181,10 @@ public class DrPepper extends SubsystemBase {
 
     if(Constants.DEBUG) {
       SmartDashboard.putNumber("Loader %", loader.get());
+    }
+
+    if(!flag) {
+      flag = sherlock.getIsDetected().getValue() && sherlock.getDistance().getValueAsDouble() > 0.06;
     }
   }
 }
