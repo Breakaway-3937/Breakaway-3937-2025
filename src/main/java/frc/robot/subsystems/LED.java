@@ -9,12 +9,9 @@ import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.CANdleConfiguration;
 import com.ctre.phoenix.led.ColorFlowAnimation;
-import com.ctre.phoenix.led.FireAnimation;
 import com.ctre.phoenix.led.LarsonAnimation;
 import com.ctre.phoenix.led.SingleFadeAnimation;
 import com.ctre.phoenix.led.StrobeAnimation;
-import com.ctre.phoenix.led.TwinkleOffAnimation;
-import com.ctre.phoenix.led.TwinkleOffAnimation.TwinkleOffPercent;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.ctre.phoenix.led.CANdle.VBatOutputMode;
 
@@ -29,14 +26,11 @@ public class LED extends SubsystemBase {
   private final CANdle candle;
   private final CANdleConfiguration config;
   private final GenericEntry ledStateEntry;
-  private LEDStates ledState = LEDStates.DISABLED;
+  private LEDStates ledState = LEDStates.NOT_TELEOP;
   private final Timer timer;
   private boolean flag, flag1;
 
   private final ColorFlowAnimation flow = new ColorFlowAnimation(0, 0, 0, 0, 0.1, Constants.NUM_LEDS, ColorFlowAnimation.Direction.Forward, 8);
-  private final FireAnimation fire = new FireAnimation(1, 0.1, Constants.NUM_LEDS, 0.1, 0.1, false, 8);
-  private final LarsonAnimation pocket = new LarsonAnimation(0, 255, 0, 0, 0.1, Constants.NUM_LEDS, LarsonAnimation.BounceMode.Center, 1);
-  private final TwinkleOffAnimation twinkle = new TwinkleOffAnimation(255, 0, 0, 0, 0.1, Constants.NUM_LEDS, TwinkleOffPercent.Percent100, 8);
   private final SingleFadeAnimation fade = new SingleFadeAnimation(0, 0, 0, 0, 1, Constants.NUM_LEDS, 8);
   private final StrobeAnimation strobe = new StrobeAnimation(0, 0, 0, 0, 0.5, Constants.NUM_LEDS, 8);
   private final LarsonAnimation bad = new LarsonAnimation(83, 179, 97, 0, 0.1, Constants.NUM_LEDS, LarsonAnimation.BounceMode.Center, 1, 8);
@@ -67,8 +61,7 @@ public class LED extends SubsystemBase {
   }
 
   public enum LEDStates {
-    DISABLED,
-    AUTONOMOUS,
+    NOT_TELEOP,
     CLIMBED,
     FUNERAL,
     ALGAE_FULL,
@@ -103,28 +96,7 @@ public class LED extends SubsystemBase {
     }
 
     switch(ledState) {
-      case DISABLED:
-        if(timer.get() < 10) {
-          candle.animate(fire);
-        }
-        else if(timer.get() < 20) {
-          candle.animate(pocket);
-        }
-        else if(timer.get() < 30) {
-          candle.animate(twinkle);
-        }
-        else {
-          timer.reset();
-          timer.start();
-          twinkle.setR((int) (Math.random() * 255));
-          twinkle.setG((int) (Math.random() * 255));
-          twinkle.setB((int) (Math.random() * 255));
-          pocket.setR((int) (Math.random() * 255));
-          pocket.setG((int) (Math.random() * 255));
-          pocket.setB((int) (Math.random() * 255));
-        }
-        break;
-      case AUTONOMOUS:
+      case NOT_TELEOP:
         if(DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get().equals(DriverStation.Alliance.Blue)) {
           flow.setG(0);
           flow.setB(254);
