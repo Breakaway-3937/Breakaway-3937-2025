@@ -207,10 +207,10 @@ public class SuperSubsystem extends SubsystemBase {
   }
 
   public Command center() {
-    return s_DrPepper.runLoaderSlowly()
+    return /*s_DrPepper.runLoaderSlowly()
                       .andThen(s_DrPepper.runThumbForwardSlowly()).andThen(Commands.waitUntil(s_DrPepper.botFullCoral()))
                       .andThen(s_DrPepper.runThumbBackwardSlowly()).andThen(Commands.waitUntil(() -> !s_DrPepper.botFullCoral().getAsBoolean()))
-                      .andThen(s_DrPepper.stopLoader()).andThen(s_DrPepper.stopThumb());
+                      .andThen(*/s_DrPepper.stopLoader().andThen(s_DrPepper.stopThumb());
   }
 
   public Command tushPush(Command hit, Command stop) {
@@ -244,10 +244,10 @@ public class SuperSubsystem extends SubsystemBase {
       if(botFullAlgae().getAsBoolean() && !s_LED.getState().equals(LEDStates.ALGAE_FULL)) {
         s_LED.setState(LEDStates.ALGAE_FULL);
       }
-      else if(botFullCoral().getAsBoolean() && !s_LED.getState().equals(LEDStates.CORAL_FULL)) {
+      else if(s_DrPepper.botFullCoralForLEDs().getAsBoolean() && !s_LED.getState().equals(LEDStates.CORAL_FULL)) {
         s_LED.setState(LEDStates.CORAL_FULL);
       }
-      else if(!botFullAlgae().getAsBoolean() && !botFullCoral().getAsBoolean()) {
+      else if(!botFullAlgae().getAsBoolean() && !s_DrPepper.botFullCoralForLEDs().getAsBoolean()) {
         s_LED.setState(LEDStates.BOT_EMPTY);
       }
     }
