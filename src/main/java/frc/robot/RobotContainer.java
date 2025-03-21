@@ -12,6 +12,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -93,7 +94,7 @@ public class RobotContainer {
             s_Swerve.applyRequest(() ->
                 drive.withVelocityX(translationController.getRawAxis(translationAxis) * multiplier * Constants.Swerve.MAX_SPEED)
                     .withVelocityY(translationController.getRawAxis(strafeAxis) * multiplier * Constants.Swerve.MAX_SPEED) 
-                    .withRotationalRate(rotationController.getRawAxis(rotationAxis)  * Constants.Swerve.MAX_ANGULAR_RATE)
+                    .withRotationalRate(rotationController.getRawAxis(rotationAxis) * Constants.Swerve.MAX_ANGULAR_RATE)
             )
         );
 
@@ -147,7 +148,7 @@ public class RobotContainer {
         autoChooser.addOption("Tush Push L4 Left", new PathPlannerAuto("Tush Push L4 Right", true));
         autoChooser.addOption("L4 Left", new PathPlannerAuto("L4 Right", true));
         Shuffleboard.getTab("Auto").add(autoChooser).withPosition(0, 0).withSize(2, 1);
-        slowDownTrigger = new Trigger(() -> s_ClimbAvator.getState().equals(ClimbAvatorStates.L4) || s_ClimbAvator.getState().equals(ClimbAvatorStates.BARGE));
+        slowDownTrigger = new Trigger(() -> DriverStation.isTeleop() && (s_ClimbAvator.getState().equals(ClimbAvatorStates.L4) || s_ClimbAvator.getState().equals(ClimbAvatorStates.BARGE)));
 
         align.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
         align.HeadingController.setTolerance(0.1);
