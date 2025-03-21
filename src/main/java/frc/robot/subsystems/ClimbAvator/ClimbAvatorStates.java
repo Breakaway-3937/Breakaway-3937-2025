@@ -10,7 +10,7 @@ public enum ClimbAvatorStates {
     GROUND_ALGAE(7.6, 9.7),
     PROCESSOR(0.25, 19),
     BARGE(73.5, 50),
-    CLIMB(12.5, 47),
+    CLIMB(12.5, 51.3),
     STATION(0.25, 48.5),
     L1(0.25, 22),
     L2(6, 33.2),
