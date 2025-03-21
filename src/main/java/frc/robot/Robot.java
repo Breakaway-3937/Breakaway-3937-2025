@@ -101,7 +101,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledPeriodic() {
     if(!robotContainer.getVisionSystem().funeral().getAsBoolean()) {
-      robotContainer.getLEDSystem().setState(LEDStates.DISABLED);
+      robotContainer.getLEDSystem().setState(LEDStates.NOT_TELEOP);
     }
   }
 
@@ -119,7 +119,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void autonomousPeriodic() {
     if(!robotContainer.getVisionSystem().funeral().getAsBoolean()) {
-      robotContainer.getLEDSystem().setState(LEDStates.AUTONOMOUS);
+      robotContainer.getLEDSystem().setState(LEDStates.NOT_TELEOP);
     }
   }
 
