@@ -45,9 +45,9 @@ public class DrPepper extends SubsystemBase {
     configThumb();
     configCANranges();
 
-    coralFull = Shuffleboard.getTab("Soda").add("Coral Full", botFullCoral().getAsBoolean()).withPosition(3, 0).getEntry();
+    coralFull = Shuffleboard.getTab("Soda").add("Coral Full", botFullCoralForLEDs().getAsBoolean()).withPosition(3, 0).getEntry();
     algaeFull = Shuffleboard.getTab("Soda").add("Algae Full", botFullAlgae().getAsBoolean()).withPosition(4, 0).getEntry();
-    robotFull = Shuffleboard.getTab("Driver").add("Robot Full", botFullAlgae().getAsBoolean() || botFullCoral().getAsBoolean()).withPosition(0, 0).withSize(10, 4).getEntry();
+    robotFull = Shuffleboard.getTab("Driver").add("Robot Full", botFullAlgae().getAsBoolean() || botFullCoralForLEDs().getAsBoolean()).withPosition(0, 0).withSize(10, 4).getEntry();
 
     flag = false;
   }
@@ -81,11 +81,15 @@ public class DrPepper extends SubsystemBase {
   }
 
   public Command runThumbForwardSlowly() {
-    return runOnce(() -> thumb.set(ControlMode.PercentOutput, 0.35));
+    return runOnce(() -> thumb.set(ControlMode.PercentOutput, 0.3));
   }
 
   public Command runThumbBackwardSlowly() {
     return runOnce(() -> thumb.set(ControlMode.PercentOutput, -0.35));
+  }
+
+  public Command runThumbBackwardSuperSlowly() {
+    return runOnce(() -> thumb.set(ControlMode.PercentOutput, -0.05));
   }
 
   public Command stopThumb() {
@@ -93,9 +97,9 @@ public class DrPepper extends SubsystemBase {
   }
 
   public Command runUntilFullCoral() {
-    return runLoader().andThen(runThumbForwardSlowly()).andThen(Commands.waitUntil(botFullCoral()))
+    return runLoader();/*.andThen(runThumbForwardSlowly()).andThen(Commands.waitUntil(botFullCoral()))
                       .andThen(runLoaderSlowly()).andThen(runThumbBackwardSlowly()).andThen(Commands.waitUntil(() -> !botFullCoral().getAsBoolean()))
-                      .andThen(stopLoader()).andThen(stopThumb());
+                      .andThen(stopLoader()).andThen(stopThumb());*/
   }
 
   public Command runUntilFullAlgae() {
@@ -106,8 +110,12 @@ public class DrPepper extends SubsystemBase {
     return runOnce(() -> flag = false);
   }
 
-  public BooleanSupplier botFullCoral() {
+  public BooleanSupplier botFullCoralForLEDs() {
     return () -> flag;
+  }
+
+  public BooleanSupplier botFullCoral() {
+    return () -> sherlock.getIsDetected().getValue() && sherlock.getDistance().getValueAsDouble() > 0.06;
   }
 
   public BooleanSupplier botFullAlgae() {
@@ -151,7 +159,6 @@ public class DrPepper extends SubsystemBase {
   public void configCANranges() {
     sherlock.getConfigurator().apply(new CANrangeConfiguration());
     watson.getConfigurator().apply(new CANrangeConfiguration());
-    //mycroft.getConfigurator().apply(new CANrangeConfiguration());
 
     CANrangeConfiguration config = new CANrangeConfiguration();
     config.ProximityParams.ProximityThreshold = 0.12;
@@ -161,21 +168,17 @@ public class DrPepper extends SubsystemBase {
     config.ProximityParams.ProximityThreshold = 0.36;
 
     watson.getConfigurator().apply(config);
-
-    config.ProximityParams.ProximityThreshold = 0.1;
-
-    //mycroft.getConfigurator().apply(config);
   }
 
   @Override
   public void periodic() {
-    coralFull.setBoolean(botFullCoral().getAsBoolean());
-    Logger.recordOutput("Soda/Coral Full", botFullCoral().getAsBoolean());
+    coralFull.setBoolean(botFullCoralForLEDs().getAsBoolean());
+    Logger.recordOutput("Soda/Coral Full", botFullCoralForLEDs().getAsBoolean());
 
     algaeFull.setBoolean(botFullAlgae().getAsBoolean());
     Logger.recordOutput("Soda/Algae Full", botFullAlgae().getAsBoolean());
 
-    robotFull.setBoolean(botFullAlgae().getAsBoolean() || botFullCoral().getAsBoolean());
+    robotFull.setBoolean(botFullAlgae().getAsBoolean() || botFullCoralForLEDs().getAsBoolean());
 
     Logger.recordOutput("Soda/Loader Current", loader.getStatorCurrent().getValueAsDouble());
 
