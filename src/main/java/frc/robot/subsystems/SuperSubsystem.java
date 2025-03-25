@@ -194,6 +194,14 @@ public class SuperSubsystem extends SubsystemBase {
     return new ParallelDeadlineGroup(Commands.waitSeconds(0.25), unhit).andThen(Commands.waitSeconds(0.01).raceWith(stop)).andThen(() -> stop.cancel());
   }
 
+  public Command pickup(Command hit, Command stop) {
+    return hitReef(hit, stop).andThen(lowerAlgaeState()).andThen(s_DrPepper.runLoaderReverse()).andThen(Commands.waitUntil(botFullAlgae()));
+  }
+
+  public Command scoreAlgae() {
+    return l3State().andThen(s_DrPepper.runLoader()).andThen(Commands.waitSeconds(0.5).andThen(s_DrPepper.stopLoader()));
+  }
+
   public Command scoreCoral(Command hit, Command stop) {
     return hitReef(hit, stop).andThen(l4State()).andThen(s_DrPepper.runThumbForward()).andThen(s_DrPepper.runLoaderSlowly()).andThen(Commands.waitSeconds(0.5).andThen(s_DrPepper.stopThumb()).andThen(s_DrPepper.stopLoader()));
   }
@@ -240,7 +248,7 @@ public class SuperSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if(DriverStation.isEnabled() && !funeral.getAsBoolean() && !s_ClimbAvator.getState().equals(ClimbAvatorStates.CLIMB_PULL)) {
+    if(DriverStation.isEnabled() && !funeral.getAsBoolean() && !s_ClimbAvator.getState().equals(ClimbAvatorStates.CLIMB_PULL) && !s_LED.getState().equals(LEDStates.BOT_ALIGNING) && !s_LED.getState().equals(LEDStates.BOT_ALIGNING_FINISHED)) {
       if(botFullAlgae().getAsBoolean() && !s_LED.getState().equals(LEDStates.ALGAE_FULL)) {
         s_LED.setState(LEDStates.ALGAE_FULL);
       }
