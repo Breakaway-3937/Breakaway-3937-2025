@@ -30,8 +30,8 @@ public class ClimbAvator extends SubsystemBase {
   private final TalonFX shoulderMotor, boulderMotor, elevatorMotor, detonatorMotor, bilboBagginsTheBack;
   private final Follower followerShoulderRequest;
   private final Follower followerElevatorRequest;
-  private final MotionMagicExpoVoltage shoulderRequest;
-  private final MotionMagicVoltage elevatorRequest, bilboRequest;
+  private final MotionMagicExpoVoltage shoulderRequest, elevatorRequest;
+  private final MotionMagicVoltage bilboRequest;
   private final GenericEntry elevatorPosition, shoulderPosition, bilboPosition, currentState;
   private ClimbAvatorStates climbAvatorState = ClimbAvatorStates.PROTECT;
 
@@ -47,7 +47,7 @@ public class ClimbAvator extends SubsystemBase {
     followerElevatorRequest = new Follower(Constants.ClimbAvator.ELEVATOR_CAN_ID, true);
 
     shoulderRequest = new MotionMagicExpoVoltage(0);
-    elevatorRequest = new MotionMagicVoltage(0);
+    elevatorRequest = new MotionMagicExpoVoltage(0);
     bilboRequest = new MotionMagicVoltage(0);
 
     configShoulderMotors();
@@ -234,13 +234,16 @@ public class ClimbAvator extends SubsystemBase {
     config.Slot0.kI = 0;
     config.Slot0.kD = 0.1;
 
+    config.MotionMagic.MotionMagicExpo_kV = 0.12;
+    config.MotionMagic.MotionMagicExpo_kA = 0.1;
+
     config.CurrentLimits.SupplyCurrentLimit = 80;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLowerLimit = 40;
     config.CurrentLimits.SupplyCurrentLowerTime = 1;
 
     config.MotionMagic.MotionMagicAcceleration = 380;
-    config.MotionMagic.MotionMagicCruiseVelocity = 445;
+    config.MotionMagic.MotionMagicCruiseVelocity = 0;
     config.MotionMagic.MotionMagicJerk = 1600;
 
     elevatorMotor.getConfigurator().apply(config);
