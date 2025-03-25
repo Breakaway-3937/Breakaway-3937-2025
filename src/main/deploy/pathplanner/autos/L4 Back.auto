@@ -17,7 +17,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Algae #1"
+                  "pathName": "Poop #1"
                 }
               }
             ]
@@ -26,19 +26,44 @@
         {
           "type": "named",
           "data": {
-            "name": "Pickup"
+            "name": "ScoreCoral"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Condense"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "L4 Back #1"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Load"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Algae #2"
+            "pathName": "L4 Back #2"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "Algae #3"
+            "name": "ScoreCoral"
           }
         },
         {

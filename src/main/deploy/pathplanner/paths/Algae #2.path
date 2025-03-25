@@ -8,60 +8,75 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.98366283168531,
-        "y": 4.348773433860326
+        "x": 6.452884615384615,
+        "y": 4.4378205128205135
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.57310505319149,
-        "y": 5.040192819148936
+        "x": 7.103076923076923,
+        "y": 4.964166666666667
       },
       "prevControl": {
-        "x": 6.489618581261466,
-        "y": 4.171076674868127
+        "x": 6.679935897435897,
+        "y": 4.633910256410257
       },
       "nextControl": {
-        "x": 8.656591525121515,
-        "y": 5.909308963429744
+        "x": 7.3160117923574495,
+        "y": 5.130359735373419
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.214423076923076,
-        "y": 5.325384615384616
+        "x": 7.8667948717948715,
+        "y": 5.077692307692308
       },
       "prevControl": {
-        "x": 6.450443198458193,
-        "y": 5.607026276586668
+        "x": 7.617077837363762,
+        "y": 5.089583595046171
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [],
-  "constraintZones": [],
-  "pointTowardsZones": [
+  "rotationTargets": [
     {
-      "fieldPosition": {
-        "x": 8.75,
-        "y": 5.5
-      },
-      "rotationOffset": 0.0,
-      "minWaypointRelativePos": 0.8194905869324189,
-      "maxWaypointRelativePos": 1.435215946843867,
-      "name": "Point Towards Zone"
+      "waypointRelativePos": 1,
+      "rotationDegrees": 0.0
     }
   ],
-  "eventMarkers": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 1.027685492801772,
+      "maxWaypointRelativePos": 2.0,
+      "constraints": {
+        "maxVelocity": 0.5,
+        "maxAcceleration": 3.25,
+        "maxAngularVelocity": 720.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "ScoreAlgae",
+      "waypointRelativePos": 1.1960132890364907,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 5.0,
-    "maxAcceleration": 3.25,
+    "maxAcceleration": 5.0,
     "maxAngularVelocity": 720.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -69,7 +84,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -119.99999999999999
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": null,
