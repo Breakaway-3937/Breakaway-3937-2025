@@ -12,7 +12,7 @@
         "y": 4.126675177446982
       },
       "isLocked": false,
-      "linkedName": "GH"
+      "linkedName": null
     },
     {
       "anchor": {
@@ -48,7 +48,7 @@
   "folder": "Backwards Align",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": false
 }

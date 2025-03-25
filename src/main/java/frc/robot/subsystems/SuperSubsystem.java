@@ -192,7 +192,7 @@ public class SuperSubsystem extends SubsystemBase {
   }
 
   public BooleanSupplier isAlgae() {
-    return () -> true;//getClimbAvatorState().equals(ClimbAvatorStates.LOWER_ALGAE) || getClimbAvatorState().equals(ClimbAvatorStates.UPPER_ALGAE) || getClimbAvatorState().equals(ClimbAvatorStates.PROCESSOR);
+    return () -> getClimbAvatorState().equals(ClimbAvatorStates.LOWER_ALGAE) || getClimbAvatorState().equals(ClimbAvatorStates.UPPER_ALGAE) || getClimbAvatorState().equals(ClimbAvatorStates.PROCESSOR);
   }
 
   public Command hitReef(Command hit, Command stop) {

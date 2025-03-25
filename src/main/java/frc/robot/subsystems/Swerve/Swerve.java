@@ -62,6 +62,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private ArrayList<Pose2d> poseList;
     private List<AutoPathLocations> leftTargets = Arrays.asList(AutoPathLocations.CORAL_A, AutoPathLocations.CORAL_C, AutoPathLocations.CORAL_E, AutoPathLocations.CORAL_G, AutoPathLocations.CORAL_I, AutoPathLocations.CORAL_K); 
     private List<AutoPathLocations> rightTargets = Arrays.asList(AutoPathLocations.CORAL_B, AutoPathLocations.CORAL_D, AutoPathLocations.CORAL_F, AutoPathLocations.CORAL_H, AutoPathLocations.CORAL_J, AutoPathLocations.CORAL_L); 
+    private Rotation2d algaeTarget;
 
     private boolean refuse;
 
@@ -272,7 +273,12 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                     Logger.recordOutput("Swerve/Algae Align", false);
                     var target = findNearestTarget(right);
                     Logger.recordOutput("Swerve/Final Auto Align Path", target.get().name());
-                    return either(AutoBuilder.pathfindThenFollowPath(getFinalPath(target.get()).get(), constraints).unless(() -> refuse), Commands.none(), () -> target != null).andThen(runOnce(() -> setRefuseUpdate(true))).andThen(either(hitRobotTeleop(), hitReefTeleopBackwards(), () -> !isBackwards()));
+                    var finalPath = getFinalPath(target.get()).get();
+
+                    if(Constants.DEBUG) {
+                        SmartDashboard.putString("Final Path Debug", finalPath.name);
+                    }
+                    return either(AutoBuilder.pathfindThenFollowPath(finalPath, constraints).unless(() -> refuse), Commands.none(), () -> target != null).andThen(runOnce(() -> setRefuseUpdate(true))).andThen(either(hitReefTeleop(), hitReefTeleopBackwards(), () -> !isBackwards()));
                 }
                 catch(Exception e) {
                     Logger.recordOutput("Swerve/pathFindToClosest Exception", e.getMessage());
@@ -315,6 +321,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                         }
 
                         PathPlannerPath finalLocation = location;
+                        setAlgaeRotationTarget(finalLocation);
                         Logger.recordOutput("Swerve/Final Auto Align Path", finalLocation.name);
                         return defer(() -> AutoBuilder.pathfindThenFollowPath(finalLocation, constraints));
                     }
@@ -334,6 +341,14 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         });
     }
 
+    public void setAlgaeRotationTarget(PathPlannerPath path) {
+        algaeTarget = path.getAllPathPoints().get(path.getAllPathPoints().size() - 1).rotationTarget.rotation();
+    }
+
+    public Rotation2d getAlgaeRotationTarget() {
+        return algaeTarget;
+    }
+
     public Command hitReef() {
         return applyRequest(() -> auto.withVelocityX(1).withVelocityY(0));
     }
@@ -350,7 +365,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return applyRequest(() -> auto.withVelocityX(-1).withVelocityY(0));
     }
 
-    public Command hitRobotTeleop() {
+    public Command hitReefTeleop() {
         return Commands.deadline(new WaitCommand(0.5), hitReef());
     }
 
@@ -458,6 +473,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         if(Constants.DEBUG) {
             SmartDashboard.putNumber("Rotation Target", getRotationTarget().getDegrees());
             SmartDashboard.putNumber("Rotation from pose", getState().Pose.getRotation().getDegrees());
+            SmartDashboard.putBoolean("isBackwards", isBackwards());
         }
     }
 
