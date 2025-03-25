@@ -63,7 +63,7 @@ public class RobotContainer {
     private final DrPepper s_DrPepper = new DrPepper();
     private final ClimbAvator s_ClimbAvator = new ClimbAvator();
     private final LED s_LED = new LED();
-    private final SuperSubsystem s_SuperSubsystem = new SuperSubsystem(s_ClimbAvator, s_MrPibb, s_DrPepper, s_LED, s_Vision.funeral());
+    private final SuperSubsystem s_SuperSubsystem = new SuperSubsystem(s_ClimbAvator, s_MrPibb, s_DrPepper, s_LED, s_Vision.funeral(), () -> s_Swerve.isBackwards());
 
     private double multiplier = 1;
 
@@ -80,7 +80,7 @@ public class RobotContainer {
             .withRotationalDeadband(Constants.Swerve.MAX_ANGULAR_RATE * Constants.Controllers.STICK_DEADBAND)
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
             .withMaxAbsRotationalRate(Constants.Swerve.MAX_ANGULAR_RATE)
-            .withHeadingPID(4.5, 0, 0);
+            .withHeadingPID(6.5, 0, 0);
 
     /* Telemetry */
     private final Telemetry logger = new Telemetry(Constants.Swerve.MAX_SPEED);

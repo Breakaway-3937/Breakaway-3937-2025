@@ -24,15 +24,16 @@ public class SuperSubsystem extends SubsystemBase {
   private final MrPibb s_MrPibb;
   private final DrPepper s_DrPepper;
   private final LED s_LED;
-  private final BooleanSupplier funeral;
+  private final BooleanSupplier funeral, isBackwards;
 
   /** Creates a new SuperSubsystem. */
-  public SuperSubsystem(ClimbAvator s_ClimbAvator, MrPibb s_MrPibb, DrPepper s_DrPepper, LED s_LED, BooleanSupplier funeral) {
+  public SuperSubsystem(ClimbAvator s_ClimbAvator, MrPibb s_MrPibb, DrPepper s_DrPepper, LED s_LED, BooleanSupplier funeral, BooleanSupplier isBackwards) {
     this.s_ClimbAvator = s_ClimbAvator; 
     this.s_MrPibb = s_MrPibb;
     this.s_DrPepper = s_DrPepper;
     this.s_LED = s_LED;
     this.funeral = funeral;
+    this.isBackwards = isBackwards;
   }
 
   public Command saveMrPibb() {
@@ -131,14 +132,22 @@ public class SuperSubsystem extends SubsystemBase {
   }
 
   public Command l3State() {
-    return saveMrPibb().andThen(runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.L3)))
-               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.L3)))
+    return saveMrPibb().andThen(
+           Commands.either(
+                    runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.BACKWARDS_L3))
+                    .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.BACKWARDS_L3))), 
+                    runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.L3))
+                    .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.L3))), isBackwards))
                .andThen(runSubsystems());
   }
 
   public Command l4State() {
-    return saveMrPibb().andThen(runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.L4)))
-               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.L4)))
+    return saveMrPibb().andThen(
+           Commands.either(
+                    runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.BACKWARDS_L4))
+                    .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.BACKWARDS_L4))), 
+                    runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.L4))
+                    .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.L4))), isBackwards))
                .andThen(runSubsystems());
   }
 
@@ -183,7 +192,7 @@ public class SuperSubsystem extends SubsystemBase {
   }
 
   public BooleanSupplier isAlgae() {
-    return () -> getClimbAvatorState().equals(ClimbAvatorStates.LOWER_ALGAE) || getClimbAvatorState().equals(ClimbAvatorStates.UPPER_ALGAE) || getClimbAvatorState().equals(ClimbAvatorStates.PROCESSOR);
+    return () -> true;//getClimbAvatorState().equals(ClimbAvatorStates.LOWER_ALGAE) || getClimbAvatorState().equals(ClimbAvatorStates.UPPER_ALGAE) || getClimbAvatorState().equals(ClimbAvatorStates.PROCESSOR);
   }
 
   public Command hitReef(Command hit, Command stop) {
