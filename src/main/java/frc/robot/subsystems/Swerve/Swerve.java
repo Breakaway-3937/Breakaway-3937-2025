@@ -157,7 +157,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     public Rotation2d getRotationTarget() {
         try {
-            var target = findNearestTarget(false);
+            var target = getFinalPath(findNearestTarget(false).get());
+            
             if(target.get() != null && !target.get().getAllPathPoints().isEmpty()) {
                 return target.get().getAllPathPoints().get(target.get().getAllPathPoints().size() - 1).rotationTarget.rotation();
             }
@@ -172,12 +173,11 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     }
 
-    public Supplier<PathPlannerPath> findNearestTarget(boolean right) throws Exception {
+    public Supplier<AutoPathLocations> findNearestTarget(boolean right) throws Exception {
         makePoseList();
         var near = getState().Pose.nearest(poseList);
         var target = lookUpPath(near);
         AutoPathLocations goTo;
-        var locationList = Arrays.asList(AutoPathLocations.values());
 
         if(target == null) {
             return null;
@@ -200,7 +200,21 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             }
         }
 
-        if(isBackwards(goTo.getPath().name)) {
+        Logger.recordOutput("Swerve/Auto Path Location", goTo.name());
+
+        var finalPath = goTo;
+
+        if(Constants.DEBUG) {
+            SmartDashboard.putString("Auto Path Path", finalPath.name());
+        }
+
+        return () -> finalPath;
+    }
+
+    public Supplier<PathPlannerPath> getFinalPath(AutoPathLocations goTo) {
+        var locationList = Arrays.asList(AutoPathLocations.values());
+
+        if(isBackwards()) {
             String path = goTo.name() + "_BACKWARDS";
             for(int i = 0; i < locationList.size(); i++) {
                 if(path.equalsIgnoreCase(locationList.get(i).name())) {
@@ -209,13 +223,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             }
         }
 
-        Logger.recordOutput("Swerve/Auto Path Location", goTo.name());
-
         var finalPath = goTo;
-
-        if(Constants.DEBUG) {
-            SmartDashboard.putString("Auto Path Path", finalPath.name());
-        }
 
         return () -> finalPath.getPath();
     }
@@ -263,8 +271,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                 try {
                     Logger.recordOutput("Swerve/Algae Align", false);
                     var target = findNearestTarget(right);
-                    Logger.recordOutput("Swerve/Final Auto Align Path", target.get().name);
-                    return either(AutoBuilder.pathfindThenFollowPath(target.get(), constraints).unless(() -> refuse), Commands.none(), () -> target != null).andThen(runOnce(() -> setRefuseUpdate(true))).andThen(either(hitRobotTeleop(), hitReefTeleopBackwards(), () -> !isBackwards(target.get().name)));
+                    Logger.recordOutput("Swerve/Final Auto Align Path", target.get().name());
+                    return either(AutoBuilder.pathfindThenFollowPath(getFinalPath(target.get()).get(), constraints).unless(() -> refuse), Commands.none(), () -> target != null).andThen(runOnce(() -> setRefuseUpdate(true))).andThen(either(hitRobotTeleop(), hitReefTeleopBackwards(), () -> !isBackwards()));
                 }
                 catch(Exception e) {
                     Logger.recordOutput("Swerve/pathFindToClosest Exception", e.getMessage());
@@ -280,29 +288,29 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                 if(!state.get().equals(ClimbAvatorStates.PROCESSOR)) {
                     var target = findNearestTarget(false);
                     if(target.get() != null) {
-                        PathPlannerPath location = target.get();
+                        PathPlannerPath location = target.get().getPath();
 
-                        switch (target.get().name) {
-                            case "A", "B":
+                        switch (target.get().name()) {
+                            case "CORAL_A", "CORAL_B":
                                 location = AlgaeAutoPathLocations.ALGAE_AB.getPath();
                                 break;
-                            case "C", "D":
+                            case "CORAL_C", "CORAL_D":
                                 location = AlgaeAutoPathLocations.ALGAE_CD.getPath();
                                 break;
-                            case "E", "F":
+                            case "CORAL_E", "CORAL_F":
                                 location = AlgaeAutoPathLocations.ALGAE_EF.getPath();
                                 break;
-                            case "G", "H":
+                            case "CORAL_G", "CORAL_H":
                                 location = AlgaeAutoPathLocations.ALGAE_GH.getPath();
                                 break;
-                            case "I", "J":
+                            case "CORAL_I", "CORAL_J":
                                 location = AlgaeAutoPathLocations.ALGAE_IJ.getPath();
                                 break;
-                            case "K", "L":
+                            case "CORAL_K", "CORAL_L":
                                 location = AlgaeAutoPathLocations.ALGAE_KL.getPath();
                                 break;
                             default:
-                                location = target.get();
+                                location = target.get().getPath();
                                 break;
                         }
 
@@ -358,14 +366,27 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         this.refuse = refuse;
     }
 
-    public boolean isBackwards(String path) {
+    public boolean isBackwards() {
         double yaw = getState().Pose.getRotation().getDegrees();
-        int offset = (DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Red)) ? 0 : 0;
+        int offset = (DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Red)) ? -180 : 0;
         int tolerance = 60;
         boolean backwards = false;
+        String path;
+
+        try {
+            path = findNearestTarget(false).get().getPath().name;
+        }
+        catch(Exception e) {
+            Logger.recordOutput("Is Backwards Error", e.toString());
+            path = null;
+        }
+
+        if(path == null) {
+            return false;
+        }
 
         if(path.equalsIgnoreCase("a") || path.equalsIgnoreCase("b")) {
-            if(isNear(180, abs(yaw), tolerance)) {
+            if(isNear(180 + offset, abs(yaw), tolerance)) {
                 backwards = true;
             }
             else {
@@ -373,7 +394,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             }
         }
         else if(path.equalsIgnoreCase("c") || path.equalsIgnoreCase("d")) {
-            if(isNear(-120, yaw, tolerance)) {
+            if(isNear(-120 - offset, yaw, tolerance)) {
                 backwards = true;
             }
             else {
@@ -381,7 +402,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             }
         }
         else if(path.equalsIgnoreCase("e") || path.equalsIgnoreCase("f")) {
-            if(isNear(-60, yaw, tolerance)) {
+            if(isNear(-60 - offset, yaw, tolerance)) {
                 backwards = true;
             }
             else {
@@ -389,7 +410,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             }
         }
         else if(path.equalsIgnoreCase("g") || path.equalsIgnoreCase("h")) {
-            if(isNear(0, abs(yaw), tolerance)) {
+            if(isNear(0 - offset, abs(yaw), tolerance)) {
                 backwards = true;
             }
             else {
@@ -397,7 +418,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             }
         }
         else if(path.equalsIgnoreCase("i") || path.equalsIgnoreCase("j")) {
-            if(isNear(60, yaw, tolerance)) {
+            if(isNear(60 + offset, yaw, tolerance)) {
                 backwards = true;
             }
             else {
@@ -405,7 +426,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             }
         }
         else if(path.equalsIgnoreCase("k") || path.equalsIgnoreCase("l")) {
-            if(isNear(120, yaw, tolerance)) {
+            if(isNear(120 + offset, yaw, tolerance)) {
                 backwards = true;
             }
             else {

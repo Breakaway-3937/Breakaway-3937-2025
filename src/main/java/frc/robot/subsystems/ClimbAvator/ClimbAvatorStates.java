@@ -16,8 +16,6 @@ public enum ClimbAvatorStates {
     L2(6, 33.2),
     L3(27, 41.5),
     L4(73.5, 47.475),
-    BACKWARDS_L1(0.25, 22),
-    BACKWARDS_L2(6, 33.2),
     BACKWARDS_L3(27, 41.5),
     BACKWARDS_L4(73.5, 47.475),
     PROTECT(0.25, 0.25),
