@@ -67,8 +67,7 @@ public class LED extends SubsystemBase {
     ALGAE_FULL,
     CORAL_FULL,
     BOT_EMPTY,
-    BOT_ALIGNING,
-    BOT_ALIGNING_FINISHED
+    BOT_ALIGNING
   }
 
   public void setState(LEDStates ledState) {
@@ -178,29 +177,6 @@ public class LED extends SubsystemBase {
           fade.setR(51);
           fade.setG(153);
           fade.setB(153);
-        }
-        else if(timer.get() > 3) {
-          flag1 = true;
-        }
-        if(!flag1) {
-          candle.animate(strobe);
-        }
-        else {
-          candle.animate(fade);
-        }
-        break;
-      case BOT_ALIGNING_FINISHED:
-        if(!flag) {
-          timer.reset();
-          timer.start();
-          flag = true;
-          flag1 = false;
-          strobe.setR(255);
-          strobe.setG(0);
-          strobe.setB(0);
-          fade.setR(255);
-          fade.setG(0);
-          fade.setB(0);
         }
         else if(timer.get() > 3) {
           flag1 = true;

@@ -17,7 +17,45 @@
               {
                 "type": "path",
                 "data": {
+                  "pathName": "Poop #1"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ScoreCoral"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
                   "pathName": "Algae #1"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "MakeCoachTHappy"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "LowerAlgae"
+                      }
+                    }
+                  ]
                 }
               }
             ]
@@ -36,6 +74,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Barge"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Algae #3"
@@ -44,7 +88,26 @@
         {
           "type": "named",
           "data": {
-            "name": "Condense"
+            "name": "ScoreAlgae"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Algae #4"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "MakeCoachTHappy"
+                }
+              }
+            ]
           }
         }
       ]

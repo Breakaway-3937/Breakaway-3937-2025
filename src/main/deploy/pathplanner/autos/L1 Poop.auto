@@ -9,15 +9,28 @@
           "data": {
             "commands": [
               {
-                "type": "named",
-                "data": {
-                  "name": "MakeCoachTHappy"
-                }
-              },
-              {
                 "type": "path",
                 "data": {
                   "pathName": "Poop #1"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "MakeCoachTHappy"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "L1"
+                      }
+                    }
+                  ]
                 }
               }
             ]
@@ -30,22 +43,9 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "Condense"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Poop #2"
-                }
-              }
-            ]
+            "pathName": "Poop #2"
           }
         }
       ]

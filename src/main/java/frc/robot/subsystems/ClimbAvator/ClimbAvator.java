@@ -176,7 +176,6 @@ public class ClimbAvator extends SubsystemBase {
     config.Slot0.kI = 0;
     config.Slot0.kD = 0;
 
-    config.MotionMagic.MotionMagicCruiseVelocity = 0;
     config.MotionMagic.MotionMagicExpo_kV = 0.03;
     config.MotionMagic.MotionMagicExpo_kA = 0.025;
 
@@ -234,17 +233,13 @@ public class ClimbAvator extends SubsystemBase {
     config.Slot0.kI = 0;
     config.Slot0.kD = 0.1;
 
-    config.MotionMagic.MotionMagicExpo_kV = 0.12;
-    config.MotionMagic.MotionMagicExpo_kA = 0.1;
+    config.MotionMagic.MotionMagicExpo_kV = 0.015;
+    config.MotionMagic.MotionMagicExpo_kA = 0.0125;
 
     config.CurrentLimits.SupplyCurrentLimit = 80;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLowerLimit = 40;
     config.CurrentLimits.SupplyCurrentLowerTime = 1;
-
-    config.MotionMagic.MotionMagicAcceleration = 380;
-    config.MotionMagic.MotionMagicCruiseVelocity = 0;
-    config.MotionMagic.MotionMagicJerk = 1600;
 
     elevatorMotor.getConfigurator().apply(config);
     detonatorMotor.getConfigurator().apply(config);

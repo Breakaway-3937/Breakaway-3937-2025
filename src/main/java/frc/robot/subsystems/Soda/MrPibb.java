@@ -9,7 +9,7 @@ import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -24,7 +24,7 @@ import frc.robot.Constants;
 
 public class MrPibb extends SubsystemBase {
   private final TalonFX wrist, turret;
-  private final MotionMagicVoltage wristRequest, turretRequest;
+  private final MotionMagicExpoVoltage wristRequest, turretRequest;
   private final GenericEntry wristPosition, turretPosition, currentState;
   private MrPibbStates mrPibbState = MrPibbStates.PROTECT;
 
@@ -38,8 +38,8 @@ public class MrPibb extends SubsystemBase {
     configWrist();
     configTurret();
 
-    wristRequest = new MotionMagicVoltage(0).withEnableFOC(true);
-    turretRequest = new MotionMagicVoltage(0).withEnableFOC(true);
+    wristRequest = new MotionMagicExpoVoltage(0).withEnableFOC(true);
+    turretRequest = new MotionMagicExpoVoltage(0).withEnableFOC(true);
 
     wristPosition = Shuffleboard.getTab("Soda").add("Wrist", getWristPosition()).withPosition(0, 0).getEntry();
     turretPosition = Shuffleboard.getTab("Soda").add("Turret", getTurretPosition()).withPosition(1, 0).getEntry();
@@ -119,14 +119,13 @@ public class MrPibb extends SubsystemBase {
     config.Slot0.kI = 0;
     config.Slot0.kD = 0.18;
 
+    config.MotionMagic.MotionMagicExpo_kV = 0.03;
+    config.MotionMagic.MotionMagicExpo_kA = 0.025;
+
     config.CurrentLimits.SupplyCurrentLimit = 80;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLowerLimit = 40;
     config.CurrentLimits.SupplyCurrentLowerTime = 1;
-
-    config.MotionMagic.MotionMagicAcceleration = 175;
-    config.MotionMagic.MotionMagicCruiseVelocity = 200;
-    config.MotionMagic.MotionMagicJerk = 1600;
 
     wrist.getConfigurator().apply(config);
     wrist.setPosition(0);
@@ -149,14 +148,13 @@ public class MrPibb extends SubsystemBase {
     config.Slot0.kI = 0;
     config.Slot0.kD = 0.24;
 
+    config.MotionMagic.MotionMagicExpo_kV = 0.015;
+    config.MotionMagic.MotionMagicExpo_kA = 0.0125;
+
     config.CurrentLimits.SupplyCurrentLimit = 80;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLowerLimit = 40;
     config.CurrentLimits.SupplyCurrentLowerTime = 1;
-
-    config.MotionMagic.MotionMagicAcceleration = 155;
-    config.MotionMagic.MotionMagicCruiseVelocity = 170;
-    config.MotionMagic.MotionMagicJerk = 1600;
 
     turret.getConfigurator().apply(config);
     turret.setPosition(0);

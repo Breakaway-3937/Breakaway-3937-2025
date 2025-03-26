@@ -55,9 +55,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "L4 Back #2"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Center"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "L4 Back #2"
+                }
+              }
+            ]
           }
         },
         {
@@ -69,7 +82,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Condense"
+            "name": "MakeCoachTHappy"
           }
         }
       ]

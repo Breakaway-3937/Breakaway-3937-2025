@@ -100,8 +100,8 @@ public class RobotContainer {
         /* Driver Buttons */
         translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
         slowDownTrigger.whileTrue(Commands.runOnce(() -> multiplier = 0.4)).whileFalse(Commands.runOnce(() -> multiplier = 1)).onTrue(s_DrPepper.runThumbBackwardSuperSlowly()).onFalse(s_DrPepper.stopThumb());
-        leftTrack.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_ALIGNING))).whileTrue(Commands.either(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_ALIGNING_FINISHED)), Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_ALIGNING)), () -> s_Swerve.getModule(0).getDriveMotor().getStatorCurrent().getValueAsDouble() > 60).andThen(Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(s_Swerve.hitReefTeleop()).andThen(holdPosition()), s_Swerve.pathFindToClosest(false).andThen(holdPosition()), s_SuperSubsystem.isAlgae()).alongWith(setRumble(RumbleType.kLeftRumble, 1)))).onFalse(Commands.runOnce(() -> s_Swerve.setRefuseUpdate(false), s_Swerve).andThen(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED)).alongWith(setRumble(RumbleType.kBothRumble, 0)).andThen(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY))));
-        rightTrack.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_ALIGNING))).whileTrue(Commands.either(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_ALIGNING_FINISHED)), Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_ALIGNING)), () -> s_Swerve.getModule(0).getDriveMotor().getStatorCurrent().getValueAsDouble() > 60).andThen(Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(s_Swerve.hitReefTeleop()).andThen(holdPosition()), s_Swerve.pathFindToClosest(true).andThen(holdPosition()), s_SuperSubsystem.isAlgae()).alongWith(setRumble(RumbleType.kRightRumble, 1)))).onFalse(Commands.runOnce(() -> s_Swerve.setRefuseUpdate(false), s_Swerve).andThen(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED)).alongWith(setRumble(RumbleType.kBothRumble, 0)).andThen(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY))));
+        leftTrack.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_ALIGNING))).whileTrue((Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(s_Swerve.hitReefTeleop()).andThen(holdPosition()), s_Swerve.pathFindToClosest(false).andThen(holdPosition()), s_SuperSubsystem.isAlgae()).alongWith(setRumble(RumbleType.kLeftRumble, 1)))).onFalse(Commands.runOnce(() -> s_Swerve.setRefuseUpdate(false), s_Swerve).andThen(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED)).alongWith(setRumble(RumbleType.kBothRumble, 0)).andThen(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY))));
+        rightTrack.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_ALIGNING))).whileTrue((Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(s_Swerve.hitReefTeleop()).andThen(holdPosition()), s_Swerve.pathFindToClosest(true).andThen(holdPosition()), s_SuperSubsystem.isAlgae()).alongWith(setRumble(RumbleType.kRightRumble, 1)))).onFalse(Commands.runOnce(() -> s_Swerve.setRefuseUpdate(false), s_Swerve).andThen(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED)).alongWith(setRumble(RumbleType.kBothRumble, 0)).andThen(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY))));
 
         /* Weird Button States */
         xboxController.a().onTrue(Commands.either(s_SuperSubsystem.l1State(), s_SuperSubsystem.processorState(), xboxController.back()));
@@ -143,10 +143,14 @@ public class RobotContainer {
         NamedCommands.registerCommand("MakeCoachTHappy", getInitialPrestageCommand());
         NamedCommands.registerCommand("Pickup", s_SuperSubsystem.pickup(s_Swerve.hitReef(), s_Swerve.stop()));
         NamedCommands.registerCommand("ScoreAlgae", s_SuperSubsystem.scoreAlgae());
+        NamedCommands.registerCommand("Barge", s_SuperSubsystem.bargeState());
+        NamedCommands.registerCommand("L1", s_SuperSubsystem.l1State());
+        NamedCommands.registerCommand("LowerAlgae", s_SuperSubsystem.lowerAlgaeState());
         autoChooser = AutoBuilder.buildAutoChooser();
         autoChooser.setDefaultOption("DO NOTHING", Commands.none());
         autoChooser.addOption("Tush Push L4 Left", new PathPlannerAuto("Tush Push L4 Right", true));
         autoChooser.addOption("L4 Left", new PathPlannerAuto("L4 Right", true));
+        autoChooser.addOption("L4 Back Left", new PathPlannerAuto("L4 Back", true));
         Shuffleboard.getTab("Auto").add(autoChooser).withPosition(0, 0).withSize(2, 1);
         slowDownTrigger = new Trigger(() -> DriverStation.isTeleop() && (s_ClimbAvator.getState().equals(ClimbAvatorStates.L4) || s_ClimbAvator.getState().equals(ClimbAvatorStates.BARGE)));
 
