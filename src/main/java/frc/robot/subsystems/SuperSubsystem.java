@@ -70,7 +70,8 @@ public class SuperSubsystem extends SubsystemBase {
 
   public Command preStageState() {
     return saveMrPibb().andThen(runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.CORAL_PRESTAGE)))
-               .andThen(Commands.either(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.CORAL_PRESTAGE)), Commands.none(), () -> !s_DrPepper.botFullAlgae().getAsBoolean()))
+               .andThen(Commands.either(Commands.either(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.CORAL_PRESTAGE)), runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.EMPTY_PRESTATE)), s_DrPepper.botFullCoral()), 
+                                        Commands.none(), () -> !s_DrPepper.botFullAlgae().getAsBoolean()))
                .andThen(runSubsystems());
   }
 

@@ -8,9 +8,6 @@ import java.util.function.BooleanSupplier;
 
 import org.littletonrobotics.junction.Logger;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANrange;
@@ -27,7 +24,7 @@ import frc.robot.Constants;
 
 public class DrPepper extends SubsystemBase {
   private final TalonFX loader;
-  private final TalonSRX thumb;
+  private final TalonFX thumb;
   private boolean flag; //Yay flag
   private final CANrange sherlock, watson;
   private final GenericEntry coralFull, algaeFull, robotFull;
@@ -37,7 +34,7 @@ public class DrPepper extends SubsystemBase {
    */
   public DrPepper() {
     loader = new TalonFX(Constants.Soda.DrPepper.LOADER_CAN_ID);
-    thumb = new TalonSRX(Constants.Soda.DrPepper.THUMB_CAN_ID);
+    thumb = new TalonFX(Constants.Soda.DrPepper.THUMB_CAN_ID);
     sherlock = new CANrange(Constants.Soda.DrPepper.SHERLOCK_CAN_ID);
     watson = new CANrange(Constants.Soda.DrPepper.WATSON_CAN_ID);
     
@@ -77,23 +74,23 @@ public class DrPepper extends SubsystemBase {
   }
 
   public Command runThumbForward() {
-    return runOnce(() -> thumb.set(ControlMode.PercentOutput, 0.8));
+    return runOnce(() -> thumb.set(0.8));
   }
 
   public Command runThumbForwardSlowly() {
-    return runOnce(() -> thumb.set(ControlMode.PercentOutput, 0.3));
+    return runOnce(() -> thumb.set(0.3));
   }
 
   public Command runThumbBackwardSlowly() {
-    return runOnce(() -> thumb.set(ControlMode.PercentOutput, -0.35));
+    return runOnce(() -> thumb.set(-0.35));
   }
 
   public Command runThumbBackwardSuperSlowly() {
-    return runOnce(() -> thumb.set(ControlMode.PercentOutput, -0.05));
+    return runOnce(() -> thumb.set(-0.05));
   }
 
   public Command stopThumb() {
-    return runOnce(() -> thumb.set(ControlMode.PercentOutput, 0));
+    return runOnce(() -> thumb.set( 0));
   }
 
   public Command runUntilFullCoral() {
@@ -127,16 +124,20 @@ public class DrPepper extends SubsystemBase {
   }
 
   public void configThumb() {
-    thumb.configFactoryDefault();
+    thumb.getConfigurator().apply(new TalonFXConfiguration());
 
-    TalonSRXConfiguration config = new TalonSRXConfiguration();
+    TalonFXConfiguration config = new TalonFXConfiguration();
 
-    config.peakCurrentDuration = 100;
-    config.peakCurrentLimit = 50;
-    config.continuousCurrentLimit = 35;
+    config.Audio.AllowMusicDurDisable = true;
 
-    thumb.configAllSettings(config);
-    thumb.enableCurrentLimit(true);
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+    config.CurrentLimits.SupplyCurrentLimit = 80;
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLowerLimit = 40;
+    config.CurrentLimits.SupplyCurrentLowerTime = 1;
+
+    thumb.getConfigurator().apply(config);
   }
 
   public void configLoader() {

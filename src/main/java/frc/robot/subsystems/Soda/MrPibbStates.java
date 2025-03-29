@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.Soda;
 
+import com.fasterxml.jackson.databind.introspect.TypeResolutionContext.Empty;
+
 import frc.robot.Constants;
 
 public enum MrPibbStates {
@@ -22,6 +24,7 @@ public enum MrPibbStates {
     BACKWARDS_L4(17.6, 1.7),//was 17.4
     PROTECT(1.5, 0),
     CORAL_PRESTAGE(9.788, 1.7),
+    EMPTY_PRESTATE(9.788, 0),
     LOWER_ALGAE(16, 3.5),
     UPPER_ALGAE(16, 3.5);
 

@@ -55,6 +55,7 @@ public class RobotContainer {
 
     /* Triggers */
     private final Trigger slowDownTrigger;
+    private final Trigger coralFull;
 
     /* Subsystems */
     private final Swerve s_Swerve = createSwerve();
@@ -118,6 +119,8 @@ public class RobotContainer {
         xboxController.rightTrigger(0.3).and(xboxController.leftTrigger(0.3).negate()).onTrue(s_DrPepper.runThumbForward().andThen(s_DrPepper.runLoaderSlowly()).andThen(s_DrPepper.noMoreCoral()).alongWith(setRumble(RumbleType.kBothRumble, 1))).onFalse(s_DrPepper.stopThumb().andThen(s_DrPepper.stopLoader()).alongWith(setRumble(RumbleType.kBothRumble, 0)).andThen(s_DrPepper.noMoreCoral()));
         xboxController.povLeft().onTrue(s_SuperSubsystem.groundCoralState());
         xboxController.povRight().onTrue(s_SuperSubsystem.groundAlgaeState());
+
+        coralFull.onTrue(s_SuperSubsystem.preStageState());
         
         /* Climbing States */
         xboxController.povUp().onTrue(s_SuperSubsystem.climbState());
@@ -152,7 +155,9 @@ public class RobotContainer {
         autoChooser.addOption("L4 Left", new PathPlannerAuto("L4 Right", true));
         autoChooser.addOption("L4 Back Left", new PathPlannerAuto("L4 Back", true));
         Shuffleboard.getTab("Auto").add(autoChooser).withPosition(0, 0).withSize(2, 1);
+
         slowDownTrigger = new Trigger(() -> DriverStation.isTeleop() && (s_ClimbAvator.getState().equals(ClimbAvatorStates.L4) || s_ClimbAvator.getState().equals(ClimbAvatorStates.BARGE)));
+        coralFull = new Trigger(s_DrPepper.botFullCoral());
 
         align.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
         align.HeadingController.setTolerance(0.1);
