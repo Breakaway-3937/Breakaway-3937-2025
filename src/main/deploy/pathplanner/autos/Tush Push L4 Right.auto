@@ -125,12 +125,6 @@
                 "data": {
                   "pathName": "L4 Right #5"
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "L1"
-                }
               }
             ]
           }
@@ -138,7 +132,13 @@
         {
           "type": "named",
           "data": {
-            "name": "ScoreCoralL1"
+            "name": "ScoreCoral"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "MakeCoachTHappy"
           }
         }
       ]

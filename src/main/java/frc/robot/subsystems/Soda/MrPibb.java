@@ -4,8 +4,6 @@
 
 package frc.robot.subsystems.Soda;
 
-import java.util.function.BooleanSupplier;
-
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -58,12 +56,12 @@ public class MrPibb extends SubsystemBase {
     return runOnce(() -> turret.setControl(turretRequest.withPosition(mrPibbState.getTurret())));
   }
 
-  public Command stopTurret() {
-    return runOnce(() -> turret.stopMotor());
+  public Command setTurretZero() {
+    return runOnce(() -> turret.setControl(turretRequest.withPosition(MrPibbStates.EMPTY_PRESTATE.getTurret())));
   }
 
-  public BooleanSupplier turretMoving() {
-    return () -> Math.abs(getTurretPosition() - mrPibbState.getTurret()) > 0.35;
+  public Command stopTurret() {
+    return runOnce(() -> turret.stopMotor());
   }
 
   public double getWristPosition(){

@@ -23,30 +23,33 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class DrPepper extends SubsystemBase {
-  private final TalonFX loader;
-  private final TalonFX thumb;
-  private boolean flag; //Yay flag
+  private final TalonFX loader, thumb;
   private final CANrange sherlock, watson;
   private final GenericEntry coralFull, algaeFull, robotFull;
+  private final BooleanSupplier isAlgae;
+  private boolean coralFlag, algaeFlag; //Yay flag
 
   /** Creates a new DrPepper.
    *  @since Ankle is no longer with us.
    */
-  public DrPepper() {
+  public DrPepper(BooleanSupplier isAlgae) {
     loader = new TalonFX(Constants.Soda.DrPepper.LOADER_CAN_ID);
     thumb = new TalonFX(Constants.Soda.DrPepper.THUMB_CAN_ID);
     sherlock = new CANrange(Constants.Soda.DrPepper.SHERLOCK_CAN_ID);
     watson = new CANrange(Constants.Soda.DrPepper.WATSON_CAN_ID);
+
+    this.isAlgae = isAlgae;
     
     configLoader();
     configThumb();
     configCANranges();
 
-    coralFull = Shuffleboard.getTab("Soda").add("Coral Full", botFullCoralForLEDs().getAsBoolean()).withPosition(3, 0).getEntry();
+    coralFull = Shuffleboard.getTab("Soda").add("Coral Full", botFullCoral().getAsBoolean()).withPosition(3, 0).getEntry();
     algaeFull = Shuffleboard.getTab("Soda").add("Algae Full", botFullAlgae().getAsBoolean()).withPosition(4, 0).getEntry();
-    robotFull = Shuffleboard.getTab("Driver").add("Robot Full", botFullAlgae().getAsBoolean() || botFullCoralForLEDs().getAsBoolean()).withPosition(0, 0).withSize(10, 4).getEntry();
+    robotFull = Shuffleboard.getTab("Driver").add("Robot Full", botFullAlgae().getAsBoolean() || botFullCoral().getAsBoolean()).withPosition(0, 0).withSize(10, 4).getEntry();
 
-    flag = false;
+    coralFlag = false;
+    algaeFlag = false;
   }
 
   public Command runLoader() {
@@ -65,10 +68,6 @@ public class DrPepper extends SubsystemBase {
     return runOnce(() -> loader.set(-0.3));
   }
 
-  public Command runLoaderReverseSlowly() {
-    return runOnce(() -> loader.set(-0.25));
-  }
-
   public Command stopLoader() {
     return runOnce(() -> loader.stopMotor());
   }
@@ -77,50 +76,48 @@ public class DrPepper extends SubsystemBase {
     return runOnce(() -> thumb.set(0.8));
   }
 
+  public Command runThumbBackward() {
+    return runOnce(() -> thumb.set(-0.8));
+  }
+
   public Command runThumbForwardSlowly() {
-    return runOnce(() -> thumb.set(0.3));
+    return runOnce(() -> thumb.set(0.15));
   }
 
   public Command runThumbBackwardSlowly() {
-    return runOnce(() -> thumb.set(-0.35));
-  }
-
-  public Command runThumbBackwardSuperSlowly() {
-    return runOnce(() -> thumb.set(-0.05));
+    return runOnce(() -> thumb.set(-0.15));
   }
 
   public Command stopThumb() {
-    return runOnce(() -> thumb.set( 0));
+    return runOnce(() -> thumb.set(0));
   }
 
-  public Command runUntilFullCoral() {
-    return runLoader();/*.andThen(runThumbForwardSlowly()).andThen(Commands.waitUntil(botFullCoral()))
-                      .andThen(runLoaderSlowly()).andThen(runThumbBackwardSlowly()).andThen(Commands.waitUntil(() -> !botFullCoral().getAsBoolean()))
-                      .andThen(stopLoader()).andThen(stopThumb());*/
-  }
-
-  public Command runUntilFullAlgae() {
-    return Commands.either(runLoaderReverseSlowly(), stopLoader(), botFullAlgae());
-  }
-
-  public Command noMoreCoral() {
-    return runOnce(() -> flag = false);
-  }
-
-  public BooleanSupplier botFullCoralForLEDs() {
-    return () -> flag;
+  public Command center() {
+    return Commands.either(Commands.either(stopThumb(), runThumbBackwardSlowly(), () -> watson.getIsDetected().getValue()), Commands.either(runThumbForwardSlowly(), Commands.none(), () -> watson.getIsDetected().getValue()), () -> sherlock.getIsDetected().getValue());
   }
 
   public BooleanSupplier botFullCoral() {
-    return () -> sherlock.getIsDetected().getValue() && sherlock.getDistance().getValueAsDouble() > 0.06;
+    return () -> coralFlag;
   }
 
   public BooleanSupplier botFullAlgae() {
-    return () -> watson.getIsDetected().getValue();
+    return () -> algaeFlag;
+  }
+
+  public Command noMoreCoral() {
+    return runOnce(() -> coralFlag = false);
+  }
+
+  public Command noMoreAlgae() {
+    return runOnce(() -> algaeFlag = false);
   }
 
   public TalonFX getLoaderMotor() {
     return loader;
+  }
+
+  public TalonFX getThumbMotor() {
+    return thumb;
   }
 
   public void configThumb() {
@@ -165,21 +162,18 @@ public class DrPepper extends SubsystemBase {
     config.ProximityParams.ProximityThreshold = 0.12;
 
     sherlock.getConfigurator().apply(config);
-
-    config.ProximityParams.ProximityThreshold = 0.36;
-
     watson.getConfigurator().apply(config);
   }
 
   @Override
   public void periodic() {
-    coralFull.setBoolean(botFullCoralForLEDs().getAsBoolean());
-    Logger.recordOutput("Soda/Coral Full", botFullCoralForLEDs().getAsBoolean());
+    coralFull.setBoolean(botFullCoral().getAsBoolean());
+    Logger.recordOutput("Soda/Coral Full", botFullCoral().getAsBoolean());
 
     algaeFull.setBoolean(botFullAlgae().getAsBoolean());
     Logger.recordOutput("Soda/Algae Full", botFullAlgae().getAsBoolean());
 
-    robotFull.setBoolean(botFullAlgae().getAsBoolean() || botFullCoralForLEDs().getAsBoolean());
+    robotFull.setBoolean(botFullAlgae().getAsBoolean() || botFullCoral().getAsBoolean());
 
     Logger.recordOutput("Soda/Loader Current", loader.getStatorCurrent().getValueAsDouble());
 
@@ -187,8 +181,12 @@ public class DrPepper extends SubsystemBase {
       SmartDashboard.putNumber("Loader %", loader.get());
     }
 
-    if(!flag) {
-      flag = sherlock.getIsDetected().getValue() && sherlock.getDistance().getValueAsDouble() > 0.06;
+    if(!coralFlag) {
+      coralFlag = !isAlgae.getAsBoolean() && !botFullAlgae().getAsBoolean() && sherlock.getIsDetected().getValue() || watson.getIsDetected().getValue();
+    }
+
+    if(!algaeFlag) {
+      algaeFlag = isAlgae.getAsBoolean() && loader.getStatorCurrent().getValueAsDouble() > 60;
     }
   }
 }

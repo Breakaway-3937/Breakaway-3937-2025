@@ -55,13 +55,12 @@ public class RobotContainer {
 
     /* Triggers */
     private final Trigger slowDownTrigger;
-    private final Trigger coralFull;
 
     /* Subsystems */
     private final Swerve s_Swerve = createSwerve();
     private final Vision s_Vision = new Vision(s_Swerve);
     private final MrPibb s_MrPibb = new MrPibb();
-    private final DrPepper s_DrPepper = new DrPepper();
+    private final DrPepper s_DrPepper = new DrPepper(() -> s_Swerve.isBackwards());
     private final ClimbAvator s_ClimbAvator = new ClimbAvator();
     private final LED s_LED = new LED();
     private final SuperSubsystem s_SuperSubsystem = new SuperSubsystem(s_ClimbAvator, s_MrPibb, s_DrPepper, s_LED, s_Vision.funeral(), () -> s_Swerve.isBackwards());
@@ -98,9 +97,11 @@ public class RobotContainer {
             )
         );
 
+        s_DrPepper.setDefaultCommand(s_DrPepper.center());
+
         /* Driver Buttons */
         translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
-        slowDownTrigger.whileTrue(Commands.runOnce(() -> multiplier = 0.4)).whileFalse(Commands.runOnce(() -> multiplier = 1)).onTrue(s_DrPepper.runThumbBackwardSuperSlowly()).onFalse(s_DrPepper.stopThumb());
+        slowDownTrigger.whileTrue(Commands.runOnce(() -> multiplier = 0.4)).whileFalse(Commands.runOnce(() -> multiplier = 1));
         leftTrack.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_ALIGNING))).whileTrue((Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(s_Swerve.hitReefTeleop()).andThen(holdPosition()), s_Swerve.pathFindToClosest(false).andThen(holdPosition()), s_SuperSubsystem.isAlgae()).alongWith(setRumble(RumbleType.kLeftRumble, 1)))).onFalse(Commands.runOnce(() -> s_Swerve.setRefuseUpdate(false), s_Swerve).andThen(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED)).alongWith(setRumble(RumbleType.kBothRumble, 0)).andThen(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY))));
         rightTrack.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_ALIGNING))).whileTrue((Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(s_Swerve.hitReefTeleop()).andThen(holdPosition()), s_Swerve.pathFindToClosest(true).andThen(holdPosition()), s_SuperSubsystem.isAlgae()).alongWith(setRumble(RumbleType.kRightRumble, 1)))).onFalse(Commands.runOnce(() -> s_Swerve.setRefuseUpdate(false), s_Swerve).andThen(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED)).alongWith(setRumble(RumbleType.kBothRumble, 0)).andThen(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY))));
 
@@ -112,15 +113,12 @@ public class RobotContainer {
 
         /* Intake States */
         xboxController.rightBumper().onTrue(s_SuperSubsystem.preStageState());
-        xboxController.leftTrigger(0.3).and(xboxController.rightTrigger(0.3).negate()).whileTrue(Commands.either(s_DrPepper.runLoader(), s_DrPepper.runUntilFullCoral(),                                                                                            
-                                                                                                                                    () -> s_MrPibb.getStateAsEnum().equals(MrPibbStates.BARGE) || s_MrPibb.getStateAsEnum().equals(MrPibbStates.PROCESSOR)).alongWith(setRumble(RumbleType.kBothRumble, 1)))
-                                                                                                                                    .onFalse(s_DrPepper.stopLoader().andThen(s_DrPepper.stopThumb()).alongWith(setRumble(RumbleType.kBothRumble, 0)));
-        xboxController.leftBumper().onTrue(Commands.either(s_DrPepper.runLoaderReverseTrough(), s_DrPepper.runLoaderReverse(), () -> s_MrPibb.getState().equals(MrPibbStates.L1.name())).andThen(s_DrPepper.noMoreCoral())).onFalse(s_DrPepper.runUntilFullAlgae().andThen(s_DrPepper.noMoreCoral()));
-        xboxController.rightTrigger(0.3).and(xboxController.leftTrigger(0.3).negate()).onTrue(s_DrPepper.runThumbForward().andThen(s_DrPepper.runLoaderSlowly()).andThen(s_DrPepper.noMoreCoral()).alongWith(setRumble(RumbleType.kBothRumble, 1))).onFalse(s_DrPepper.stopThumb().andThen(s_DrPepper.stopLoader()).alongWith(setRumble(RumbleType.kBothRumble, 0)).andThen(s_DrPepper.noMoreCoral()));
+        xboxController.leftTrigger(0.3).and(xboxController.rightTrigger(0.3).negate()).onTrue(s_DrPepper.runLoader().alongWith(setRumble(RumbleType.kBothRumble, 1)))
+                                                                                                                                    .onFalse(s_DrPepper.stopLoader().alongWith(setRumble(RumbleType.kBothRumble, 0)));
+        xboxController.leftBumper().onTrue(Commands.either(s_DrPepper.runLoaderReverseTrough(), s_DrPepper.runLoaderReverse(), () -> s_MrPibb.getState().equals(MrPibbStates.L1.name())).andThen(s_DrPepper.noMoreAlgae()).andThen(s_DrPepper.noMoreCoral())).onFalse(s_DrPepper.stopThumb().andThen(s_DrPepper.stopLoader()).andThen(s_DrPepper.noMoreAlgae()).andThen(s_DrPepper.noMoreCoral()));
+        xboxController.rightTrigger(0.3).and(xboxController.leftTrigger(0.3).negate()).onTrue(Commands.runOnce(() -> s_DrPepper.removeDefaultCommand()).andThen(Commands.either(s_DrPepper.runThumbBackward(), s_DrPepper.runThumbForward(), () -> s_Swerve.isBackwards())).andThen(s_DrPepper.runLoaderSlowly()).alongWith(setRumble(RumbleType.kBothRumble, 1)).andThen(s_DrPepper.noMoreCoral())).onFalse(Commands.runOnce(() -> s_DrPepper.setDefaultCommand(s_DrPepper.center())).andThen(s_DrPepper.noMoreCoral()).andThen(s_DrPepper.stopThumb()).andThen(s_DrPepper.stopLoader()).alongWith(setRumble(RumbleType.kBothRumble, 0)));
         xboxController.povLeft().onTrue(s_SuperSubsystem.groundCoralState());
         xboxController.povRight().onTrue(s_SuperSubsystem.groundAlgaeState());
-
-        coralFull.onTrue(s_SuperSubsystem.preStageState());
         
         /* Climbing States */
         xboxController.povUp().onTrue(s_SuperSubsystem.climbState());
@@ -157,7 +155,6 @@ public class RobotContainer {
         Shuffleboard.getTab("Auto").add(autoChooser).withPosition(0, 0).withSize(2, 1);
 
         slowDownTrigger = new Trigger(() -> DriverStation.isTeleop() && (s_ClimbAvator.getState().equals(ClimbAvatorStates.L4) || s_ClimbAvator.getState().equals(ClimbAvatorStates.BARGE)));
-        coralFull = new Trigger(s_DrPepper.botFullCoral());
 
         align.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
         align.HeadingController.setTolerance(0.1);

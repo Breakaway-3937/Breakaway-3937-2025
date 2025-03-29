@@ -4,8 +4,6 @@
 
 package frc.robot.subsystems.ClimbAvator;
 
-import java.util.function.BooleanSupplier;
-
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -72,10 +70,6 @@ public class ClimbAvator extends SubsystemBase {
     return runOnce(() -> shoulderMotor.setControl(shoulderRequest.withPosition(climbAvatorState.getAngle())));
   }
 
-  public Command setShoulderNeutral() {
-    return runOnce(() -> shoulderMotor.setControl(shoulderRequest.withPosition(ClimbAvatorStates.getNeutralShoulder())));
-  }
-
   public Command stopShoulder() {
     return runOnce(() -> shoulderMotor.stopMotor());
   }
@@ -116,16 +110,8 @@ public class ClimbAvator extends SubsystemBase {
     return Commands.waitUntil(() -> Math.abs(getShoulderMotorPosition() - climbAvatorState.getAngle()) < 2);
   }
 
-  public Command waitUntilShoulderNeutralSafe() { 
-    return Commands.waitUntil(() -> Math.abs(getShoulderMotorPosition() - ClimbAvatorStates.getNeutralShoulder()) < 0.05);
-  }
-
   public Command waitUntilElevatorSafe() {
     return Commands.waitUntil(() -> Math.abs(getElevatorMotorPosition() - climbAvatorState.getHeight()) < 0.75);
-  }
-  
-  public BooleanSupplier elevatorMoving() {
-    return () -> Math.abs(getElevatorMotorPosition() - climbAvatorState.getHeight()) > 0.75;
   }
 
   public TalonFX getShoulderMotor() {

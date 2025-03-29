@@ -43,6 +43,7 @@ public class Music extends Command {
     orchestra.addInstrument(s_MrPibb.getTurretMotor());
     orchestra.addInstrument(s_MrPibb.getWristMotor());
     orchestra.addInstrument(s_DrPepper.getLoaderMotor());
+    orchestra.addInstrument(s_DrPepper.getThumbMotor());
     orchestra.addInstrument(s_ClimbAvator.getShoulderMotor());
     orchestra.addInstrument(s_ClimbAvator.getBoulderMotor());
     orchestra.addInstrument(s_ClimbAvator.getElevatorMotor());
