@@ -17,15 +17,20 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.IdealStartingState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.Waypoint;
 import com.pathplanner.lib.pathfinding.LocalADStar;
 import com.pathplanner.lib.pathfinding.Pathfinding;
+import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
@@ -64,6 +69,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private List<AutoPathLocations> rightTargets = Arrays.asList(AutoPathLocations.CORAL_B, AutoPathLocations.CORAL_D, AutoPathLocations.CORAL_F, AutoPathLocations.CORAL_H, AutoPathLocations.CORAL_J, AutoPathLocations.CORAL_L); 
     private Rotation2d algaeTarget;
 
+    private final PPHolonomicDriveController driveController;
+
     private boolean refuse;
 
     private final SwerveRequest.ApplyRobotSpeeds pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
@@ -84,6 +91,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             startSimThread();
         }
         configPathplanner();
+        driveController = new PPHolonomicDriveController(new PIDConstants(8, 0, 0), new PIDConstants(7, 0, 0));
         this.setStateStdDevs(VecBuilder.fill(0.05, 0.05, 0.05));
     }
 
@@ -97,6 +105,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             startSimThread();
         }
         configPathplanner();
+        driveController = new PPHolonomicDriveController(new PIDConstants(8, 0, 0), new PIDConstants(7, 0, 0));
         this.setStateStdDevs(VecBuilder.fill(0.05, 0.05, 0.05));
     }
 
@@ -112,6 +121,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             startSimThread();
         }
         configPathplanner();
+        driveController = new PPHolonomicDriveController(new PIDConstants(8, 0, 0), new PIDConstants(7, 0, 0));
         this.setStateStdDevs(VecBuilder.fill(0.05, 0.05, 0.05));
     }
 
@@ -156,189 +166,29 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         Pathfinding.setPathfinder(new LocalADStar());
     }
 
-    public Rotation2d getRotationTarget() {
-        try {
-            var target = getFinalPath(findNearestTarget(false).get());
-            
-            if(target.get() != null && !target.get().getAllPathPoints().isEmpty()) {
-                return target.get().getAllPathPoints().get(target.get().getAllPathPoints().size() - 1).rotationTarget.rotation();
-            }
-            else {
-                return getState().Pose.getRotation();
-            }
-        }
-        catch(Exception e) {
-            Logger.recordOutput("Swerve/pathFindToClosest Exception", e.getMessage());
-            return getState().Pose.getRotation();
-        }
+    public Command finalAdjustment(PathPlannerTrajectoryState goalEndState) {
+        var currentState = getState();
+        driveController.reset(currentState.Pose, currentState.Speeds);
+        var speeds = driveController.calculateRobotRelativeSpeeds(currentState.Pose, goalEndState);
 
+        return applyRequest(() -> pathApplyRobotSpeeds.withSpeeds(speeds));
     }
 
-    public Supplier<AutoPathLocations> findNearestTarget(boolean right) throws Exception {
-        makePoseList();
-        var near = getState().Pose.nearest(poseList);
-        var target = lookUpPath(near);
-        AutoPathLocations goTo;
+    public Command pathToReef(Pose2d goTo) {
+        var robotState = getState();
 
-        if(target == null) {
-            return null;
-        }
+        //TODO dir of travel not done
+        Rotation2d directionOfTravel = new Rotation2d(robotState.Speeds.vxMetersPerSecond, robotState.Speeds.vyMetersPerSecond); 
+        Pose2d robotPosition = new Pose2d(robotState.Pose.getTranslation(), directionOfTravel);
 
-        if(right) {
-            if(leftTargets.contains(target)) {
-                goTo = rightTargets.get(leftTargets.indexOf(target));
-            }
-            else {
-                goTo = target;
-            }
-        }
-        else {
-            if(rightTargets.contains(target)) {
-                goTo = leftTargets.get(rightTargets.indexOf(target));
-            }
-            else {
-                goTo = target;
-            }
-        }
+        List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(robotPosition, goTo); //goTo is reef branch
 
-        Logger.recordOutput("Swerve/Auto Path Location", goTo.name());
+        double currentSpeed = new Translation2d(robotState.Speeds.vxMetersPerSecond, robotState.Speeds.vyMetersPerSecond).getNorm();
 
-        var finalPath = goTo;
+        PathPlannerPath path = new PathPlannerPath(waypoints, constraints, new IdealStartingState(currentSpeed, directionOfTravel), new GoalEndState(0, goTo.getRotation()));
+        path.preventFlipping = true;
 
-        if(Constants.DEBUG) {
-            SmartDashboard.putString("Auto Path Path", finalPath.name());
-        }
-
-        return () -> finalPath;
-    }
-
-    public Supplier<PathPlannerPath> getFinalPath(AutoPathLocations goTo) {
-        var locationList = Arrays.asList(AutoPathLocations.values());
-
-        if(isBackwards()) {
-            String path = goTo.name() + "_BACKWARDS";
-            for(int i = 0; i < locationList.size(); i++) {
-                if(path.equalsIgnoreCase(locationList.get(i).name())) {
-                    goTo = locationList.get(i);
-                }
-            }
-        }
-
-        var finalPath = goTo;
-
-        return () -> finalPath.getPath();
-    }
-
-    public void makePoseList() {
-        poseList = new ArrayList<>();
-        var locationList = Arrays.asList(AutoPathLocations.values());
-        PathPlannerPath path;
-
-        for(int i = 0; i < locationList.size(); i++) {
-            if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
-                path = locationList.get(i).getPath().flipPath();
-            }
-            else {
-                path = locationList.get(i).getPath();
-            }
-            
-            var point = path.getAllPathPoints().get(0).position;
-            var rotation = path.getIdealStartingState().rotation();
-            poseList.add(new Pose2d(point, rotation));
-        }
-    }
-
-    public AutoPathLocations lookUpPath(Pose2d nearest) {
-        var locationList = Arrays.asList(AutoPathLocations.values());
-        PathPlannerPath path;
-        for(int i = 0; i < locationList.size(); i++) {
-            if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
-                path = locationList.get(i).getPath().flipPath();
-            }
-            else {
-                path = locationList.get(i).getPath();
-            }
-
-            if(nearest.getTranslation().equals(path.getAllPathPoints().get(0).position)) {
-                return locationList.get(i);
-            }
-        }
-        return null;
-    }
-
-    public Command pathFindToClosest(boolean right) {
-        return defer(() -> 
-            {
-                try {
-                    Logger.recordOutput("Swerve/Algae Align", false);
-                    var target = findNearestTarget(right);
-                    Logger.recordOutput("Swerve/Final Auto Align Path", target.get().name());
-                    var finalPath = getFinalPath(target.get()).get();
-
-                    if(Constants.DEBUG) {
-                        SmartDashboard.putString("Final Path Debug", finalPath.name);
-                    }
-                    return either(AutoBuilder.pathfindThenFollowPath(finalPath, constraints).unless(() -> refuse), Commands.none(), () -> target != null).andThen(runOnce(() -> setRefuseUpdate(true))).andThen(either(hitReefTeleop(), hitReefTeleopBackwards(), () -> !isBackwards()));
-                }
-                catch(Exception e) {
-                    Logger.recordOutput("Swerve/pathFindToClosest Exception", e.getMessage());
-                    return Commands.none();
-                }
-            });
-    }
-
-    public Command pathFindAndFollowToAlgae(Supplier<ClimbAvatorStates> state) {
-        return defer(() -> {
-            try {
-                Logger.recordOutput("Swerve/Algae Align", true);
-                if(!state.get().equals(ClimbAvatorStates.PROCESSOR)) {
-                    var target = findNearestTarget(false);
-                    if(target.get() != null) {
-                        PathPlannerPath location = target.get().getPath();
-
-                        switch (target.get().name()) {
-                            case "CORAL_A", "CORAL_B":
-                                location = AlgaeAutoPathLocations.ALGAE_AB.getPath();
-                                break;
-                            case "CORAL_C", "CORAL_D":
-                                location = AlgaeAutoPathLocations.ALGAE_CD.getPath();
-                                break;
-                            case "CORAL_E", "CORAL_F":
-                                location = AlgaeAutoPathLocations.ALGAE_EF.getPath();
-                                break;
-                            case "CORAL_G", "CORAL_H":
-                                location = AlgaeAutoPathLocations.ALGAE_GH.getPath();
-                                break;
-                            case "CORAL_I", "CORAL_J":
-                                location = AlgaeAutoPathLocations.ALGAE_IJ.getPath();
-                                break;
-                            case "CORAL_K", "CORAL_L":
-                                location = AlgaeAutoPathLocations.ALGAE_KL.getPath();
-                                break;
-                            default:
-                                location = target.get().getPath();
-                                break;
-                        }
-
-                        PathPlannerPath finalLocation = location;
-                        setAlgaeRotationTarget(finalLocation);
-                        Logger.recordOutput("Swerve/Final Auto Align Path", finalLocation.name);
-                        return defer(() -> AutoBuilder.pathfindThenFollowPath(finalLocation, constraints));
-                    }
-                    else {
-                        return Commands.none();
-                    }
-                }
-                else {
-                    Logger.recordOutput("Swerve/Final Auto Align Path", AlgaeAutoPathLocations.PROCESSOR.getPath().name);
-                    return defer(() -> AutoBuilder.pathfindThenFollowPath(AlgaeAutoPathLocations.PROCESSOR.getPath(), constraints));
-                }
-            }
-            catch(Exception e) {
-                Logger.recordOutput("pathFindAndFollowToAlgae Exception", e.getMessage());
-                return Commands.none();
-            }
-        });
+        return AutoBuilder.followPath(path);
     }
 
     public void setAlgaeRotationTarget(PathPlannerPath path) {
