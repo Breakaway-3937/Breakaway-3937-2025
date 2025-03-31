@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import org.json.simple.parser.ParseException;
@@ -25,7 +26,10 @@ import com.pathplanner.lib.path.Waypoint;
 import com.pathplanner.lib.pathfinding.LocalADStar;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
+import com.pathplanner.lib.util.GeometryUtil;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -65,9 +69,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private boolean hasAppliedOperatorPerspective = false; 
 
     private ArrayList<Pose2d> poseList;
-    private List<AutoPathLocations> leftTargets = Arrays.asList(AutoPathLocations.CORAL_A, AutoPathLocations.CORAL_C, AutoPathLocations.CORAL_E, AutoPathLocations.CORAL_G, AutoPathLocations.CORAL_I, AutoPathLocations.CORAL_K); 
-    private List<AutoPathLocations> rightTargets = Arrays.asList(AutoPathLocations.CORAL_B, AutoPathLocations.CORAL_D, AutoPathLocations.CORAL_F, AutoPathLocations.CORAL_H, AutoPathLocations.CORAL_J, AutoPathLocations.CORAL_L); 
     private Rotation2d algaeTarget;
+    private ArrayList<Pose2d> branches = new ArrayList<>();
 
     private final PPHolonomicDriveController driveController;
 
@@ -189,6 +192,36 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         path.preventFlipping = true;
 
         return AutoBuilder.followPath(path);
+    }
+
+    public Command autoAlign() {
+        return Commands.defer(() -> pathToReef(closetBranch()), Set.of(this));
+    }
+
+    public Pose2d closetBranch() {
+        return getState().Pose.nearest(branches);
+    }
+
+    public void makePoseList() {
+        //Go to two decimal places for x and y
+        branches.add(new Pose2d(0 ,0, Rotation2d.fromDegrees(0))); //Side A
+        branches.add(new Pose2d(0 ,0, Rotation2d.fromDegrees(0))); //Side B
+        branches.add(new Pose2d(0 ,0, Rotation2d.fromDegrees(0))); //Side C
+        branches.add(new Pose2d(0 ,0, Rotation2d.fromDegrees(0))); //Side D
+        branches.add(new Pose2d(0 ,0, Rotation2d.fromDegrees(0))); //Side E
+        branches.add(new Pose2d(0 ,0, Rotation2d.fromDegrees(0))); //Side F
+        branches.add(new Pose2d(0 ,0, Rotation2d.fromDegrees(0))); //Side G
+        branches.add(new Pose2d(0 ,0, Rotation2d.fromDegrees(0))); //Side H
+        branches.add(new Pose2d(0 ,0, Rotation2d.fromDegrees(0))); //Side I
+        branches.add(new Pose2d(0 ,0, Rotation2d.fromDegrees(0))); //Side J
+        branches.add(new Pose2d(0 ,0, Rotation2d.fromDegrees(0))); //Side K
+        branches.add(new Pose2d(0 ,0, Rotation2d.fromDegrees(0))); //Side L
+    }
+
+    public Pose2d flipPose(Pose2d notFlipped) {
+        //Flips from blue to red
+        double FIELD_LENGTH = 16.54;
+        return new Pose2d(new Translation2d(FIELD_LENGTH - notFlipped.getX(), notFlipped.getY()), new Rotation2d(Math.PI).minus(notFlipped.getRotation()));
     }
 
     public void setAlgaeRotationTarget(PathPlannerPath path) {
