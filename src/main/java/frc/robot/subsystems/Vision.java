@@ -104,6 +104,19 @@ public class Vision extends SubsystemBase {
       return 9999;
     }
   }
+  
+  public boolean badFrontTags(Optional<EstimatedRobotPose> result) {
+    boolean bad = false;
+    if(!result.isEmpty()) {
+      for(int i = 0; i < result.get().targetsUsed.size(); i++) {
+        int tagUsed = result.get().targetsUsed.get(i).fiducialId;
+        if(tagUsed == 13 || tagUsed == 12 || tagUsed == 1 || tagUsed == 2) {
+          bad = true;
+        }
+      }
+    }
+    return bad;
+  }
 
   public BooleanSupplier coralAlignTooFar() {
     return () -> {
@@ -129,8 +142,13 @@ public class Vision extends SubsystemBase {
     /* Front Camera */
     if(!frontResult.isEmpty()) {
       double averageDistanceX = getAverageTagDistanceX(frontResult);
+      
 
       if(averageDistanceX > maxDistance) {
+        frontCameraBad = true;
+      }
+
+      if(badFrontTags(frontResult)) {
         frontCameraBad = true;
       }
 
