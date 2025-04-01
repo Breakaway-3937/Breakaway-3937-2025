@@ -225,8 +225,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public Pose2d flipPose(Pose2d notFlipped) {
-        //Flips from blue to red
-        double FIELD_LENGTH = 16.54; //TODO do i need this?
+        //Flips from blue to red //TODO do i need this?
+        double FIELD_LENGTH = 16.54; 
         return new Pose2d(new Translation2d(FIELD_LENGTH - notFlipped.getX(), notFlipped.getY()), new Rotation2d(Math.PI).minus(notFlipped.getRotation()));
     }
 
@@ -257,14 +257,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         CENTER;
     }
 
-    public void setAlgaeRotationTarget(PathPlannerPath path) {
-        algaeTarget = path.getAllPathPoints().get(path.getAllPathPoints().size() - 1).rotationTarget.rotation();
-    }
-
-    public Rotation2d getAlgaeRotationTarget() {
-        return algaeTarget;
-    }
-
     public Command hitReef() {
         return applyRequest(() -> auto.withVelocityX(1).withVelocityY(0));
     }
@@ -281,84 +273,12 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return applyRequest(() -> auto.withVelocityX(-1).withVelocityY(0));
     }
 
-    public Command hitReefTeleop() {
-        return Commands.deadline(new WaitCommand(0.5), hitReef());
-    }
-
     public Command hitReefTeleopBackwards() {
         return Commands.deadline(new WaitCommand(0.5), hitReefBackwards());
     }
 
     public Command stop() {
         return applyRequest(() -> auto.withVelocityX(0).withVelocityY(0));
-    }
-
-    public void setRefuseUpdate(boolean refuse) {
-        this.refuse = refuse;
-    }
-
-    public boolean isBackwards(Pose2d nearestBranch) {
-        double yaw = getState().Pose.getRotation().getDegrees();
-        int offset = (DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Red)) ? -180 : 0;
-        int tolerance = 60;
-        boolean backwards = false;
-
-        Pose2d tag = branches.get(branches.indexOf(nearestBranch));
-
-        if(path == null) {
-            return false;
-        }
-
-        if() {
-            if(isNear(180 + offset, abs(yaw), tolerance)) {
-                backwards = true;
-            }
-            else {
-                backwards = false;
-            }
-        }
-        else if(path.equalsIgnoreCase("c") || path.equalsIgnoreCase("d")) {
-            if(isNear(-120 - offset, yaw, tolerance)) {
-                backwards = true;
-            }
-            else {
-                backwards = false;
-            }
-        }
-        else if(path.equalsIgnoreCase("e") || path.equalsIgnoreCase("f")) {
-            if(isNear(-60 - offset, yaw, tolerance)) {
-                backwards = true;
-            }
-            else {
-                backwards = false;
-            }
-        }
-        else if(path.equalsIgnoreCase("g") || path.equalsIgnoreCase("h")) {
-            if(isNear(0 - offset, abs(yaw), tolerance)) {
-                backwards = true;
-            }
-            else {
-                backwards = false;
-            }
-        }
-        else if(path.equalsIgnoreCase("i") || path.equalsIgnoreCase("j")) {
-            if(isNear(60 + offset, yaw, tolerance)) {
-                backwards = true;
-            }
-            else {
-                backwards = false;
-            }
-        }
-        else if(path.equalsIgnoreCase("k") || path.equalsIgnoreCase("l")) {
-            if(isNear(120 + offset, yaw, tolerance)) {
-                backwards = true;
-            }
-            else {
-                backwards = false;
-            }
-        }
-
-        return backwards;
     }
 
     @Override
