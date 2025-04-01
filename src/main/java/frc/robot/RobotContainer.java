@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.function.BooleanSupplier;
+
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -35,6 +37,7 @@ import frc.robot.subsystems.Soda.DrPepper;
 import frc.robot.subsystems.Soda.MrPibb;
 import frc.robot.subsystems.Soda.MrPibbStates;
 import frc.robot.subsystems.Swerve.Swerve;
+import frc.robot.subsystems.Swerve.Swerve.BranchSide;
 
 public class RobotContainer {
     /* Controllers */
@@ -102,8 +105,10 @@ public class RobotContainer {
         /* Driver Buttons */
         translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
         slowDownTrigger.whileTrue(Commands.runOnce(() -> multiplier = 0.4)).whileFalse(Commands.runOnce(() -> multiplier = 1));
-        leftTrack.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_ALIGNING))).whileTrue((Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(s_Swerve.hitReefTeleop()).andThen(holdPosition()), s_Swerve.pathFindToClosest(false).andThen(holdPosition()), s_SuperSubsystem.isAlgae()).alongWith(setRumble(RumbleType.kLeftRumble, 1)))).onFalse(Commands.runOnce(() -> s_Swerve.setRefuseUpdate(false), s_Swerve).andThen(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED)).alongWith(setRumble(RumbleType.kBothRumble, 0)).andThen(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY))));
-        rightTrack.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_ALIGNING))).whileTrue((Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(s_Swerve.hitReefTeleop()).andThen(holdPosition()), s_Swerve.pathFindToClosest(true).andThen(holdPosition()), s_SuperSubsystem.isAlgae()).alongWith(setRumble(RumbleType.kRightRumble, 1)))).onFalse(Commands.runOnce(() -> s_Swerve.setRefuseUpdate(false), s_Swerve).andThen(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED)).alongWith(setRumble(RumbleType.kBothRumble, 0)).andThen(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY))));
+        //leftTrack.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_ALIGNING))).whileTrue((Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(s_Swerve.hitReefTeleop()).andThen(holdPosition()), s_Swerve.pathFindToClosest(false).andThen(holdPosition()), s_SuperSubsystem.isAlgae()).alongWith(setRumble(RumbleType.kLeftRumble, 1)))).onFalse(Commands.runOnce(() -> s_Swerve.setRefuseUpdate(false), s_Swerve).andThen(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED)).alongWith(setRumble(RumbleType.kBothRumble, 0)).andThen(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY))));
+        //rightTrack.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_ALIGNING))).whileTrue((Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(s_Swerve.hitReefTeleop()).andThen(holdPosition()), s_Swerve.pathFindToClosest(true).andThen(holdPosition()), s_SuperSubsystem.isAlgae()).alongWith(setRumble(RumbleType.kRightRumble, 1)))).onFalse(Commands.runOnce(() -> s_Swerve.setRefuseUpdate(false), s_Swerve).andThen(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED)).alongWith(setRumble(RumbleType.kBothRumble, 0)).andThen(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY))));
+        leftTrack.whileTrue(Commands.either(s_Swerve.autoAlign(BranchSide.CENTER), s_Swerve.autoAlign(BranchSide.LEFT), isAlgae()));
+        rightTrack.whileTrue(Commands.either(s_Swerve.autoAlign(BranchSide.CENTER), s_Swerve.autoAlign(BranchSide.RIGHT), isAlgae()));
 
         /* Weird Button States */
         xboxController.a().onTrue(Commands.either(s_SuperSubsystem.l1State(), s_SuperSubsystem.processorState(), xboxController.back()));
@@ -199,12 +204,8 @@ public class RobotContainer {
         return Commands.runOnce(() -> xboxController.setRumble(type, percent));
     }
 
-    public Command holdPosition() {
-        return s_Swerve.applyRequest(() -> 
-                align.withVelocityX(translationController.getRawAxis(translationAxis) * multiplier * Constants.Swerve.MAX_SPEED)
-                    .withVelocityY(translationController.getRawAxis(strafeAxis) * multiplier * Constants.Swerve.MAX_SPEED)
-                    .withTargetDirection(s_SuperSubsystem.isAlgae().getAsBoolean() ? s_Swerve.getAlgaeRotationTarget() : s_Swerve.getRotationTarget())
-            );
+    public BooleanSupplier isAlgae() {
+        return () -> s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.UPPER_ALGAE) || s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.LOWER_ALGAE);
     }
 
     public Command rotateToCoral() {
