@@ -173,8 +173,11 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         Pathfinding.setPathfinder(new LocalADStar());
     }
 
-    public Command finalAdjustment(PathPlannerTrajectoryState goalEndState) {
+    public Command finalAdjustment(Pose2d goTo) {
         var currentState = getState();
+        PathPlannerTrajectoryState goalEndState = new PathPlannerTrajectoryState();
+        goalEndState.pose = goTo;
+
         driveController.reset(currentState.Pose, currentState.Speeds);
         var speeds = driveController.calculateRobotRelativeSpeeds(currentState.Pose, goalEndState);
 
@@ -207,7 +210,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         PathPlannerPath path = new PathPlannerPath(waypoints, constraints, new IdealStartingState(currentSpeed, directionOfTravel), new GoalEndState(0, goTo.getRotation()));
         path.preventFlipping = true;
 
-        return AutoBuilder.followPath(path);
+        return AutoBuilder.followPath(path).andThen(finalAdjustment(goTo));
     }
 
     public Command autoAlign(BranchSide side) {
