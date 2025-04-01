@@ -71,17 +71,14 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     /* Keep track if we've ever applied the operator perspective before or not */
     private boolean hasAppliedOperatorPerspective = false; 
 
-    private ArrayList<Pose2d> poseList;
     private Rotation2d algaeTarget;
-    private int[] blueTags = {0,0,0,0}; //TODO get values
-    private int[] redTags = {0,0,0,0};  //TODO get values
+    private int[] blueTags = {17, 18, 19, 20, 21, 22};
+    private int[] redTags = {6, 7, 8, 9, 10, 11}; 
     private int[] currentTags = (DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)) ? blueTags : redTags;
-    private Map<Integer, Pose2d> branches = new HashMap<>();
+    private Map<Pose2d, Integer> branches = new HashMap<>();
 
     private final PPHolonomicDriveController driveController;
     private AprilTagFieldLayout field = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
-
-    private boolean refuse;
 
     private final SwerveRequest.ApplyRobotSpeeds pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
@@ -218,12 +215,12 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public Pose2d closetBranch() {
-        return getState().Pose.nearest(new ArrayList<Pose2d>(branches.values()));
+        return getState().Pose.nearest(new ArrayList<Pose2d>(branches.keySet()));
     }
 
     public void makePoseList() {
         for(int i = 0; i < currentTags.length; i++) {
-            branches.put(currentTags[i], (field.getTagPose(currentTags[i]).get().toPose2d()));
+            branches.put((field.getTagPose(currentTags[i]).get().toPose2d()), currentTags[i]);
         }
     }
 
@@ -231,6 +228,27 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         //Flips from blue to red
         double FIELD_LENGTH = 16.54; //TODO do i need this?
         return new Pose2d(new Translation2d(FIELD_LENGTH - notFlipped.getX(), notFlipped.getY()), new Rotation2d(Math.PI).minus(notFlipped.getRotation()));
+    }
+
+    public boolean isBackwards() {
+        double yaw = getState().Pose.getRotation().getDegrees();
+        Pose2d nearestBranch = closetBranch();
+        int offset = (DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Red)) ? -180 : 0;
+        int tolerance = 60;
+
+        double expectedAngle;
+
+        switch (branches.get(nearestBranch)) {
+            case 18,7 -> expectedAngle = 180 + offset;
+            case 17,8 -> expectedAngle = -120 - offset;
+            case 22,9 -> expectedAngle = -60 - offset;
+            case 21,10 -> expectedAngle = 0 - offset;
+            case 20,11 -> expectedAngle = 60 - offset;
+            case 19,6 -> expectedAngle = 120 - offset;
+            default -> expectedAngle = 0;
+        }
+
+        return isNear(expectedAngle, yaw, tolerance);
     }
 
     public enum BranchSide {
