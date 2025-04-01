@@ -2,7 +2,6 @@ package frc.robot.subsystems.Swerve;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +9,6 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import org.json.simple.parser.ParseException;
-import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
@@ -28,7 +26,6 @@ import com.pathplanner.lib.path.Waypoint;
 import com.pathplanner.lib.pathfinding.LocalADStar;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
-import com.pathplanner.lib.util.GeometryUtil;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -50,14 +47,11 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
-import static edu.wpi.first.wpilibj2.command.Commands.either;
 import static edu.wpi.first.math.MathUtil.isNear;
 import static edu.wpi.first.units.Units.Inches;
-import static java.lang.Math.abs;
 
 import frc.robot.Constants;
 import frc.robot.generated.PracticeTunerConstants.TunerSwerveDrivetrain;
-import frc.robot.subsystems.ClimbAvator.ClimbAvatorStates;
 
 public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private static final double simLoopPeriod = 0.005; // 5 ms
@@ -71,7 +65,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     /* Keep track if we've ever applied the operator perspective before or not */
     private boolean hasAppliedOperatorPerspective = false; 
 
-    private Rotation2d algaeTarget;
     private int[] blueTags = {17, 18, 19, 20, 21, 22};
     private int[] redTags = {6, 7, 8, 9, 10, 11}; 
     private int[] currentTags = (DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)) ? blueTags : redTags;
@@ -235,7 +228,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     public boolean isBackwards() {
         double yaw = getState().Pose.getRotation().getDegrees();
-        Pose2d nearestBranch = closetBranch();
+        Pose2d nearestBranch = closetBranch(); //TODO make this in perodic to keep synced?
         int offset = (DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Red)) ? -180 : 0;
         int tolerance = 60;
 
@@ -300,10 +293,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             });
         }
 
-        Logger.recordOutput("Rotation Target", getRotationTarget());
 
         if(Constants.DEBUG) {
-            SmartDashboard.putNumber("Rotation Target", getRotationTarget().getDegrees());
             SmartDashboard.putNumber("Rotation from pose", getState().Pose.getRotation().getDegrees());
             SmartDashboard.putBoolean("isBackwards", isBackwards());
         }
