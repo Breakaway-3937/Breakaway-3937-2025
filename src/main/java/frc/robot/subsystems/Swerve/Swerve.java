@@ -171,7 +171,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         PathPlannerTrajectoryState goalEndState = new PathPlannerTrajectoryState();
         goalEndState.pose = goTo;
 
-        driveController.reset(currentState.Pose, currentState.Speeds);
+        //driveController.reset(currentState.Pose, currentState.Speeds);
         var speeds = driveController.calculateRobotRelativeSpeeds(currentState.Pose, goalEndState);
 
         return applyRequest(() -> pathApplyRobotSpeeds.withSpeeds(speeds));
@@ -179,7 +179,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     public Command pathToReef(BranchSide side) {
         var robotState = getState();
-        var goTo = closetBranch();
+        var goTo = closetBranch(); //TODO make this in perodic to keep synced?
+        goTo = new Pose2d(goTo.getTranslation(), goTo.getRotation().rotateBy(Rotation2d.k180deg));
         
         Translation2d offset;
         switch (side) {
@@ -189,8 +190,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             default -> offset = new Translation2d(0 ,0 );
         }
 
-        var translation = goTo.getTranslation().plus(offset).rotateBy(goTo.getRotation());
-        goTo = new Pose2d(translation, goTo.getRotation());
+        offset.rotateBy(goTo.getRotation());
+
+        var translation = goTo.getTranslation().plus(offset);//.rotateBy(goTo.getRotation());
+        goTo = new Pose2d(translation.getX(), translation.getY(), goTo.getRotation());
 
         //TODO dir of travel not done
         Rotation2d directionOfTravel = new Rotation2d(robotState.Speeds.vxMetersPerSecond, robotState.Speeds.vyMetersPerSecond); 
@@ -203,7 +206,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         PathPlannerPath path = new PathPlannerPath(waypoints, constraints, new IdealStartingState(currentSpeed, directionOfTravel), new GoalEndState(0, goTo.getRotation()));
         path.preventFlipping = true;
 
-        return AutoBuilder.followPath(path).andThen(finalAdjustment(goTo));
+        return AutoBuilder.followPath(path);//.andThen(finalAdjustment(goTo));
     }
 
     public Command autoAlign(BranchSide side) {
@@ -296,6 +299,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
         if(Constants.DEBUG) {
             SmartDashboard.putNumber("Rotation from pose", getState().Pose.getRotation().getDegrees());
+            SmartDashboard.putString("Pose of Target", closetBranch().toString());
+            SmartDashboard.putNumber("Branch tag id", branches.get(closetBranch()));
             SmartDashboard.putBoolean("isBackwards", isBackwards());
         }
     }
