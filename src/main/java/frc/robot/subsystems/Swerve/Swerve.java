@@ -50,6 +50,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 import static edu.wpi.first.wpilibj2.command.Commands.either;
 import static edu.wpi.first.math.MathUtil.isNear;
+import static edu.wpi.first.units.Units.Inches;
 import static java.lang.Math.abs;
 
 import frc.robot.Constants;
@@ -70,6 +71,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     private ArrayList<Pose2d> poseList;
     private Rotation2d algaeTarget;
+    private int[] blueTags = {0,0,0,0}; //TODO get values
+    private int[] redTags = {0,0,0,0};  //TODO get values
     private ArrayList<Pose2d> branches = new ArrayList<>();
 
     private final PPHolonomicDriveController driveController;
@@ -177,8 +180,20 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return applyRequest(() -> pathApplyRobotSpeeds.withSpeeds(speeds));
     }
 
-    public Command pathToReef(Pose2d goTo) {
+    public Command pathToReef(BranchSide side) {
         var robotState = getState();
+        var goTo = closetBranch();
+        
+        Translation2d offset;
+        switch (side) {
+            case LEFT -> offset = new Translation2d(Inches.of(0), Inches.of(0));
+            case RIGHT -> offset = new Translation2d(Inches.of(0), Inches.of(0));        
+            case CENTER -> offset = new Translation2d(Inches.of(0), Inches.of(0));        
+            default -> offset = new Translation2d(0 ,0 );
+        }
+
+        var translation = goTo.getTranslation().plus(offset).rotateBy(goTo.getRotation());
+        goTo = new Pose2d(translation, goTo.getRotation());
 
         //TODO dir of travel not done
         Rotation2d directionOfTravel = new Rotation2d(robotState.Speeds.vxMetersPerSecond, robotState.Speeds.vyMetersPerSecond); 
@@ -194,8 +209,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return AutoBuilder.followPath(path);
     }
 
-    public Command autoAlign() {
-        return Commands.defer(() -> pathToReef(closetBranch()), Set.of(this));
+    public Command autoAlign(BranchSide side) {
+        return Commands.defer(() -> pathToReef(side), Set.of(this));
     }
 
     public Pose2d closetBranch() {
@@ -203,25 +218,23 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public void makePoseList() {
-        //Go to two decimal places for x and y
-        branches.add(new Pose2d(0 ,0, Rotation2d.fromDegrees(0))); //Side A
-        branches.add(new Pose2d(0 ,0, Rotation2d.fromDegrees(0))); //Side B
-        branches.add(new Pose2d(0 ,0, Rotation2d.fromDegrees(0))); //Side C
-        branches.add(new Pose2d(0 ,0, Rotation2d.fromDegrees(0))); //Side D
-        branches.add(new Pose2d(0 ,0, Rotation2d.fromDegrees(0))); //Side E
-        branches.add(new Pose2d(0 ,0, Rotation2d.fromDegrees(0))); //Side F
-        branches.add(new Pose2d(0 ,0, Rotation2d.fromDegrees(0))); //Side G
-        branches.add(new Pose2d(0 ,0, Rotation2d.fromDegrees(0))); //Side H
-        branches.add(new Pose2d(0 ,0, Rotation2d.fromDegrees(0))); //Side I
-        branches.add(new Pose2d(0 ,0, Rotation2d.fromDegrees(0))); //Side J
-        branches.add(new Pose2d(0 ,0, Rotation2d.fromDegrees(0))); //Side K
-        branches.add(new Pose2d(0 ,0, Rotation2d.fromDegrees(0))); //Side L
+        AprilTagFieldLayout field = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
+        var currentTags = (DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)) ? blueTags : redTags;
+        for(int i = 0; i < currentTags.length; i++) {
+            branches.add(field.getTagPose(currentTags[i]).get().toPose2d());
+        }
     }
 
     public Pose2d flipPose(Pose2d notFlipped) {
         //Flips from blue to red
-        double FIELD_LENGTH = 16.54;
+        double FIELD_LENGTH = 16.54; //TODO do i need this?
         return new Pose2d(new Translation2d(FIELD_LENGTH - notFlipped.getX(), notFlipped.getY()), new Rotation2d(Math.PI).minus(notFlipped.getRotation()));
+    }
+
+    public enum BranchSide {
+        LEFT,
+        RIGHT,
+        CENTER;
     }
 
     public void setAlgaeRotationTarget(PathPlannerPath path) {
