@@ -3,7 +3,9 @@ package frc.robot.subsystems.Swerve;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -73,9 +75,11 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private Rotation2d algaeTarget;
     private int[] blueTags = {0,0,0,0}; //TODO get values
     private int[] redTags = {0,0,0,0};  //TODO get values
-    private ArrayList<Pose2d> branches = new ArrayList<>();
+    private int[] currentTags = (DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)) ? blueTags : redTags;
+    private Map<Integer, Pose2d> branches = new HashMap<>();
 
     private final PPHolonomicDriveController driveController;
+    private AprilTagFieldLayout field = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
 
     private boolean refuse;
 
@@ -214,14 +218,12 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public Pose2d closetBranch() {
-        return getState().Pose.nearest(branches);
+        return getState().Pose.nearest(new ArrayList<Pose2d>(branches.values()));
     }
 
     public void makePoseList() {
-        AprilTagFieldLayout field = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
-        var currentTags = (DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)) ? blueTags : redTags;
         for(int i = 0; i < currentTags.length; i++) {
-            branches.add(field.getTagPose(currentTags[i]).get().toPose2d());
+            branches.put(currentTags[i], (field.getTagPose(currentTags[i]).get().toPose2d()));
         }
     }
 
@@ -277,26 +279,19 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         this.refuse = refuse;
     }
 
-    public boolean isBackwards() {
+    public boolean isBackwards(Pose2d nearestBranch) {
         double yaw = getState().Pose.getRotation().getDegrees();
         int offset = (DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Red)) ? -180 : 0;
         int tolerance = 60;
         boolean backwards = false;
-        String path;
 
-        try {
-            path = findNearestTarget(false).get().getPath().name;
-        }
-        catch(Exception e) {
-            Logger.recordOutput("Is Backwards Error", e.toString());
-            path = null;
-        }
+        Pose2d tag = branches.get(branches.indexOf(nearestBranch));
 
         if(path == null) {
             return false;
         }
 
-        if(path.equalsIgnoreCase("a") || path.equalsIgnoreCase("b")) {
+        if() {
             if(isNear(180 + offset, abs(yaw), tolerance)) {
                 backwards = true;
             }
