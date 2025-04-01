@@ -184,8 +184,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         Translation2d offset;
         switch (side) {
             case LEFT -> offset = new Translation2d(Inches.of(0), Inches.of(0));
-            case RIGHT -> offset = new Translation2d(Inches.of(0), Inches.of(0));        
-            case CENTER -> offset = new Translation2d(Inches.of(0), Inches.of(0));        
+            case RIGHT -> offset = new Translation2d(Inches.of(0), Inches.of(0));    
+            case CENTER -> offset = new Translation2d(Inches.of(0), Inches.of(0));
             default -> offset = new Translation2d(0 ,0 );
         }
 
