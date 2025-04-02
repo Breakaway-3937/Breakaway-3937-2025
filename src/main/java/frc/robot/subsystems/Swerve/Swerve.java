@@ -49,6 +49,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 import static edu.wpi.first.math.MathUtil.isNear;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 
 import frc.robot.Constants;
@@ -204,7 +205,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         Pose2d robotPosition = new Pose2d(robotState.Pose.getTranslation(), directionOfTravel);
 
         if(isBackwards()) {
+            SmartDashboard.putNumber("Before 180", goTo.getRotation().getDegrees());
+            robotPosition = new Pose2d(robotState.Pose.getTranslation(), directionOfTravel.rotateBy(Rotation2d.k180deg));
             goTo = new Pose2d(goTo.getTranslation(), goTo.getRotation().rotateBy(Rotation2d.k180deg));
+            SmartDashboard.putNumber("After 180", goTo.getRotation().getDegrees());
             waypoints = PathPlannerPath.waypointsFromPoses(robotPosition, goTo); //goTo is reef branch
         }
         else {
@@ -244,7 +248,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         double yaw = getState().Pose.getRotation().getDegrees();
         Pose2d nearestBranch = closetBranch(); //TODO make this in perodic to keep synced?
         int offset = (DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Red)) ? -180 : 0;
-        int tolerance = 60;
+        double tolerance = 60;
 
         double expectedAngle;
 
@@ -256,6 +260,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             case 20,11 -> expectedAngle = 60 - offset;
             case 19,6 -> expectedAngle = 120 - offset;
             default -> expectedAngle = 0;
+        }
+
+        if(expectedAngle == 180 + offset || expectedAngle == 0 - offset) {
+            yaw = Math.abs(yaw);
         }
 
         return isNear(expectedAngle, yaw, tolerance);
