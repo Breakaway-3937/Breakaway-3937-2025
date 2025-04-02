@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import org.json.simple.parser.ParseException;
-import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
@@ -49,7 +48,6 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 import static edu.wpi.first.math.MathUtil.isNear;
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 
 import frc.robot.Constants;
@@ -174,10 +172,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         PathPlannerTrajectoryState goalEndState = new PathPlannerTrajectoryState();
         goalEndState.pose = goTo;
 
-        //driveController.reset(currentState.Pose, currentState.Speeds);
-        var speeds = driveController.calculateRobotRelativeSpeeds(currentState.Pose, goalEndState);
-
-        return applyRequest(() -> pathApplyRobotSpeeds.withSpeeds(speeds));
+        return applyRequest(() -> pathApplyRobotSpeeds.withSpeeds(driveController.calculateRobotRelativeSpeeds(currentState.Pose, goalEndState)));
     }
 
     public Command pathToReef(BranchSide side) {
@@ -220,7 +215,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         PathPlannerPath path = new PathPlannerPath(waypoints, constraints, new IdealStartingState(currentSpeed, directionOfTravel), new GoalEndState(0, goTo.getRotation()));
         path.preventFlipping = true;
 
-        return AutoBuilder.followPath(path);//.andThen(finalAdjustment(goTo));
+        return AutoBuilder.followPath(path).andThen(finalAdjustment(goTo));
     }
 
     public Command autoAlign(BranchSide side) {
