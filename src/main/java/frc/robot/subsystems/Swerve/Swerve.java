@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import org.json.simple.parser.ParseException;
+import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
@@ -187,13 +188,16 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             case LEFT -> offset = new Translation2d(Inches.of(0), Inches.of(0));
             case RIGHT -> offset = new Translation2d(Inches.of(0), Inches.of(0));    
             case CENTER -> offset = new Translation2d(Inches.of(0), Inches.of(0));
-            default -> offset = new Translation2d(0 ,0 );
+            default -> offset = new Translation2d(0, 0);
         }
 
-        offset.rotateBy(goTo.getRotation());
+        offset.rotateBy(robotState.Pose.getRotation());
 
-        var translation = goTo.getTranslation().plus(offset);//.rotateBy(goTo.getRotation());
+        var translation = goTo.getTranslation().plus(offset);
+       //Logger.recordOutput("Rotated", translation);
         goTo = new Pose2d(translation.getX(), translation.getY(), goTo.getRotation());
+        //Logger.recordOutput("Added Go To", goTo);
+        SmartDashboard.putNumberArray("goto", goTo.toMatrix().getData());
 
         //TODO dir of travel not done
         Rotation2d directionOfTravel = new Rotation2d(robotState.Speeds.vxMetersPerSecond, robotState.Speeds.vyMetersPerSecond); 
