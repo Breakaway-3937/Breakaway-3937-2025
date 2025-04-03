@@ -6,8 +6,6 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import com.pathplanner.lib.path.PathPlannerPath;
-
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -29,7 +27,7 @@ public final class Constants {
     public static final boolean USE_LOGGER = true;
     public static final boolean DEBUG = true;
 
-    public static final class Controllers{
+    public static final class Controllers {
         public static final GenericHID TRANSLATION_CONTROLLER = new GenericHID(0);
         public static final GenericHID ROTATION_CONTROLLER = new GenericHID(1);
         public static final GenericHID XBOX_CONTROLLER = new GenericHID(2);

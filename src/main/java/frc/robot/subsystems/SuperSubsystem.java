@@ -104,6 +104,7 @@ public class SuperSubsystem extends SubsystemBase {
   public Command processorState() {
     return saveMrPibb().andThen(runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.PROCESSOR)))
                .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.PROCESSOR)))
+               .andThen(s_MrPibb.setWrist())
                .andThen(runSubsystems());
   }
 

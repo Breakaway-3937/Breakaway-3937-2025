@@ -27,7 +27,7 @@ public class DrPepper extends SubsystemBase {
   private final CANrange sherlock, watson;
   private final GenericEntry coralFull, algaeFull, robotFull;
   private final BooleanSupplier isAlgae;
-  private boolean coralFlag, algaeFlag; //Yay flag
+  private boolean algaeFlag; //Yay flag
 
   /** Creates a new DrPepper.
    *  @since Ankle is no longer with us.
@@ -48,7 +48,6 @@ public class DrPepper extends SubsystemBase {
     algaeFull = Shuffleboard.getTab("Soda").add("Algae Full", botFullAlgae().getAsBoolean()).withPosition(4, 0).getEntry();
     robotFull = Shuffleboard.getTab("Driver").add("Robot Full", botFullAlgae().getAsBoolean() || botFullCoral().getAsBoolean()).withPosition(0, 0).withSize(10, 4).getEntry();
 
-    coralFlag = false;
     algaeFlag = false;
   }
 
@@ -61,11 +60,11 @@ public class DrPepper extends SubsystemBase {
   }
 
   public Command runLoaderReverse() {
-    return runOnce(() -> loader.set(-1));
+    return runOnce(() -> loader.set(-1)).andThen(runOnce(() -> algaeFlag = false));
   }
 
   public Command runLoaderReverseTrough() {
-    return runOnce(() -> loader.set(-0.3));
+    return runOnce(() -> loader.set(-0.3)).andThen(runOnce(() -> algaeFlag = false));
   }
 
   public Command stopLoader() {
@@ -97,19 +96,11 @@ public class DrPepper extends SubsystemBase {
   }
 
   public BooleanSupplier botFullCoral() {
-    return () -> coralFlag;
+    return () -> !isAlgae.getAsBoolean() && !botFullAlgae().getAsBoolean() && (sherlock.getIsDetected().getValue() || watson.getIsDetected().getValue());
   }
 
   public BooleanSupplier botFullAlgae() {
     return () -> algaeFlag;
-  }
-
-  public Command noMoreCoral() {
-    return runOnce(() -> coralFlag = false);
-  }
-
-  public Command noMoreAlgae() {
-    return runOnce(() -> algaeFlag = false);
   }
 
   public TalonFX getLoaderMotor() {
@@ -179,10 +170,6 @@ public class DrPepper extends SubsystemBase {
 
     if(Constants.DEBUG) {
       SmartDashboard.putNumber("Loader %", loader.get());
-    }
-
-    if(!coralFlag) {
-      coralFlag = !isAlgae.getAsBoolean() && !botFullAlgae().getAsBoolean() && sherlock.getIsDetected().getValue() || watson.getIsDetected().getValue();
     }
 
     if(!algaeFlag) {
