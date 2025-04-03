@@ -2,8 +2,10 @@ package frc.robot.subsystems.Swerve;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import org.json.simple.parser.ParseException;
@@ -17,17 +19,21 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.IdealStartingState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.Waypoint;
 import com.pathplanner.lib.pathfinding.LocalADStar;
 import com.pathplanner.lib.pathfinding.Pathfinding;
+import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
 
-import edu.wpi.first.math.Matrix;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -39,13 +45,11 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
-import static edu.wpi.first.wpilibj2.command.Commands.either;
 import static edu.wpi.first.math.MathUtil.isNear;
-import static java.lang.Math.abs;
+import static edu.wpi.first.units.Units.Inches;
 
 import frc.robot.Constants;
 import frc.robot.generated.PracticeTunerConstants.TunerSwerveDrivetrain;
-import frc.robot.subsystems.ClimbAvator.ClimbAvatorStates;
 
 public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private static final double simLoopPeriod = 0.005; // 5 ms
@@ -59,12 +63,15 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     /* Keep track if we've ever applied the operator perspective before or not */
     private boolean hasAppliedOperatorPerspective = false; 
 
-    private ArrayList<Pose2d> poseList;
-    private List<AutoPathLocations> leftTargets = Arrays.asList(AutoPathLocations.CORAL_A, AutoPathLocations.CORAL_C, AutoPathLocations.CORAL_E, AutoPathLocations.CORAL_G, AutoPathLocations.CORAL_I, AutoPathLocations.CORAL_K); 
-    private List<AutoPathLocations> rightTargets = Arrays.asList(AutoPathLocations.CORAL_B, AutoPathLocations.CORAL_D, AutoPathLocations.CORAL_F, AutoPathLocations.CORAL_H, AutoPathLocations.CORAL_J, AutoPathLocations.CORAL_L); 
-    private Rotation2d algaeTarget;
+    private int[] blueTags = {17, 18, 19, 20, 21, 22};
+    private int[] redTags = {6, 7, 8, 9, 10, 11}; 
+    private int[] currentTags = (DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)) ? blueTags : redTags;
+    private Map<Pose2d, Integer> branches = new HashMap<>();
+    private Alliance pastColor = DriverStation.getAlliance().orElse(Alliance.Blue);
 
-    private boolean refuse;
+    private final PPHolonomicDriveController driveController;
+
+    private AprilTagFieldLayout field = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
 
     private final SwerveRequest.ApplyRobotSpeeds pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
@@ -84,34 +91,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             startSimThread();
         }
         configPathplanner();
-        this.setStateStdDevs(VecBuilder.fill(0.05, 0.05, 0.05));
-    }
-
-    public Swerve(
-        SwerveDrivetrainConstants drivetrainConstants,
-        double odometryUpdateFrequency,
-        SwerveModuleConstants<?, ?, ?>... modules
-    ) {
-        super(drivetrainConstants, odometryUpdateFrequency, modules);
-        if (Utils.isSimulation()) {
-            startSimThread();
-        }
-        configPathplanner();
-        this.setStateStdDevs(VecBuilder.fill(0.05, 0.05, 0.05));
-    }
-
-    public Swerve(
-        SwerveDrivetrainConstants drivetrainConstants,
-        double odometryUpdateFrequency,
-        Matrix<N3, N1> odometryStandardDeviation,
-        Matrix<N3, N1> visionStandardDeviation,
-        SwerveModuleConstants<?, ?, ?>... modules
-    ) {
-        super(drivetrainConstants, odometryUpdateFrequency, odometryStandardDeviation, visionStandardDeviation, modules);
-        if (Utils.isSimulation()) {
-            startSimThread();
-        }
-        configPathplanner();
+        driveController = new PPHolonomicDriveController(new PIDConstants(8, 0, 0), new PIDConstants(7, 0, 0));
         this.setStateStdDevs(VecBuilder.fill(0.05, 0.05, 0.05));
     }
 
@@ -156,197 +136,100 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         Pathfinding.setPathfinder(new LocalADStar());
     }
 
-    public Rotation2d getRotationTarget() {
-        try {
-            var target = getFinalPath(findNearestTarget(false).get());
-            
-            if(target.get() != null && !target.get().getAllPathPoints().isEmpty()) {
-                return target.get().getAllPathPoints().get(target.get().getAllPathPoints().size() - 1).rotationTarget.rotation();
-            }
-            else {
-                return getState().Pose.getRotation();
-            }
-        }
-        catch(Exception e) {
-            Logger.recordOutput("Swerve/pathFindToClosest Exception", e.getMessage());
-            return getState().Pose.getRotation();
-        }
+    public Command finalAdjustment(Pose2d goTo) {
+        var currentState = getState();
+        PathPlannerTrajectoryState goalEndState = new PathPlannerTrajectoryState();
+        goalEndState.pose = goTo;
 
+        return applyRequest(() -> pathApplyRobotSpeeds.withSpeeds(driveController.calculateRobotRelativeSpeeds(currentState.Pose, goalEndState)));
     }
 
-    public Supplier<AutoPathLocations> findNearestTarget(boolean right) throws Exception {
-        makePoseList();
-        var near = getState().Pose.nearest(poseList);
-        var target = lookUpPath(near);
-        AutoPathLocations goTo;
-
-        if(target == null) {
-            return null;
+    public Command pathToReef(BranchSide side) {
+        var robotState = getState();
+        var goTo = closetBranch();
+        List<Waypoint> waypoints;
+        goTo = new Pose2d(goTo.getTranslation(), goTo.getRotation().rotateBy(Rotation2d.k180deg));
+        
+        Translation2d offset;
+        switch (side) {
+            case LEFT -> offset = new Translation2d(Inches.of(10), Inches.of(-15));
+            case RIGHT -> offset = new Translation2d(Inches.of(-10), Inches.of(-15));
+            case CENTER -> offset = new Translation2d(Inches.of(0), Inches.of(-15));
+            default -> offset = new Translation2d(Inches.of(0), Inches.of(-15));
         }
 
-        if(right) {
-            if(leftTargets.contains(target)) {
-                goTo = rightTargets.get(leftTargets.indexOf(target));
-            }
-            else {
-                goTo = target;
-            }
-        }
-        else {
-            if(rightTargets.contains(target)) {
-                goTo = leftTargets.get(rightTargets.indexOf(target));
-            }
-            else {
-                goTo = target;
-            }
-        }
+        var translation = goTo.getTranslation().plus(new Translation2d(offset.getY(), offset.getX()).rotateBy(goTo.getRotation()));
+        goTo = new Pose2d(translation.getX(), translation.getY(), goTo.getRotation());
 
-        Logger.recordOutput("Swerve/Auto Path Location", goTo.name());
-
-        var finalPath = goTo;
-
-        if(Constants.DEBUG) {
-            SmartDashboard.putString("Auto Path Path", finalPath.name());
-        }
-
-        return () -> finalPath;
-    }
-
-    public Supplier<PathPlannerPath> getFinalPath(AutoPathLocations goTo) {
-        var locationList = Arrays.asList(AutoPathLocations.values());
+        Rotation2d directionOfTravel = new Rotation2d(robotState.Speeds.vxMetersPerSecond, robotState.Speeds.vyMetersPerSecond); 
+        Pose2d robotPosition = new Pose2d(robotState.Pose.getTranslation(), directionOfTravel);
 
         if(isBackwards()) {
-            String path = goTo.name() + "_BACKWARDS";
-            for(int i = 0; i < locationList.size(); i++) {
-                if(path.equalsIgnoreCase(locationList.get(i).name())) {
-                    goTo = locationList.get(i);
-                }
-            }
+            robotPosition = new Pose2d(robotState.Pose.getTranslation(), directionOfTravel.rotateBy(Rotation2d.k180deg));
+            goTo = new Pose2d(goTo.getTranslation(), goTo.getRotation().rotateBy(Rotation2d.k180deg));
+            waypoints = PathPlannerPath.waypointsFromPoses(robotPosition, goTo); //goTo is reef branch
+        }
+        else {
+            waypoints = PathPlannerPath.waypointsFromPoses(robotPosition, goTo); //goTo is reef branch
         }
 
-        var finalPath = goTo;
+        Logger.recordOutput("Swerve/Align Point", goTo);
+        
+        double currentSpeed = new Translation2d(robotState.Speeds.vxMetersPerSecond, robotState.Speeds.vyMetersPerSecond).getNorm();
 
-        return () -> finalPath.getPath();
+        PathPlannerPath path = new PathPlannerPath(waypoints, constraints, new IdealStartingState(currentSpeed, directionOfTravel), new GoalEndState(0, goTo.getRotation()));
+        path.preventFlipping = true;
+
+        return AutoBuilder.followPath(path).andThen(finalAdjustment(goTo));
+    }
+
+    public Command autoAlign(BranchSide side) {
+        return Commands.defer(() -> pathToReef(side), Set.of(this));
+    }
+
+    public Pose2d closetBranch() {
+        return getState().Pose.nearest(new ArrayList<Pose2d>(branches.keySet()));
     }
 
     public void makePoseList() {
-        poseList = new ArrayList<>();
-        var locationList = Arrays.asList(AutoPathLocations.values());
-        PathPlannerPath path;
+        for(int i = 0; i < currentTags.length; i++) {
+            branches.put((field.getTagPose(currentTags[i]).get().toPose2d()), currentTags[i]);
+        }
 
-        for(int i = 0; i < locationList.size(); i++) {
-            if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
-                path = locationList.get(i).getPath().flipPath();
-            }
-            else {
-                path = locationList.get(i).getPath();
-            }
-            
-            var point = path.getAllPathPoints().get(0).position;
-            var rotation = path.getIdealStartingState().rotation();
-            poseList.add(new Pose2d(point, rotation));
+        if(Constants.DEBUG) {
+            SmartDashboard.putNumberArray("Current Tags", branches.values().stream().mapToDouble(Integer::doubleValue).toArray());
         }
     }
 
-    public AutoPathLocations lookUpPath(Pose2d nearest) {
-        var locationList = Arrays.asList(AutoPathLocations.values());
-        PathPlannerPath path;
-        for(int i = 0; i < locationList.size(); i++) {
-            if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
-                path = locationList.get(i).getPath().flipPath();
-            }
-            else {
-                path = locationList.get(i).getPath();
-            }
+    public boolean isBackwards() {
+        double yaw = getState().Pose.getRotation().getDegrees();
+        Pose2d nearestBranch = closetBranch();
+        int offset = (DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Red)) ? -180 : 0;
+        double tolerance = 60;
 
-            if(nearest.getTranslation().equals(path.getAllPathPoints().get(0).position)) {
-                return locationList.get(i);
-            }
+        double expectedAngle;
+
+        switch (branches.get(nearestBranch)) {
+            case 18,7 -> expectedAngle = 180 + offset;
+            case 17,8 -> expectedAngle = -120 - offset;
+            case 22,9 -> expectedAngle = -60 - offset;
+            case 21,10 -> expectedAngle = 0 - offset;
+            case 20,11 -> expectedAngle = 60 + offset;
+            case 19,6 -> expectedAngle = 120 + offset;
+            default -> expectedAngle = 0;
         }
-        return null;
+
+        if(expectedAngle == 180 + offset || expectedAngle == 0 - offset) {
+            yaw = Math.abs(yaw);
+        }
+
+        return isNear(expectedAngle, yaw, tolerance);
     }
 
-    public Command pathFindToClosest(boolean right) {
-        return defer(() -> 
-            {
-                try {
-                    Logger.recordOutput("Swerve/Algae Align", false);
-                    var target = findNearestTarget(right);
-                    Logger.recordOutput("Swerve/Final Auto Align Path", target.get().name());
-                    var finalPath = getFinalPath(target.get()).get();
-
-                    if(Constants.DEBUG) {
-                        SmartDashboard.putString("Final Path Debug", finalPath.name);
-                    }
-                    return either(AutoBuilder.pathfindThenFollowPath(finalPath, constraints).unless(() -> refuse), Commands.none(), () -> target != null).andThen(runOnce(() -> setRefuseUpdate(true))).andThen(either(hitReefTeleop(), hitReefTeleopBackwards(), () -> !isBackwards()));
-                }
-                catch(Exception e) {
-                    Logger.recordOutput("Swerve/pathFindToClosest Exception", e.getMessage());
-                    return Commands.none();
-                }
-            });
-    }
-
-    public Command pathFindAndFollowToAlgae(Supplier<ClimbAvatorStates> state) {
-        return defer(() -> {
-            try {
-                Logger.recordOutput("Swerve/Algae Align", true);
-                if(!state.get().equals(ClimbAvatorStates.PROCESSOR)) {
-                    var target = findNearestTarget(false);
-                    if(target.get() != null) {
-                        PathPlannerPath location = target.get().getPath();
-
-                        switch (target.get().name()) {
-                            case "CORAL_A", "CORAL_B":
-                                location = AlgaeAutoPathLocations.ALGAE_AB.getPath();
-                                break;
-                            case "CORAL_C", "CORAL_D":
-                                location = AlgaeAutoPathLocations.ALGAE_CD.getPath();
-                                break;
-                            case "CORAL_E", "CORAL_F":
-                                location = AlgaeAutoPathLocations.ALGAE_EF.getPath();
-                                break;
-                            case "CORAL_G", "CORAL_H":
-                                location = AlgaeAutoPathLocations.ALGAE_GH.getPath();
-                                break;
-                            case "CORAL_I", "CORAL_J":
-                                location = AlgaeAutoPathLocations.ALGAE_IJ.getPath();
-                                break;
-                            case "CORAL_K", "CORAL_L":
-                                location = AlgaeAutoPathLocations.ALGAE_KL.getPath();
-                                break;
-                            default:
-                                location = target.get().getPath();
-                                break;
-                        }
-
-                        PathPlannerPath finalLocation = location;
-                        setAlgaeRotationTarget(finalLocation);
-                        Logger.recordOutput("Swerve/Final Auto Align Path", finalLocation.name);
-                        return defer(() -> AutoBuilder.pathfindThenFollowPath(finalLocation, constraints));
-                    }
-                    else {
-                        return Commands.none();
-                    }
-                }
-                else {
-                    Logger.recordOutput("Swerve/Final Auto Align Path", AlgaeAutoPathLocations.PROCESSOR.getPath().name);
-                    return defer(() -> AutoBuilder.pathfindThenFollowPath(AlgaeAutoPathLocations.PROCESSOR.getPath(), constraints));
-                }
-            }
-            catch(Exception e) {
-                Logger.recordOutput("pathFindAndFollowToAlgae Exception", e.getMessage());
-                return Commands.none();
-            }
-        });
-    }
-
-    public void setAlgaeRotationTarget(PathPlannerPath path) {
-        algaeTarget = path.getAllPathPoints().get(path.getAllPathPoints().size() - 1).rotationTarget.rotation();
-    }
-
-    public Rotation2d getAlgaeRotationTarget() {
-        return algaeTarget;
+    public enum BranchSide {
+        LEFT,
+        RIGHT,
+        CENTER;
     }
 
     public Command hitReef() {
@@ -365,91 +248,12 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return applyRequest(() -> auto.withVelocityX(-1).withVelocityY(0));
     }
 
-    public Command hitReefTeleop() {
-        return Commands.deadline(new WaitCommand(0.5), hitReef());
-    }
-
     public Command hitReefTeleopBackwards() {
         return Commands.deadline(new WaitCommand(0.5), hitReefBackwards());
     }
 
     public Command stop() {
         return applyRequest(() -> auto.withVelocityX(0).withVelocityY(0));
-    }
-
-    public void setRefuseUpdate(boolean refuse) {
-        this.refuse = refuse;
-    }
-
-    public boolean isBackwards() {
-        double yaw = getState().Pose.getRotation().getDegrees();
-        int offset = (DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Red)) ? -180 : 0;
-        int tolerance = 60;
-        boolean backwards = false;
-        String path;
-
-        try {
-            path = findNearestTarget(false).get().getPath().name;
-        }
-        catch(Exception e) {
-            Logger.recordOutput("Is Backwards Error", e.toString());
-            path = null;
-        }
-
-        if(path == null) {
-            return false;
-        }
-
-        if(path.equalsIgnoreCase("a") || path.equalsIgnoreCase("b")) {
-            if(isNear(180 + offset, abs(yaw), tolerance)) {
-                backwards = true;
-            }
-            else {
-                backwards = false;
-            }
-        }
-        else if(path.equalsIgnoreCase("c") || path.equalsIgnoreCase("d")) {
-            if(isNear(-120 - offset, yaw, tolerance)) {
-                backwards = true;
-            }
-            else {
-                backwards = false;
-            }
-        }
-        else if(path.equalsIgnoreCase("e") || path.equalsIgnoreCase("f")) {
-            if(isNear(-60 - offset, yaw, tolerance)) {
-                backwards = true;
-            }
-            else {
-                backwards = false;
-            }
-        }
-        else if(path.equalsIgnoreCase("g") || path.equalsIgnoreCase("h")) {
-            if(isNear(0 - offset, abs(yaw), tolerance)) {
-                backwards = true;
-            }
-            else {
-                backwards = false;
-            }
-        }
-        else if(path.equalsIgnoreCase("i") || path.equalsIgnoreCase("j")) {
-            if(isNear(60 + offset, yaw, tolerance)) {
-                backwards = true;
-            }
-            else {
-                backwards = false;
-            }
-        }
-        else if(path.equalsIgnoreCase("k") || path.equalsIgnoreCase("l")) {
-            if(isNear(120 + offset, yaw, tolerance)) {
-                backwards = true;
-            }
-            else {
-                backwards = false;
-            }
-        }
-
-        return backwards;
     }
 
     @Override
@@ -468,12 +272,26 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             });
         }
 
-        Logger.recordOutput("Rotation Target", getRotationTarget());
+        if(DriverStation.isDisabled()) {
+            DriverStation.getAlliance().ifPresent((allianceColor) -> {
+                if(!allianceColor.equals(pastColor)) {
+                    currentTags = (allianceColor.equals(Alliance.Blue)) ? blueTags : redTags;
+                    branches.clear();
+                    makePoseList();
+                    pastColor = allianceColor;
+                }
+            });
+        }
+
+
 
         if(Constants.DEBUG) {
-            SmartDashboard.putNumber("Rotation Target", getRotationTarget().getDegrees());
-            SmartDashboard.putNumber("Rotation from pose", getState().Pose.getRotation().getDegrees());
+            SmartDashboard.putNumber("Rotation from Pose", getState().Pose.getRotation().getDegrees());
+            SmartDashboard.putString("Pose of Target", closetBranch().toString());
+            SmartDashboard.putNumber("Branch Tag ID", branches.get(closetBranch()));
             SmartDashboard.putBoolean("isBackwards", isBackwards());
+            SmartDashboard.putString("Alliance Color", DriverStation.getAlliance().orElse(Alliance.Blue).toString());
+            SmartDashboard.putString("Past Color", pastColor.toString());
         }
     }
 
