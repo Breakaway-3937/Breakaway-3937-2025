@@ -53,8 +53,8 @@ public class RobotContainer {
 
     /* Driver Buttons */
     private final JoystickButton translationButton = new JoystickButton(translationController, Constants.Controllers.TRANSLATION_BUTTON);
-    private final JoystickButton leftTrack = new JoystickButton(buttons, 1);
-    private final JoystickButton rightTrack = new JoystickButton(buttons, 2);
+    private final JoystickButton leftTrack = new JoystickButton(buttons, 7);
+    private final JoystickButton rightTrack = new JoystickButton(buttons, 8);
 
     /* Triggers */
     private final Trigger slowDownTrigger;
