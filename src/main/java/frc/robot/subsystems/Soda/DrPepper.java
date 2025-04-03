@@ -95,6 +95,10 @@ public class DrPepper extends SubsystemBase {
     return Commands.either(Commands.either(stopThumb(), runThumbBackwardSlowly(), () -> watson.getIsDetected().getValue()), Commands.either(runThumbForwardSlowly(), Commands.none(), () -> watson.getIsDetected().getValue()), () -> sherlock.getIsDetected().getValue());
   }
 
+  public Command autoCenter() {
+    return Commands.either(Commands.either(stopThumb(), runThumbBackwardSlowly(), () -> watson.getIsDetected().getValue()), Commands.either(runThumbForwardSlowly(), Commands.none(), () -> watson.getIsDetected().getValue()), () -> sherlock.getIsDetected().getValue()).repeatedly().until(() -> sherlock.getIsDetected().getValue() && watson.getIsDetected().getValue());
+  }
+
   public BooleanSupplier botFullCoral() {
     return () -> !isAlgae.getAsBoolean() && !botFullAlgae().getAsBoolean() && (sherlock.getIsDetected().getValue() || watson.getIsDetected().getValue());
   }
@@ -150,7 +154,7 @@ public class DrPepper extends SubsystemBase {
     watson.getConfigurator().apply(new CANrangeConfiguration());
 
     CANrangeConfiguration config = new CANrangeConfiguration();
-    config.ProximityParams.ProximityThreshold = 0.12;
+    config.ProximityParams.ProximityThreshold = 0.05;
 
     sherlock.getConfigurator().apply(config);
     watson.getConfigurator().apply(config);
@@ -168,12 +172,17 @@ public class DrPepper extends SubsystemBase {
 
     Logger.recordOutput("Soda/Loader Current", loader.getStatorCurrent().getValueAsDouble());
 
+    var command = getCurrentCommand();
+    if(command != null) {
+      Logger.recordOutput("Soda/Dr. Current Command", command.getName());
+    }
+
     if(Constants.DEBUG) {
       SmartDashboard.putNumber("Loader %", loader.get());
     }
 
     if(!algaeFlag) {
-      algaeFlag = isAlgae.getAsBoolean() && loader.getStatorCurrent().getValueAsDouble() > 60;
+      algaeFlag = isAlgae.getAsBoolean() && (sherlock.getIsDetected().getValue() || watson.getIsDetected().getValue());
     }
   }
 }

@@ -22,6 +22,7 @@ import com.ctre.phoenix6.swerve.utility.PhoenixPIDController;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -40,7 +41,7 @@ public class Vision extends SubsystemBase {
   private final Swerve s_Swerve;
   private final double maxDistance = 6; // In meters
   private boolean frontCameraBad, backCameraBad;
-  private boolean xDistanceBad = false;
+  private boolean xDistanceBad = false, noBack = false;
 
   /** Creates a new Vision. */
   public Vision(Swerve s_Swerve) {
@@ -110,7 +111,7 @@ public class Vision extends SubsystemBase {
     if(!result.isEmpty()) {
       for(int i = 0; i < result.get().targetsUsed.size(); i++) {
         int tagUsed = result.get().targetsUsed.get(i).fiducialId;
-        if(tagUsed == 13 || tagUsed == 12 || tagUsed == 1 || tagUsed == 2) {
+        if(tagUsed == 14 || tagUsed == 15 || tagUsed == 4 || tagUsed == 5) {
           bad = true;
         }
       }
@@ -132,6 +133,14 @@ public class Vision extends SubsystemBase {
 
   public BooleanSupplier funeral() {
     return () -> frontCamera.isDead() || backCamera.isDead();
+  }
+
+  public Command refuseBack() {
+    return runOnce(() -> noBack = true);
+  }
+
+  public Command unrefuseBack() {
+    return runOnce(() -> noBack = false);
   }
 
   @Override
@@ -161,10 +170,14 @@ public class Vision extends SubsystemBase {
     }
     
     /* Back Camera */
-    if(!backResult.isEmpty() && (frontCameraBad || frontResult.isEmpty())) {
+    if(!backResult.isEmpty() && (frontCameraBad || frontResult.isEmpty()) && !noBack) {
       double averageDistanceX = getAverageTagDistanceX(backResult);
 
       if(averageDistanceX > maxDistance) {
+        backCameraBad = true;
+      }
+
+      if(badFrontTags(backResult)) {
         backCameraBad = true;
       }
 

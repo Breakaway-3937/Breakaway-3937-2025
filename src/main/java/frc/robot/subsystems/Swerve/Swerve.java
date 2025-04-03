@@ -35,6 +35,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringSubscriber;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -46,7 +48,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 import static edu.wpi.first.math.MathUtil.isNear;
-import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Centimeters;
 
 import frc.robot.Constants;
 import frc.robot.generated.PracticeTunerConstants.TunerSwerveDrivetrain;
@@ -79,7 +81,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             .withVelocityX(0).withVelocityY(0);
 
     PathConstraints constraints = new PathConstraints(
-        5.0, 5.0,
+        2.5, 2.5,
         Units.degreesToRadians(720.0), Units.degreesToRadians(720.0));
 
     public Swerve(
@@ -90,6 +92,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        makePoseList();
         configPathplanner();
         driveController = new PPHolonomicDriveController(new PIDConstants(8, 0, 0), new PIDConstants(7, 0, 0));
         this.setStateStdDevs(VecBuilder.fill(0.05, 0.05, 0.05));
@@ -137,11 +140,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public Command finalAdjustment(Pose2d goTo) {
-        var currentState = getState();
         PathPlannerTrajectoryState goalEndState = new PathPlannerTrajectoryState();
         goalEndState.pose = goTo;
 
-        return applyRequest(() -> pathApplyRobotSpeeds.withSpeeds(driveController.calculateRobotRelativeSpeeds(currentState.Pose, goalEndState)));
+        return applyRequest(() -> pathApplyRobotSpeeds.withSpeeds(driveController.calculateRobotRelativeSpeeds(getState().Pose, goalEndState)));
     }
 
     public Command pathToReef(BranchSide side) {
@@ -152,10 +154,11 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         
         Translation2d offset;
         switch (side) {
-            case LEFT -> offset = new Translation2d(Inches.of(10), Inches.of(-15));
-            case RIGHT -> offset = new Translation2d(Inches.of(-10), Inches.of(-15));
-            case CENTER -> offset = new Translation2d(Inches.of(0), Inches.of(-15));
-            default -> offset = new Translation2d(Inches.of(0), Inches.of(-15));
+            //x is left/right,y is forward/backwards
+            case LEFT -> offset = new Translation2d(Centimeters.of(17), Centimeters.of(-50));
+            case RIGHT -> offset = new Translation2d(Centimeters.of(-17), Centimeters.of(-50));
+            case CENTER -> offset = new Translation2d(Centimeters.of(0), Centimeters.of(-63));
+            default -> offset = new Translation2d(Centimeters.of(0), Centimeters.of(-15));
         }
 
         var translation = goTo.getTranslation().plus(new Translation2d(offset.getY(), offset.getX()).rotateBy(goTo.getRotation()));
@@ -233,7 +236,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public Command hitReef() {
-        return applyRequest(() -> auto.withVelocityX(1).withVelocityY(0));
+        return applyRequest(() -> auto.withVelocityX(1).withVelocityY(0)).withName("Hit Reef");
     }
 
     public Command hitReefBackwards() {
@@ -283,7 +286,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             });
         }
 
-
+        var command = getCurrentCommand();
+        if(command != null) {
+          Logger.recordOutput("Swerve/Current Command", command.getName());
+        }
 
         if(Constants.DEBUG) {
             SmartDashboard.putNumber("Rotation from Pose", getState().Pose.getRotation().getDegrees());

@@ -11,4 +11,6 @@ public class Conversions {
     public static double turretDegreeToRotations(double degree) {
         return degree / turretConversion;
     }
+    
+    //L2 3.78in, L3 16 5/8 in
 }

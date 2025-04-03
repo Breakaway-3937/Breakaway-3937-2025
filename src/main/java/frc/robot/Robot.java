@@ -134,6 +134,8 @@ public class Robot extends LoggedRobot {
     if(autonomousCommand != null) {
       autonomousCommand.cancel();
     }
+
+    robotContainer.getDrPepper().setDefaultCommand(robotContainer.getDrPepper().center());
   }
 
   @Override
