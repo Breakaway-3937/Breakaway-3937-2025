@@ -53,8 +53,8 @@ public class RobotContainer {
 
     /* Driver Buttons */
     private final JoystickButton translationButton = new JoystickButton(translationController, Constants.Controllers.TRANSLATION_BUTTON);
-    private final JoystickButton leftTrack = new JoystickButton(buttons, 7);
-    private final JoystickButton rightTrack = new JoystickButton(buttons, 8);
+    private final JoystickButton leftTrack = new JoystickButton(buttons, 1);
+    private final JoystickButton rightTrack = new JoystickButton(buttons, 2);
 
     /* Triggers */
     private final Trigger slowDownTrigger;
@@ -105,10 +105,8 @@ public class RobotContainer {
         /* Driver Buttons */
         translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
         slowDownTrigger.whileTrue(Commands.runOnce(() -> multiplier = 0.4)).whileFalse(Commands.runOnce(() -> multiplier = 1));
-        //leftTrack.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_ALIGNING))).whileTrue((Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(s_Swerve.hitReefTeleop()).andThen(holdPosition()), s_Swerve.pathFindToClosest(false).andThen(holdPosition()), s_SuperSubsystem.isAlgae()).alongWith(setRumble(RumbleType.kLeftRumble, 1)))).onFalse(Commands.runOnce(() -> s_Swerve.setRefuseUpdate(false), s_Swerve).andThen(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED)).alongWith(setRumble(RumbleType.kBothRumble, 0)).andThen(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY))));
-        //rightTrack.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_ALIGNING))).whileTrue((Commands.either(s_Swerve.pathFindAndFollowToAlgae(() -> s_ClimbAvator.getState()).andThen(s_Swerve.hitReefTeleop()).andThen(holdPosition()), s_Swerve.pathFindToClosest(true).andThen(holdPosition()), s_SuperSubsystem.isAlgae()).alongWith(setRumble(RumbleType.kRightRumble, 1)))).onFalse(Commands.runOnce(() -> s_Swerve.setRefuseUpdate(false), s_Swerve).andThen(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED)).alongWith(setRumble(RumbleType.kBothRumble, 0)).andThen(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY))));
-        leftTrack.whileTrue(Commands.either(s_Swerve.autoAlign(BranchSide.CENTER), s_Swerve.autoAlign(BranchSide.LEFT), isAlgae()));
-        rightTrack.whileTrue(Commands.either(s_Swerve.autoAlign(BranchSide.CENTER), s_Swerve.autoAlign(BranchSide.RIGHT), isAlgae()));
+        leftTrack.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_ALIGNING)).alongWith(setRumble(RumbleType.kLeftRumble, 1))).whileTrue(Commands.either(s_Swerve.autoAlign(BranchSide.CENTER), s_Swerve.autoAlign(BranchSide.LEFT), isAlgae())).onFalse(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED).alongWith(setRumble(RumbleType.kBothRumble, 0)));
+        rightTrack.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_ALIGNING)).alongWith(setRumble(RumbleType.kRightRumble, 1))).whileTrue(Commands.either(s_Swerve.autoAlign(BranchSide.CENTER), s_Swerve.autoAlign(BranchSide.RIGHT), isAlgae())).onFalse(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED).alongWith(setRumble(RumbleType.kBothRumble, 0)));
 
         /* Weird Button States */
         xboxController.a().onTrue(Commands.either(s_SuperSubsystem.l1State(), s_SuperSubsystem.processorState(), xboxController.back()));

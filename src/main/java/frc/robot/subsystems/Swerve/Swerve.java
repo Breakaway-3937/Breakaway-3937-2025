@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import org.json.simple.parser.ParseException;
+import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
@@ -29,13 +30,10 @@ import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -72,6 +70,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private Alliance pastColor = DriverStation.getAlliance().orElse(Alliance.Blue);
 
     private final PPHolonomicDriveController driveController;
+
     private AprilTagFieldLayout field = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
 
     private final SwerveRequest.ApplyRobotSpeeds pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
@@ -88,36 +87,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         SwerveModuleConstants<?, ?, ?>... modules
     ) {
         super(drivetrainConstants, modules);
-        if (Utils.isSimulation()) {
-            startSimThread();
-        }
-        configPathplanner();
-        driveController = new PPHolonomicDriveController(new PIDConstants(8, 0, 0), new PIDConstants(7, 0, 0));
-        this.setStateStdDevs(VecBuilder.fill(0.05, 0.05, 0.05));
-    }
-
-    public Swerve(
-        SwerveDrivetrainConstants drivetrainConstants,
-        double odometryUpdateFrequency,
-        SwerveModuleConstants<?, ?, ?>... modules
-    ) {
-        super(drivetrainConstants, odometryUpdateFrequency, modules);
-        if (Utils.isSimulation()) {
-            startSimThread();
-        }
-        configPathplanner();
-        driveController = new PPHolonomicDriveController(new PIDConstants(8, 0, 0), new PIDConstants(7, 0, 0));
-        this.setStateStdDevs(VecBuilder.fill(0.05, 0.05, 0.05));
-    }
-
-    public Swerve(
-        SwerveDrivetrainConstants drivetrainConstants,
-        double odometryUpdateFrequency,
-        Matrix<N3, N1> odometryStandardDeviation,
-        Matrix<N3, N1> visionStandardDeviation,
-        SwerveModuleConstants<?, ?, ?>... modules
-    ) {
-        super(drivetrainConstants, odometryUpdateFrequency, odometryStandardDeviation, visionStandardDeviation, modules);
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -177,38 +146,34 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     public Command pathToReef(BranchSide side) {
         var robotState = getState();
-        var goTo = closetBranch(); //TODO make this in perodic to keep synced?
+        var goTo = closetBranch();
         List<Waypoint> waypoints;
         goTo = new Pose2d(goTo.getTranslation(), goTo.getRotation().rotateBy(Rotation2d.k180deg));
         
         Translation2d offset;
         switch (side) {
-            case LEFT -> offset = new Translation2d(Inches.of(10), Inches.of(-10));
-            case RIGHT -> offset = new Translation2d(Inches.of(0), Inches.of(0));
-            case CENTER -> offset = new Translation2d(Inches.of(0), Inches.of(0));
-            default -> offset = new Translation2d(0, 0);
+            case LEFT -> offset = new Translation2d(Inches.of(10), Inches.of(-15));
+            case RIGHT -> offset = new Translation2d(Inches.of(-10), Inches.of(-15));
+            case CENTER -> offset = new Translation2d(Inches.of(0), Inches.of(-15));
+            default -> offset = new Translation2d(Inches.of(0), Inches.of(-15));
         }
 
         var translation = goTo.getTranslation().plus(new Translation2d(offset.getY(), offset.getX()).rotateBy(goTo.getRotation()));
-       //Logger.recordOutput("Rotated", translation);
         goTo = new Pose2d(translation.getX(), translation.getY(), goTo.getRotation());
-        //Logger.recordOutput("Added Go To", goTo);
-        SmartDashboard.putNumberArray("goto", goTo.toMatrix().getData());
 
-        //TODO dir of travel not done
         Rotation2d directionOfTravel = new Rotation2d(robotState.Speeds.vxMetersPerSecond, robotState.Speeds.vyMetersPerSecond); 
         Pose2d robotPosition = new Pose2d(robotState.Pose.getTranslation(), directionOfTravel);
 
         if(isBackwards()) {
-            SmartDashboard.putNumber("Before 180", goTo.getRotation().getDegrees());
             robotPosition = new Pose2d(robotState.Pose.getTranslation(), directionOfTravel.rotateBy(Rotation2d.k180deg));
             goTo = new Pose2d(goTo.getTranslation(), goTo.getRotation().rotateBy(Rotation2d.k180deg));
-            SmartDashboard.putNumber("After 180", goTo.getRotation().getDegrees());
             waypoints = PathPlannerPath.waypointsFromPoses(robotPosition, goTo); //goTo is reef branch
         }
         else {
             waypoints = PathPlannerPath.waypointsFromPoses(robotPosition, goTo); //goTo is reef branch
         }
+
+        Logger.recordOutput("Swerve/Align Point", goTo);
         
         double currentSpeed = new Translation2d(robotState.Speeds.vxMetersPerSecond, robotState.Speeds.vyMetersPerSecond).getNorm();
 
@@ -230,18 +195,15 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         for(int i = 0; i < currentTags.length; i++) {
             branches.put((field.getTagPose(currentTags[i]).get().toPose2d()), currentTags[i]);
         }
-        SmartDashboard.putNumberArray("Current Tags", branches.values().stream().mapToDouble(Integer::doubleValue).toArray());
-    }
 
-    public Pose2d flipPose(Pose2d notFlipped) {
-        //Flips from blue to red //TODO do i need this?
-        double FIELD_LENGTH = 16.54; 
-        return new Pose2d(new Translation2d(FIELD_LENGTH - notFlipped.getX(), notFlipped.getY()), new Rotation2d(Math.PI).minus(notFlipped.getRotation()));
+        if(Constants.DEBUG) {
+            SmartDashboard.putNumberArray("Current Tags", branches.values().stream().mapToDouble(Integer::doubleValue).toArray());
+        }
     }
 
     public boolean isBackwards() {
         double yaw = getState().Pose.getRotation().getDegrees();
-        Pose2d nearestBranch = closetBranch(); //TODO make this in perodic to keep synced?
+        Pose2d nearestBranch = closetBranch();
         int offset = (DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Red)) ? -180 : 0;
         double tolerance = 60;
 
@@ -252,8 +214,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             case 17,8 -> expectedAngle = -120 - offset;
             case 22,9 -> expectedAngle = -60 - offset;
             case 21,10 -> expectedAngle = 0 - offset;
-            case 20,11 -> expectedAngle = 60 - offset;
-            case 19,6 -> expectedAngle = 120 - offset;
+            case 20,11 -> expectedAngle = 60 + offset;
+            case 19,6 -> expectedAngle = 120 + offset;
             default -> expectedAngle = 0;
         }
 
@@ -313,7 +275,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         if(DriverStation.isDisabled()) {
             DriverStation.getAlliance().ifPresent((allianceColor) -> {
                 if(!allianceColor.equals(pastColor)) {
-                    SmartDashboard.putNumber("Test", getState().Timestamp);
                     currentTags = (allianceColor.equals(Alliance.Blue)) ? blueTags : redTags;
                     branches.clear();
                     makePoseList();
@@ -325,12 +286,12 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
 
         if(Constants.DEBUG) {
-            SmartDashboard.putNumber("Rotation from pose", getState().Pose.getRotation().getDegrees());
+            SmartDashboard.putNumber("Rotation from Pose", getState().Pose.getRotation().getDegrees());
             SmartDashboard.putString("Pose of Target", closetBranch().toString());
-            SmartDashboard.putNumber("Branch tag id", branches.get(closetBranch()));
+            SmartDashboard.putNumber("Branch Tag ID", branches.get(closetBranch()));
             SmartDashboard.putBoolean("isBackwards", isBackwards());
             SmartDashboard.putString("Alliance Color", DriverStation.getAlliance().orElse(Alliance.Blue).toString());
-            SmartDashboard.putString("past color", pastColor.toString());
+            SmartDashboard.putString("Past Color", pastColor.toString());
         }
     }
 
