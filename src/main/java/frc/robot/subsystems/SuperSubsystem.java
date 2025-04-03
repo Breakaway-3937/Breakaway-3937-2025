@@ -6,6 +6,8 @@ package frc.robot.subsystems;
 
 import java.util.function.BooleanSupplier;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -148,7 +150,7 @@ public class SuperSubsystem extends SubsystemBase {
   /* Other States */
   public Command climbState() {
     return Commands.either(runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.CLIMB))
-               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.CORAL_PRESTAGE)))
+               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.BARGE)))
                .andThen(runSubsystems())
                .andThen(s_ClimbAvator.preStageBilboBagginsTheBack()),
                Commands.none(),
@@ -182,7 +184,7 @@ public class SuperSubsystem extends SubsystemBase {
   }
 
   public BooleanSupplier isAlgae() {
-    return () -> getClimbAvatorState().equals(ClimbAvatorStates.GROUND_ALGAE) || getClimbAvatorState().equals(ClimbAvatorStates.LOWER_ALGAE) || getClimbAvatorState().equals(ClimbAvatorStates.UPPER_ALGAE) || getClimbAvatorState().equals(ClimbAvatorStates.PROCESSOR);
+    return () -> getClimbAvatorState().equals(ClimbAvatorStates.GROUND_ALGAE) || getClimbAvatorState().equals(ClimbAvatorStates.LOWER_ALGAE) || getClimbAvatorState().equals(ClimbAvatorStates.UPPER_ALGAE) || getClimbAvatorState().equals(ClimbAvatorStates.PROCESSOR) || getClimbAvatorState().equals(ClimbAvatorStates.BARGE);
   }
 
   public Command hitReef(Command hit, Command stop) {
@@ -206,11 +208,11 @@ public class SuperSubsystem extends SubsystemBase {
   }
 
   public Command load() {
-    return s_DrPepper.runLoader().andThen(Commands.waitUntil(botFullCoral()));
+    return s_DrPepper.runLoader().andThen(Commands.waitUntil(botFullCoral())).andThen(s_DrPepper.stopLoader());
   }
 
   public Command center() {
-    return s_DrPepper.center();
+    return s_DrPepper.autoCenter().andThen(s_DrPepper.stopThumb());
   }
 
   public Command tushPush(Command hit, Command stop) {
@@ -240,6 +242,12 @@ public class SuperSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+
+    var command = getCurrentCommand();
+    if(command != null) {
+      Logger.recordOutput("SuperSubsystem/Current Command", command.getName());
+    }
+
     if(DriverStation.isEnabled() && !funeral.getAsBoolean() && !s_ClimbAvator.getState().equals(ClimbAvatorStates.CLIMB_PULL) && !s_LED.getState().equals(LEDStates.BOT_ALIGNING)) {
       if(botFullAlgae().getAsBoolean() && !s_LED.getState().equals(LEDStates.ALGAE_FULL)) {
         s_LED.setState(LEDStates.ALGAE_FULL);
