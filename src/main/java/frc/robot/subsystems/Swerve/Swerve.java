@@ -256,12 +256,16 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
         switch (currentAuto) {
             case "L4 Right","Tush Push L4 Right": pointsToPull = new int[] {22, 17}; rightSideAuto = true; break; //Blue Right side: left right, left
-            case "L4 Left","???": pointsToPull = new int[] {20, 19}; rightSideAuto = false; break;
+            case "L4 Left","Tush Push L4 Left": pointsToPull = new int[] {20, 19}; rightSideAuto = false; break;
+            case "L4 Back": pointsToPull = new int[] {21, 21}; rightSideAuto = true; break;
+            case "L4 Back Left": pointsToPull = new int[] {21, 21}; rightSideAuto = false; break;
             default: pointsToPull = new int[] {22, 17}; //TODO what should this be?
         }
 
-        SmartDashboard.putBoolean("rightSideAuto?", rightSideAuto);
-        SmartDashboard.putNumberArray("Points to pull",  Arrays.stream(pointsToPull).asDoubleStream().toArray());
+        if(Constants.DEBUG) {
+            SmartDashboard.putBoolean("rightSideAuto?", rightSideAuto);
+            SmartDashboard.putNumberArray("Points to pull",  Arrays.stream(pointsToPull).asDoubleStream().toArray());    
+        }
 
         DriverStation.getAlliance().ifPresent((allianceColor) -> {
             if(allianceColor.equals(Alliance.Red)) { 
@@ -277,6 +281,9 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                 }
                 if(pointsToPull[i] == 19) {
                     pointsToPull[i] = 6;
+                }
+                if(pointsToPull[i] == 21) {
+                    pointsToPull[i] = 10;
                 }
             }}
         });
@@ -300,7 +307,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
         //For blue right side nothing done is to bool it shoudl be set up so it does the order for a blue rightside auto.
         //For left side it is configured to do the opisite of right, instead of left it does right.
-        //For red do the opsite but flipped? red leftside is blue rightside? red rightside is blue rightside?
+        //this is not true: For red do the opsite but flipped? red leftside is blue rightside? red rightside is blue rightside?
 
         //Red leftside: right, left, right
         //Red rightside: left, right, left
@@ -309,17 +316,30 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             case 1 -> offset = (rightSideAuto) ?  leftOffset : rightOffset;
             case 2 -> offset = (rightSideAuto) ?  rightOffset : leftOffset;
             case 3 -> offset = (rightSideAuto) ?  leftOffset : rightOffset;
-            default -> offset = new Translation2d();//FIXME
+            default -> offset = new Translation2d();
         }
 
-        SmartDashboard.putNumberArray("Non moved goto", new double[] {goTo.getX(), goTo.getY(), goTo.getRotation().getDegrees()});
+        if(Constants.DEBUG) {
+            SmartDashboard.putNumberArray("Non moved goto", new double[] {goTo.getX(), goTo.getY(), goTo.getRotation().getDegrees()});
+        }
 
         goTo = new Pose2d(goTo.getTranslation(), goTo.getRotation().rotateBy(Rotation2d.k180deg));
 
         var translation = goTo.getTranslation().plus(new Translation2d(offset.getY(), offset.getX()).rotateBy(goTo.getRotation()));
         goTo = new Pose2d(translation, goTo.getRotation());
 
-        SmartDashboard.putNumberArray("Final Go To", new double[] {goTo.getX(), goTo.getY(), goTo.getRotation().getDegrees()});
+        if(Constants.DEBUG) {
+            SmartDashboard.putNumberArray("Final Go To", new double[] {goTo.getX(), goTo.getY(), goTo.getRotation().getDegrees()});
+        }
+
+        if(getState().Pose.getX() < 2.7 || getState().Pose.getX() > 15.3) {
+            if(rightSideAuto) {
+                goTo = new Pose2d(1.551, 0.609, Rotation2d.fromDegrees(45.975));
+            }
+            else {
+                goTo = new Pose2d(1.551, 7.291, Rotation2d.fromDegrees(-45.975));
+            }
+        } 
 
         PathPlannerTrajectoryState branch = new PathPlannerTrajectoryState();
         branch.pose = goTo;

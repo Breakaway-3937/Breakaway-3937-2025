@@ -140,24 +140,23 @@ public class RobotContainer {
     }
 
     public RobotContainer() {
-        //NamedCommands.registerCommand("ScoreCoral", s_SuperSubsystem.scoreCoral(s_Swerve.hitReef(), s_Swerve.stop()));
-        //NamedCommands.registerCommand("ScoreCoralL1", s_SuperSubsystem.scoreCoralL1(s_Swerve.hitReef(), s_Swerve.stop()));
-        //NamedCommands.registerCommand("Load", s_SuperSubsystem.load());
-        //NamedCommands.registerCommand("Center", s_SuperSubsystem.center());
-        //NamedCommands.registerCommand("Condense", s_SuperSubsystem.condenseAuto());
-        //NamedCommands.registerCommand("TushPush", s_SuperSubsystem.tushPush(s_Swerve.hitRobot(), s_Swerve.stop()));
-        //NamedCommands.registerCommand("MakeCoachTHappy", getInitialPrestageCommand());
-        //NamedCommands.registerCommand("Pickup", s_SuperSubsystem.pickup(s_Swerve.hitReef(), s_Swerve.stop()));
-        //NamedCommands.registerCommand("ScoreAlgae", s_SuperSubsystem.scoreAlgae());
-        //NamedCommands.registerCommand("Barge", s_SuperSubsystem.bargeState());
-        //NamedCommands.registerCommand("L1", s_SuperSubsystem.l1State());
-        //NamedCommands.registerCommand("LowerAlgae", s_SuperSubsystem.lowerAlgaeState());
-        NamedCommands.registerCommand("ScoreCoral", s_Swerve.autoReefCorrection());
+        NamedCommands.registerCommand("ScoreCoral", s_SuperSubsystem.scoreCoral(s_Swerve.autoReefCorrection(), s_Swerve.stop()));
+        NamedCommands.registerCommand("ScoreCoralL1", s_SuperSubsystem.scoreCoralL1(s_Swerve.autoReefCorrection(), s_Swerve.stop()));
+        NamedCommands.registerCommand("Load", s_SuperSubsystem.load());
+        NamedCommands.registerCommand("Center", s_SuperSubsystem.center());
+        NamedCommands.registerCommand("Condense", s_SuperSubsystem.condenseAuto());
+        NamedCommands.registerCommand("TushPush", s_SuperSubsystem.tushPush(s_Swerve.hitRobot(), s_Swerve.stop()));
+        NamedCommands.registerCommand("MakeCoachTHappy", getInitialPrestageCommand());
+        NamedCommands.registerCommand("Pickup", s_SuperSubsystem.pickup(s_Swerve.autoReefCorrection(), s_Swerve.stop()));
+        NamedCommands.registerCommand("ScoreAlgae", s_SuperSubsystem.scoreAlgae());
+        NamedCommands.registerCommand("Barge", s_SuperSubsystem.bargeState());
+        NamedCommands.registerCommand("L1", s_SuperSubsystem.l1State());
+        NamedCommands.registerCommand("LowerAlgae", s_SuperSubsystem.lowerAlgaeState());
         autoChooser = AutoBuilder.buildAutoChooser();
         autoChooser.setDefaultOption("DO NOTHING", Commands.none());
-        autoChooser.addOption("Tush Push L4 Left", new PathPlannerAuto("Tush Push L4 Right", true));
+        autoChooser.addOption("Tush Push L4 Left", new PathPlannerAuto("Tush Push L4 Right", true).withName("Tush Push L4 Left"));
         autoChooser.addOption("L4 Left", new PathPlannerAuto("L4 Right", true).withName("L4 Left"));
-        autoChooser.addOption("L4 Back Left", new PathPlannerAuto("L4 Back", true));
+        autoChooser.addOption("L4 Back Left", new PathPlannerAuto("L4 Back", true).withName("L4 Back Left"));
         Shuffleboard.getTab("Auto").add(autoChooser).withPosition(0, 0).withSize(2, 1);
 
         slowDownTrigger = new Trigger(() -> DriverStation.isTeleop() && (s_ClimbAvator.getState().equals(ClimbAvatorStates.L4) || s_ClimbAvator.getState().equals(ClimbAvatorStates.BARGE)));
