@@ -5,7 +5,6 @@
 package frc.robot;
 
 import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -149,16 +148,16 @@ public class RobotContainer {
         NamedCommands.registerCommand("Condense", s_SuperSubsystem.condenseAuto());
         NamedCommands.registerCommand("TushPush", s_SuperSubsystem.tushPush(s_Swerve.hitRobot(), s_Swerve.stop()));
         NamedCommands.registerCommand("MakeCoachTHappy", getInitialPrestageCommand());
-        NamedCommands.registerCommand("Pickup", s_SuperSubsystem.pickup(s_Swerve.hitReef(), s_Swerve.stop()));
+        NamedCommands.registerCommand("Pickup", s_SuperSubsystem.pickup(s_Swerve.autoReefCorrection(), s_Swerve.stop()));
         NamedCommands.registerCommand("ScoreAlgae", s_SuperSubsystem.scoreAlgae());
         NamedCommands.registerCommand("Barge", s_SuperSubsystem.bargeState());
         NamedCommands.registerCommand("L1", s_SuperSubsystem.l1State());
         NamedCommands.registerCommand("LowerAlgae", s_SuperSubsystem.lowerAlgaeState());
         autoChooser = AutoBuilder.buildAutoChooser();
         autoChooser.setDefaultOption("DO NOTHING", Commands.none());
-        autoChooser.addOption("Tush Push L4 Left", new PathPlannerAuto("Tush Push L4 Right", true));
-        autoChooser.addOption("L4 Left", new PathPlannerAuto("L4 Right", true));
-        autoChooser.addOption("L4 Back Left", new PathPlannerAuto("L4 Back", true));
+        autoChooser.addOption("Tush Push L4 Left", new PathPlannerAuto("Tush Push L4 Right", true).withName("Tush Push L4 Left"));
+        autoChooser.addOption("L4 Left", new PathPlannerAuto("L4 Right", true).withName("L4 Left"));
+        autoChooser.addOption("L4 Back Left", new PathPlannerAuto("L4 Back", true).withName("L4 Back Left"));
         Shuffleboard.getTab("Auto").add(autoChooser).withPosition(0, 0).withSize(2, 1);
 
         slowDownTrigger = new Trigger(() -> DriverStation.isTeleop() && (s_ClimbAvator.getState().equals(ClimbAvatorStates.L4) || s_ClimbAvator.getState().equals(ClimbAvatorStates.BARGE)));
@@ -171,6 +170,7 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         Logger.recordOutput("Auto/Selected Auto", autoChooser.getSelected().getName());
+        SmartDashboard.putString("Current Auto", autoChooser.getSelected().getName());
         return autoChooser.getSelected();
     }
 
