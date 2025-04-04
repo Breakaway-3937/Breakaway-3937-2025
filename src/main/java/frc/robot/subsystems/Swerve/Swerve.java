@@ -176,7 +176,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             waypoints = PathPlannerPath.waypointsFromPoses(robotPosition, goTo); //goTo is reef branch
         }
 
-        Logger.recordOutput("Swerve/Align Point", goTo);
+        //Logger.recordOutput("Swerve/Align Point", goTo);
         
         double currentSpeed = new Translation2d(robotState.Speeds.vxMetersPerSecond, robotState.Speeds.vyMetersPerSecond).getNorm();
 

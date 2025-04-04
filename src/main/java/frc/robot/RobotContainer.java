@@ -141,7 +141,8 @@ public class RobotContainer {
     }
 
     public RobotContainer() {
-        NamedCommands.registerCommand("ScoreCoral", s_SuperSubsystem.scoreCoral(s_Swerve.hitReef(), s_Swerve.stop()));
+        NamedCommands.registerCommand("ScoreCoralNoAlign", s_SuperSubsystem.scoreCoral(s_Swerve.hitReef(), s_Swerve.stop()));
+        NamedCommands.registerCommand("ScoreCoral", s_SuperSubsystem.scoreCoralAlign(s_Swerve.autoReefCorrection()));
         NamedCommands.registerCommand("ScoreCoralL1", s_SuperSubsystem.scoreCoralL1(s_Swerve.hitReef(), s_Swerve.stop()));
         NamedCommands.registerCommand("Load", s_SuperSubsystem.load());
         NamedCommands.registerCommand("Center", s_SuperSubsystem.center());
@@ -210,7 +211,7 @@ public class RobotContainer {
     }
 
     public BooleanSupplier isAlgae() {
-        return () -> s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.UPPER_ALGAE) || s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.LOWER_ALGAE);
+        return () -> s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.UPPER_ALGAE) || s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.LOWER_ALGAE) || s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.GROUND_ALGAE) || s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.PROCESSOR) || s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.BARGE);
     }
 
     public Command rotateToCoral() {

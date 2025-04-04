@@ -202,6 +202,10 @@ public class SuperSubsystem extends SubsystemBase {
   public Command scoreCoral(Command hit, Command stop) {
     return hitReef(hit, stop).andThen(l4State()).andThen(s_DrPepper.runThumbForward()).andThen(s_DrPepper.runLoaderSlowly()).andThen(Commands.waitSeconds(0.5).andThen(s_DrPepper.stopThumb()).andThen(s_DrPepper.stopLoader()));
   }
+
+  public Command scoreCoralAlign(Command hit) {
+    return hit.andThen(l4State()).andThen(s_DrPepper.runThumbForward()).andThen(s_DrPepper.runLoaderSlowly()).andThen(Commands.waitSeconds(0.5).andThen(s_DrPepper.stopThumb()).andThen(s_DrPepper.stopLoader()));
+  }
   
   public Command scoreCoralL1(Command hit, Command stop) {
     return hitReef(hit, stop).andThen(l1State()).andThen(s_DrPepper.runLoaderReverseTrough()).andThen(Commands.waitSeconds(0.5).andThen(s_DrPepper.stopLoader()));
