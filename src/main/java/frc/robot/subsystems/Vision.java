@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.lib.Vision.BreakaCamera;
@@ -39,9 +40,11 @@ public class Vision extends SubsystemBase {
   private final LimeAway coralCamera;
   private final PhoenixPIDController rotationController;
   private final Swerve s_Swerve;
-  private final double maxDistance = 6; // In meters
+  private final double maxDistance = 5; // In meters
   private boolean frontCameraBad, backCameraBad;
   private boolean xDistanceBad = false, noBack = false;
+  private int[] blueTags = {17, 18, 19, 20, 21, 22};
+  private int[] redTags = {6, 7, 8, 9, 10, 11}; 
 
   /** Creates a new Vision. */
   public Vision(Swerve s_Swerve) {
@@ -106,13 +109,37 @@ public class Vision extends SubsystemBase {
     }
   }
   
-  public boolean badFrontTags(Optional<EstimatedRobotPose> result) {
+  public boolean badTags(Optional<EstimatedRobotPose> result) {
     boolean bad = false;
     if(!result.isEmpty()) {
       for(int i = 0; i < result.get().targetsUsed.size(); i++) {
         int tagUsed = result.get().targetsUsed.get(i).fiducialId;
-        if(tagUsed == 14 || tagUsed == 15 || tagUsed == 4 || tagUsed == 5) {
+        if(tagUsed == 14 || tagUsed == 15 || tagUsed == 4 || tagUsed == 5 || tagUsed == 16 || tagUsed == 3) {
           bad = true;
+        }
+      }
+
+      var allianceColor = DriverStation.getAlliance();
+
+      if(allianceColor.isPresent()) {
+        if(allianceColor.get().equals(Alliance.Blue)) {
+          for(int i = 0; i < result.get().targetsUsed.size(); i++) {
+            for(int j = 0; i < redTags.length; i++) {
+              if(result.get().targetsUsed.get(i).getFiducialId() == redTags[j]) {
+                bad = true;
+              }
+            }
+          }
+        }
+
+        if(allianceColor.get().equals(Alliance.Red)) {
+          for(int i = 0; i < result.get().targetsUsed.size(); i++) {
+            for(int j = 0; i < blueTags.length; i++) {
+              if(result.get().targetsUsed.get(i).getFiducialId() == blueTags[j]) {
+                bad = true;
+              }
+            }
+          }
         }
       }
     }
@@ -157,7 +184,7 @@ public class Vision extends SubsystemBase {
         frontCameraBad = true;
       }
 
-      if(badFrontTags(frontResult)) {
+      if(badTags(frontResult)) {
         frontCameraBad = true;
       }
 
@@ -177,7 +204,7 @@ public class Vision extends SubsystemBase {
         backCameraBad = true;
       }
 
-      if(badFrontTags(backResult)) {
+      if(badTags(backResult)) {
         backCameraBad = true;
       }
 
