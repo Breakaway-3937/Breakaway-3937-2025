@@ -93,6 +93,8 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void disabledInit() {
+    robotContainer.getSwerveSystem().cyclesInAuto = 1;
+
     if(DriverStation.isEStopped() || (DriverStation.isFMSAttached() && DriverStation.getMatchTime() < 3 && teleop)){
       robotContainer.getMusicCommand().ignoringDisable(true).schedule();
     }

@@ -2,6 +2,7 @@ package frc.robot.subsystems.Swerve;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +71,9 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private int[] currentTags = (DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)) ? blueTags : redTags;
     private Map<Pose2d, Integer> branches = new HashMap<>();
     private Alliance pastColor = DriverStation.getAlliance().orElse(Alliance.Blue);
+
+    public int cyclesInAuto = 1;
+    private StringSubscriber autoSub = NetworkTableInstance.getDefault().getTable("SmartDashboard").getStringTopic("Current Auto").subscribe("");
 
     private final PPHolonomicDriveController driveController;
 
@@ -235,6 +239,110 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         CENTER;
     }
 
+    private Command reefAlignAuto() {
+        int[] pointsToPull;
+        Pose2d goTo;
+        boolean rightSideAuto = false;
+        Translation2d offset;
+        Translation2d leftOffset = new Translation2d(Centimeters.of(17), Centimeters.of(-50));
+        Translation2d rightOffset = new Translation2d(Centimeters.of(-17), Centimeters.of(-50));
+
+        //blue left path: right, left, right
+        //blue right path: left right left
+
+        String currentAuto = autoSub.get();
+
+        SmartDashboard.putString("Current Auto in method", currentAuto);
+
+        switch (currentAuto) {
+            case "L4 Right","Tush Push L4 Right": pointsToPull = new int[] {22, 17}; rightSideAuto = true; break; //Blue Right side: left right, left
+            case "L4 Left","???": pointsToPull = new int[] {20, 19}; rightSideAuto = false; break;
+            default: pointsToPull = new int[] {22, 17}; //TODO what should this be?
+        }
+
+        SmartDashboard.putBoolean("rightSideAuto?", rightSideAuto);
+        SmartDashboard.putNumberArray("Points to pull",  Arrays.stream(pointsToPull).asDoubleStream().toArray());
+
+        DriverStation.getAlliance().ifPresent((allianceColor) -> {
+            if(allianceColor.equals(Alliance.Red)) { 
+              for(int i = 0; i < pointsToPull.length; i++) {
+                if(pointsToPull[i] == 22) {
+                    pointsToPull[i] = 9; //Convert right blue to right red
+                }
+                if(pointsToPull[i] == 17) {
+                    pointsToPull[i] = 8; //Convert right blue to right red
+                }
+                if(pointsToPull[i] == 20) {
+                    pointsToPull[i] = 11; 
+                }
+                if(pointsToPull[i] == 19) {
+                    pointsToPull[i] = 6;
+                }
+            }}
+        });
+
+        try {
+            if(cyclesInAuto == 1) {
+                goTo = field.getTagPose(pointsToPull[cyclesInAuto-1]).get().toPose2d();
+            }
+            else if(cyclesInAuto > 1) {
+                goTo = field.getTagPose(pointsToPull[1]).get().toPose2d();
+            }
+            else {
+                goTo = field.getTagPose(pointsToPull[cyclesInAuto-1]).get().toPose2d();
+            }
+        }
+        catch(Exception e) {
+            Logger.recordOutput("Go To Auto Align", e.toString());
+            Logger.recordOutput("Skipped Auto Align Step Number", cyclesInAuto);
+            return Commands.none();
+        }
+
+        //For blue right side nothing done is to bool it shoudl be set up so it does the order for a blue rightside auto.
+        //For left side it is configured to do the opisite of right, instead of left it does right.
+        //For red do the opsite but flipped? red leftside is blue rightside? red rightside is blue rightside?
+
+        //Red leftside: right, left, right
+        //Red rightside: left, right, left
+
+        switch (cyclesInAuto) { //TODO check order of ifs and add red logic
+            case 1 -> offset = (rightSideAuto) ?  leftOffset : rightOffset;
+            case 2 -> offset = (rightSideAuto) ?  rightOffset : leftOffset;
+            case 3 -> offset = (rightSideAuto) ?  leftOffset : rightOffset;
+            default -> offset = new Translation2d();//FIXME
+        }
+
+        SmartDashboard.putNumberArray("Non moved goto", new double[] {goTo.getX(), goTo.getY(), goTo.getRotation().getDegrees()});
+
+        goTo = new Pose2d(goTo.getTranslation(), goTo.getRotation().rotateBy(Rotation2d.k180deg));
+
+        var translation = goTo.getTranslation().plus(new Translation2d(offset.getY(), offset.getX()).rotateBy(goTo.getRotation()));
+        goTo = new Pose2d(translation, goTo.getRotation());
+
+        SmartDashboard.putNumberArray("Final Go To", new double[] {goTo.getX(), goTo.getY(), goTo.getRotation().getDegrees()});
+
+        PathPlannerTrajectoryState branch = new PathPlannerTrajectoryState();
+        branch.pose = goTo;
+        
+        cyclesInAuto++;
+
+        return applyRequest(() -> pathApplyRobotSpeeds.withSpeeds(driveController.calculateRobotRelativeSpeeds(getState().Pose, branch)));
+    }
+
+    public Command autoReefCorrection() {
+        var time = jack();
+        return Commands.defer(() -> reefAlignAuto(), Set.of(this)).alongWith(time).until(() -> wheelSpeeds() < 0.05 && time.isFinished());
+    }
+
+    public Command jack() {
+        return Commands.waitSeconds(0.16);
+    }
+
+    public double wheelSpeeds() {
+        var robotState = getState();
+        return new Translation2d(robotState.Speeds.vxMetersPerSecond, robotState.Speeds.vyMetersPerSecond).getNorm();
+    }
+
     public Command hitReef() {
         return applyRequest(() -> auto.withVelocityX(1).withVelocityY(0)).withName("Hit Reef");
     }
@@ -298,6 +406,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             SmartDashboard.putBoolean("isBackwards", isBackwards());
             SmartDashboard.putString("Alliance Color", DriverStation.getAlliance().orElse(Alliance.Blue).toString());
             SmartDashboard.putString("Past Color", pastColor.toString());
+            SmartDashboard.putString("Current Auto Debug", autoSub.get());
         }
     }
 
