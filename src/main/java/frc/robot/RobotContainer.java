@@ -54,6 +54,7 @@ public class RobotContainer {
 
     /* Driver Buttons */
     private final JoystickButton translationButton = new JoystickButton(translationController, Constants.Controllers.TRANSLATION_BUTTON);
+    private final JoystickButton robotCentric = new JoystickButton(buttons, 1);
     private final JoystickButton leftTrack = new JoystickButton(buttons, 7);
     private final JoystickButton rightTrack = new JoystickButton(buttons, 8);
 
@@ -64,8 +65,8 @@ public class RobotContainer {
     private final Swerve s_Swerve = createSwerve();
     private final Vision s_Vision = new Vision(s_Swerve);
     private final MrPibb s_MrPibb = new MrPibb();
-    private final DrPepper s_DrPepper = new DrPepper(() -> s_Swerve.isBackwards());
     private final ClimbAvator s_ClimbAvator = new ClimbAvator();
+    private final DrPepper s_DrPepper = new DrPepper(isAlgae());
     private final LED s_LED = new LED();
     private final SuperSubsystem s_SuperSubsystem = new SuperSubsystem(s_ClimbAvator, s_MrPibb, s_DrPepper, s_LED, s_Vision.funeral(), () -> s_Swerve.isBackwards());
 
@@ -104,6 +105,7 @@ public class RobotContainer {
         /* Driver Buttons */
         translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
         slowDownTrigger.whileTrue(Commands.runOnce(() -> multiplier = 0.4)).whileFalse(Commands.runOnce(() -> multiplier = 1));
+        robotCentric.whileTrue(robotCentricDrive());
         leftTrack.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_ALIGNING)).alongWith(setRumble(RumbleType.kLeftRumble, 1).alongWith(s_Vision.refuseBack()))).whileTrue(Commands.either(s_Swerve.autoAlign(BranchSide.CENTER), s_Swerve.autoAlign(BranchSide.LEFT), isAlgae())).onFalse(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED).alongWith(setRumble(RumbleType.kBothRumble, 0)).alongWith(s_Vision.unrefuseBack()));
         rightTrack.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_ALIGNING)).alongWith(setRumble(RumbleType.kRightRumble, 1)).alongWith(s_Vision.refuseBack())).whileTrue(Commands.either(s_Swerve.autoAlign(BranchSide.CENTER), s_Swerve.autoAlign(BranchSide.RIGHT), isAlgae())).onFalse(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED).alongWith(setRumble(RumbleType.kBothRumble, 0)).alongWith(s_Vision.unrefuseBack()));
 
@@ -117,7 +119,7 @@ public class RobotContainer {
         xboxController.rightBumper().onTrue(s_SuperSubsystem.preStageState());
         xboxController.leftTrigger(0.3).and(xboxController.rightTrigger(0.3).negate()).onTrue(s_DrPepper.runLoader().alongWith(setRumble(RumbleType.kBothRumble, 1)))
                                                                                                                                     .onFalse(s_DrPepper.stopLoader().alongWith(setRumble(RumbleType.kBothRumble, 0))
-                                                                                                                                             .andThen(Commands.either(s_DrPepper.runLoaderReverse().andThen(Commands.waitUntil(() -> !s_DrPepper.botFullAlgae().getAsBoolean())).andThen(s_DrPepper.stopLoader()), 
+                                                                                                                                             .andThen(Commands.either(Commands.either(s_DrPepper.runLoaderReverse(), s_DrPepper.runLoaderReverseTrough(), () -> !s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.PROCESSOR)).andThen(Commands.waitUntil(() -> !s_DrPepper.botFullAlgae().getAsBoolean())).andThen(s_DrPepper.stopLoader()), 
                                                                                                                                              Commands.none(), 
                                                                                                                                              () -> s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.PROCESSOR) || s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.BARGE))));
                                                                                                                                              
@@ -143,7 +145,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("ScoreCoralNoAlign", s_SuperSubsystem.scoreCoral(s_Swerve.hitReef(), s_Swerve.stop()));
         NamedCommands.registerCommand("ScoreCoral", s_SuperSubsystem.scoreCoralAlign(s_Swerve.autoReefCorrection()));
         NamedCommands.registerCommand("ScoreCoralL1", s_SuperSubsystem.scoreCoralL1(s_Swerve.hitReef(), s_Swerve.stop()));
-        NamedCommands.registerCommand("Load", s_SuperSubsystem.load());
+        NamedCommands.registerCommand("Load", s_SuperSubsystem.load(s_Swerve.hitStation()));
         NamedCommands.registerCommand("Center", s_SuperSubsystem.center());
         NamedCommands.registerCommand("Condense", s_SuperSubsystem.condenseAuto());
         NamedCommands.registerCommand("TushPush", s_SuperSubsystem.tushPush(s_Swerve.hitRobot(), s_Swerve.stop()));
@@ -153,6 +155,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("Barge", s_SuperSubsystem.bargeState());
         NamedCommands.registerCommand("L1", s_SuperSubsystem.l1State());
         NamedCommands.registerCommand("LowerAlgae", s_SuperSubsystem.lowerAlgaeState());
+        NamedCommands.registerCommand("StationAlign", s_Swerve.autoReefCorrection());
         autoChooser = AutoBuilder.buildAutoChooser();
         autoChooser.setDefaultOption("DO NOTHING", Commands.none());
         autoChooser.addOption("Tush Push L4 Left", new PathPlannerAuto("Tush Push L4 Right", true).withName("Tush Push L4 Left"));
@@ -211,7 +214,7 @@ public class RobotContainer {
     }
 
     public BooleanSupplier isAlgae() {
-        return () -> s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.UPPER_ALGAE) || s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.LOWER_ALGAE) || s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.GROUND_ALGAE) || s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.PROCESSOR) || s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.BARGE);
+        return () -> s_ClimbAvator.getState().equals(ClimbAvatorStates.UPPER_ALGAE) || s_ClimbAvator.getState().equals(ClimbAvatorStates.LOWER_ALGAE) || s_ClimbAvator.getState().equals(ClimbAvatorStates.GROUND_ALGAE) || s_ClimbAvator.getState().equals(ClimbAvatorStates.PROCESSOR) || s_ClimbAvator.getState().equals(ClimbAvatorStates.BARGE);
     }
 
     public Command rotateToCoral() {
@@ -220,6 +223,14 @@ public class RobotContainer {
                     .withVelocityY(translationController.getRawAxis(strafeAxis) * multiplier * Constants.Swerve.MAX_SPEED) 
                     .withRotationalRate(s_Vision.getCoralTargetSpeed())
             );
+    }
+
+    public Command robotCentricDrive() {
+        return s_Swerve.applyRequest(() ->
+                align.withVelocityX(translationController.getRawAxis(translationAxis) * multiplier * Constants.Swerve.MAX_SPEED)
+                    .withVelocityY(translationController.getRawAxis(strafeAxis) * multiplier * Constants.Swerve.MAX_SPEED)
+                    .withTargetDirection(s_Swerve.alignRot)
+            );       
     }
 
     public Swerve createSwerve() {

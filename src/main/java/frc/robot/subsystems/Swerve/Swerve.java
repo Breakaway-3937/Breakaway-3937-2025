@@ -46,7 +46,6 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 import static edu.wpi.first.math.MathUtil.isNear;
 import static edu.wpi.first.units.Units.Centimeters;
@@ -71,6 +70,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private int[] currentTags = (DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)) ? blueTags : redTags;
     private Map<Pose2d, Integer> branches = new HashMap<>();
     private Alliance pastColor = DriverStation.getAlliance().orElse(Alliance.Blue);
+    public Rotation2d alignRot = new Rotation2d();
 
     public int cyclesInAuto = 1;
     private StringSubscriber autoSub = NetworkTableInstance.getDefault().getTable("SmartDashboard").getStringTopic("Current Auto").subscribe("");
@@ -98,6 +98,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         }
         makePoseList();
         configPathplanner();
+        alignRot = getState().Pose.getRotation();
         driveController = new PPHolonomicDriveController(new PIDConstants(8, 0, 0), new PIDConstants(7, 0, 0));
         this.setStateStdDevs(VecBuilder.fill(0.05, 0.05, 0.05));
     }
@@ -179,14 +180,13 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         else {
             waypoints = PathPlannerPath.waypointsFromPoses(robotPosition, goTo); //goTo is reef branch
         }
-
-        //Logger.recordOutput("Swerve/Align Point", goTo);
         
         double currentSpeed = new Translation2d(robotState.Speeds.vxMetersPerSecond, robotState.Speeds.vyMetersPerSecond).getNorm();
 
         PathPlannerPath path = new PathPlannerPath(waypoints, constraints, new IdealStartingState(currentSpeed, directionOfTravel), new GoalEndState(0, goTo.getRotation()));
         path.preventFlipping = true;
 
+        alignRot = goTo.getRotation();
         return AutoBuilder.followPath(path).andThen(finalAdjustment(goTo));
     }
 
@@ -248,7 +248,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         Translation2d rightOffset = new Translation2d(Centimeters.of(-17), Centimeters.of(-50));
 
         //blue left path: right, left, right
-        //blue right path: left right left
+        //blue right path: left, right, left
 
         String currentAuto = autoSub.get();
 
@@ -259,7 +259,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             case "L4 Left","Tush Push L4 Left": pointsToPull = new int[] {20, 19}; rightSideAuto = false; break;
             case "L4 Back": pointsToPull = new int[] {21, 21}; rightSideAuto = true; break;
             case "L4 Back Left": pointsToPull = new int[] {21, 21}; rightSideAuto = false; break;
-            default: pointsToPull = new int[] {22, 17}; //TODO what should this be?
+            default: pointsToPull = new int[] {22, 17};
         }
 
         if(Constants.DEBUG) {
@@ -312,7 +312,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         //Red leftside: right, left, right
         //Red rightside: left, right, left
 
-        switch (cyclesInAuto) { //TODO check order of ifs and add red logic
+        switch (cyclesInAuto) {
             case 1 -> offset = (rightSideAuto) ?  leftOffset : rightOffset;
             case 2 -> offset = (rightSideAuto) ?  rightOffset : leftOffset;
             case 3 -> offset = (rightSideAuto) ?  leftOffset : rightOffset;
@@ -333,12 +333,27 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         }
 
         if(getState().Pose.getX() < 2.7 || getState().Pose.getX() > 15.3) {
-            if(rightSideAuto) {
-                goTo = new Pose2d(1.551, 0.609, Rotation2d.fromDegrees(45.975));
+            cyclesInAuto--;
+            var allianceColor = DriverStation.getAlliance();
+            if(allianceColor.isPresent()) {
+                if(allianceColor.get().equals(Alliance.Blue)) {
+                    if(rightSideAuto) {
+                        goTo = new Pose2d(1.551, 0.609, Rotation2d.fromDegrees(45.975));
+                    }
+                    else {
+                        goTo = new Pose2d(1.530, 7.454, Rotation2d.fromDegrees(-54));
+                    }
+                }
+                else {
+                    if(rightSideAuto) { //This is actually left
+                        goTo = new Pose2d(16.014, 7.453, Rotation2d.fromDegrees(-125));
+                    }
+                    else {
+                        goTo = new Pose2d(16.014, 0.590, Rotation2d.fromDegrees(125));
+                    }
+                }
             }
-            else {
-                goTo = new Pose2d(1.551, 7.291, Rotation2d.fromDegrees(-45.975));
-            }
+
         } 
 
         PathPlannerTrajectoryState branch = new PathPlannerTrajectoryState();
@@ -367,20 +382,12 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return applyRequest(() -> auto.withVelocityX(1).withVelocityY(0)).withName("Hit Reef");
     }
 
-    public Command hitReefBackwards() {
-        return applyRequest(() -> auto.withVelocityX(-1).withVelocityY(0));
-    }
-
-    public Command unhitReef() {
-        return applyRequest(() -> auto.withVelocityX(-1).withVelocityY(0));
-    }
-
     public Command hitRobot() {
         return applyRequest(() -> auto.withVelocityX(-1).withVelocityY(0));
     }
 
-    public Command hitReefTeleopBackwards() {
-        return Commands.deadline(new WaitCommand(0.5), hitReefBackwards());
+    public Command hitStation() {
+        return applyRequest(() -> auto.withVelocityX(-1).withVelocityY(0));
     }
 
     public Command stop() {

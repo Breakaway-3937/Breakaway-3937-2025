@@ -111,6 +111,7 @@ public class Vision extends SubsystemBase {
   
   public boolean badTags(Optional<EstimatedRobotPose> result) {
     boolean bad = false;
+
     if(!result.isEmpty()) {
       for(int i = 0; i < result.get().targetsUsed.size(); i++) {
         int tagUsed = result.get().targetsUsed.get(i).fiducialId;
@@ -124,7 +125,7 @@ public class Vision extends SubsystemBase {
       if(allianceColor.isPresent()) {
         if(allianceColor.get().equals(Alliance.Blue)) {
           for(int i = 0; i < result.get().targetsUsed.size(); i++) {
-            for(int j = 0; i < redTags.length; i++) {
+            for(int j = 0; j < redTags.length; j++) {
               if(result.get().targetsUsed.get(i).getFiducialId() == redTags[j]) {
                 bad = true;
               }
@@ -134,7 +135,7 @@ public class Vision extends SubsystemBase {
 
         if(allianceColor.get().equals(Alliance.Red)) {
           for(int i = 0; i < result.get().targetsUsed.size(); i++) {
-            for(int j = 0; i < blueTags.length; i++) {
+            for(int j = 0; j < blueTags.length; j++) {
               if(result.get().targetsUsed.get(i).getFiducialId() == blueTags[j]) {
                 bad = true;
               }

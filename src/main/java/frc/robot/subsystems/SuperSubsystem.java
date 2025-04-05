@@ -211,8 +211,8 @@ public class SuperSubsystem extends SubsystemBase {
     return hitReef(hit, stop).andThen(l1State()).andThen(s_DrPepper.runLoaderReverseTrough()).andThen(Commands.waitSeconds(0.5).andThen(s_DrPepper.stopLoader()));
   }
 
-  public Command load() {
-    return s_DrPepper.runLoader().andThen(Commands.waitUntil(botFullCoral())).andThen(s_DrPepper.stopLoader());
+  public Command load(Command hit) {
+    return (s_DrPepper.runLoader().andThen(Commands.waitUntil(botFullCoral())).andThen(s_DrPepper.stopLoader())).raceWith(hit);
   }
 
   public Command center() {

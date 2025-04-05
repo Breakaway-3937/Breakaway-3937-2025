@@ -92,7 +92,7 @@ public class DrPepper extends SubsystemBase {
   }
 
   public Command center() {
-    return Commands.either(Commands.either(stopThumb(), runThumbBackwardSlowly(), () -> watson.getIsDetected().getValue()), Commands.either(runThumbForwardSlowly(), Commands.none(), () -> watson.getIsDetected().getValue()), () -> sherlock.getIsDetected().getValue());
+    return Commands.either(Commands.either(stopThumb(), runThumbBackwardSlowly(), () -> watson.getIsDetected().getValue()), Commands.either(runThumbForwardSlowly(), stopThumb(), () -> watson.getIsDetected().getValue()), () -> sherlock.getIsDetected().getValue());
   }
 
   public Command autoCenter() {
@@ -182,7 +182,7 @@ public class DrPepper extends SubsystemBase {
     }
 
     if(!algaeFlag) {
-      algaeFlag = isAlgae.getAsBoolean() && (sherlock.getIsDetected().getValue() || watson.getIsDetected().getValue());
+      algaeFlag = isAlgae.getAsBoolean() && loader.getStatorCurrent().getValueAsDouble() > 80;
     }
   }
 }
