@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.5506410256410255,
-        "y": 0.6089102564102575
+        "x": 1.551,
+        "y": 0.609
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.7851218917024134,
-        "y": 0.8515112079399686
+        "x": 1.7854812826290614,
+        "y": 0.8516005489042637
       },
       "isLocked": false,
       "linkedName": "Station"
@@ -34,7 +34,7 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 5.0,
-    "maxAcceleration": 5.0,
+    "maxAcceleration": 3.25,
     "maxAngularVelocity": 720.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
