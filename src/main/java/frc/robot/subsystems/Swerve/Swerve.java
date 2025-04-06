@@ -398,16 +398,16 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         var allianceColor = DriverStation.getAlliance();
         var pose = getState().Pose;
         boolean atBarge = false;
-        double blueBargeY = 0, redBargeY = 0; //TODO get y cord
+        double blueBargeX = 0, redBargeX = 0; //TODO get y cord
 
         if(allianceColor.isPresent()) {
             if(allianceColor.get().equals(Alliance.Red)) {
-                if(isNear(redBargeY, pose.getY(), 0.2) && pose.getY() < 4) { //(expected Y pose, current Y)
+                if(isNear(redBargeX, pose.getX(), 0.2) && pose.getY() < 4) { //(expected Y pose, current Y)
                     atBarge = true;
                 }
             }
             else {
-                if(isNear(blueBargeY, pose.getY(), 0.2) && pose.getY() > 4) { //(expected Y pose, current Y)
+                if(isNear(blueBargeX, pose.getX(), 0.2) && pose.getY() > 4) { //(expected Y pose, current Y)
                     atBarge = true;
                 }
             }
