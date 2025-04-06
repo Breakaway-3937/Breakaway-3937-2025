@@ -393,6 +393,31 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     public Command stop() {
         return applyRequest(() -> auto.withVelocityX(0).withVelocityY(0));
     }
+    
+    public boolean isAtBarge() {
+        var allianceColor = DriverStation.getAlliance();
+        var pose = getState().Pose;
+        boolean atBarge = false;
+        double blueBargeY = 0, redBargeY = 0; //TODO get y cord
+
+        if(allianceColor.isPresent()) {
+            if(allianceColor.get().equals(Alliance.Red)) {
+                if(isNear(redBargeY, pose.getY(), 0.2) && pose.getY() < 4) { //(expected Y pose, current Y)
+                    atBarge = true;
+                }
+            }
+            else {
+                if(isNear(blueBargeY, pose.getY(), 0.2) && pose.getY() > 4) { //(expected Y pose, current Y)
+                    atBarge = true;
+                }
+            }
+        }
+        else {
+            atBarge = false;
+        }
+
+        return atBarge;
+    }
 
     @Override
     public void periodic() {
@@ -430,10 +455,11 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             SmartDashboard.putNumber("Rotation from Pose", getState().Pose.getRotation().getDegrees());
             SmartDashboard.putString("Pose of Target", closetBranch().toString());
             SmartDashboard.putNumber("Branch Tag ID", branches.get(closetBranch()));
-            SmartDashboard.putBoolean("isBackwards", isBackwards());
+            SmartDashboard.putBoolean("Is Backwards", isBackwards());
             SmartDashboard.putString("Alliance Color", DriverStation.getAlliance().orElse(Alliance.Blue).toString());
             SmartDashboard.putString("Past Color", pastColor.toString());
             SmartDashboard.putString("Current Auto Debug", autoSub.get());
+            SmartDashboard.putBoolean("At Barge", isAtBarge());
         }
     }
 
