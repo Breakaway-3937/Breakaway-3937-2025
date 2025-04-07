@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import org.json.simple.parser.ParseException;
@@ -49,6 +50,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 
 import static edu.wpi.first.math.MathUtil.isNear;
 import static edu.wpi.first.units.Units.Centimeters;
+import static edu.wpi.first.units.Units.Feet;
 
 import frc.robot.Constants;
 import frc.robot.generated.PracticeTunerConstants.TunerSwerveDrivetrain;
@@ -148,6 +150,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         PathPlannerTrajectoryState goalEndState = new PathPlannerTrajectoryState();
         goalEndState.pose = goTo;
 
+        driveController.reset(goTo, getState().Speeds);
+
         return applyRequest(() -> pathApplyRobotSpeeds.withSpeeds(driveController.calculateRobotRelativeSpeeds(getState().Pose, goalEndState)));
     }
 
@@ -160,10 +164,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         Translation2d offset;
         switch (side) {
             //x is left/right,y is forward/backwards
-            case LEFT -> offset = new Translation2d(Centimeters.of(17), Centimeters.of(-50));
-            case RIGHT -> offset = new Translation2d(Centimeters.of(-17), Centimeters.of(-50));
+            case LEFT -> offset = new Translation2d(Centimeters.of(17), Feet.of(-3));
+            case RIGHT -> offset = new Translation2d(Centimeters.of(-17), Feet.of(-3));
             case CENTER -> offset = new Translation2d(Centimeters.of(0), Centimeters.of(-63));
-            default -> offset = new Translation2d(Centimeters.of(0), Centimeters.of(-15));
+            default -> offset = new Translation2d(Centimeters.of(0), Feet.of(-3));
         }
 
         var translation = goTo.getTranslation().plus(new Translation2d(offset.getY(), offset.getX()).rotateBy(goTo.getRotation()));
@@ -187,7 +191,9 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         path.preventFlipping = true;
 
         alignRot = goTo.getRotation();
-        return AutoBuilder.followPath(path).andThen(finalAdjustment(goTo));
+        var finalTranslation = goTo.getTranslation().plus(new Translation2d(Centimeters.of(-50), offset.getMeasureX()).rotateBy(goTo.getRotation()));
+        var finalMovement = new Pose2d(finalTranslation, goTo.getRotation());
+        return AutoBuilder.followPath(path).andThen(finalAdjustment(finalMovement));
     }
 
     public Command autoAlign(BranchSide side) {
@@ -398,7 +404,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         var allianceColor = DriverStation.getAlliance();
         var pose = getState().Pose;
         boolean atBarge = false;
-        double blueBargeX = 0, redBargeX = 0; //TODO get y cord
+        double blueBargeX = 0, redBargeX = 0; //TODO get x cord
 
         if(allianceColor.isPresent()) {
             if(allianceColor.get().equals(Alliance.Red)) {
@@ -419,13 +425,17 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return atBarge;
     }
 
+    public BooleanSupplier isBargeBackwards() {
+        return () -> isNear(180, getState().Pose.getRotation().getDegrees(), 60); //TODO check red
+    }
+
     @Override
     public void periodic() {
         /* Periodically try to apply the operator perspective */
         /* If we haven't applied the operator perspective before, then we should apply it regardless of DS state */
         /* This allows us to correct the perspective in case the robot code restarts mid-match */
         /* Otherwise, only check and apply the operator perspective if the DS is disabled */
-        /* This ensures driving behavior doesn't change until an explicit disable event occurs during testing*/
+        /* This ensures driving behavior doesn't change until an explicit disable event occurs during testing */
         if (!hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
             DriverStation.getAlliance().ifPresent((allianceColor) -> {
                 setOperatorPerspectiveForward(
@@ -460,6 +470,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             SmartDashboard.putString("Past Color", pastColor.toString());
             SmartDashboard.putString("Current Auto Debug", autoSub.get());
             SmartDashboard.putBoolean("At Barge", isAtBarge());
+            SmartDashboard.putBoolean("Is Barge Backwards", isBargeBackwards().getAsBoolean());
         }
     }
 
