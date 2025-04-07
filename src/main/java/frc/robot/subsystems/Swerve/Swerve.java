@@ -52,6 +52,8 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import static edu.wpi.first.math.MathUtil.isNear;
 import static edu.wpi.first.units.Units.Centimeters;
 import static edu.wpi.first.units.Units.Feet;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Kelvin;
 
 import frc.robot.Constants;
 import frc.robot.generated.PracticeTunerConstants.TunerSwerveDrivetrain;
@@ -109,7 +111,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         makePoseList();
         configPathplanner();
         alignRot = getState().Pose.getRotation();
-        driveController = new PPHolonomicDriveController(new PIDConstants(8, 0, 0), new PIDConstants(7, 0, 0));
+        driveController = new PPHolonomicDriveController(new PIDConstants(6, 0, 0.1), new PIDConstants(7, 0, 0));
         this.setStateStdDevs(VecBuilder.fill(0.05, 0.05, 0.05));
         align.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
         align.HeadingController.setTolerance(0.01);
@@ -170,18 +172,22 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         var goTo = closetBranch();
         List<Waypoint> waypoints;
         goTo = new Pose2d(goTo.getTranslation(), goTo.getRotation().rotateBy(Rotation2d.k180deg));
-        
+        var dontChange = goTo;
+        var robotCenterLength = Inches.of(-18);
+
         Translation2d offset;
         switch (side) {
             //x is left/right,y is forward/backwards
-            case LEFT -> offset = new Translation2d(Centimeters.of(17), Feet.of(-3));
-            case RIGHT -> offset = new Translation2d(Centimeters.of(-17), Feet.of(-3));
-            case CENTER -> offset = new Translation2d(Centimeters.of(0), Centimeters.of(-63));
-            default -> offset = new Translation2d(Centimeters.of(0), Feet.of(-3));
+            case LEFT -> offset = new Translation2d(Centimeters.of(17), Feet.of(-3).plus(robotCenterLength));
+            case RIGHT -> offset = new Translation2d(Centimeters.of(-17), Feet.of(-3).plus(robotCenterLength));
+            case CENTER -> offset = new Translation2d(Centimeters.of(0), Centimeters.of(-63).plus(robotCenterLength));
+            default -> offset = new Translation2d(Centimeters.of(0), Feet.of(-3).plus(robotCenterLength));
         }
 
         var translation = goTo.getTranslation().plus(new Translation2d(offset.getY(), offset.getX()).rotateBy(goTo.getRotation()));
         goTo = new Pose2d(translation.getX(), translation.getY(), goTo.getRotation());
+
+        var test = goTo;
 
         Rotation2d directionOfTravel = new Rotation2d(robotState.Speeds.vxMetersPerSecond, robotState.Speeds.vyMetersPerSecond); 
         Pose2d robotPosition = new Pose2d(robotState.Pose.getTranslation(), directionOfTravel);
@@ -197,13 +203,14 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         
         double currentSpeed = new Translation2d(robotState.Speeds.vxMetersPerSecond, robotState.Speeds.vyMetersPerSecond).getNorm();
 
-        PathPlannerPath path = new PathPlannerPath(waypoints, constraints, new IdealStartingState(currentSpeed, directionOfTravel), new GoalEndState(0, goTo.getRotation()));
+        PathPlannerPath path = new PathPlannerPath(waypoints, constraints, new IdealStartingState(currentSpeed, directionOfTravel), new GoalEndState(0.5, goTo.getRotation()));
         path.preventFlipping = true;
-
+        
         alignRot = goTo.getRotation();
-        var finalTranslation = goTo.getTranslation().plus(new Translation2d(Centimeters.of(-50), offset.getMeasureX()).rotateBy(goTo.getRotation()));
-        var finalMovement = new Pose2d(finalTranslation, goTo.getRotation());
+        var finalTranslation = dontChange.getTranslation().plus(new Translation2d(Inches.of(-20), offset.getMeasureX()).rotateBy(dontChange.getRotation()));
+        var finalMovement = new Pose2d(finalTranslation.getX(), finalTranslation.getY(), dontChange.getRotation());
         return AutoBuilder.followPath(path).andThen(finalAdjustment(finalMovement));
+        //return finalAdjustment(finalMovement);
     }
 
     public Command autoAlign(BranchSide side) {
