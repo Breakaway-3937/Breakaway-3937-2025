@@ -124,7 +124,7 @@ public class RobotContainer {
                                                                                                                                              () -> s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.PROCESSOR) || s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.BARGE))));
                                                                                                                                              
         xboxController.leftBumper().onTrue(Commands.either(s_DrPepper.runLoaderReverseTrough(), s_DrPepper.runLoaderReverse(), () -> s_MrPibb.getState().equals(MrPibbStates.L1.name()))).onFalse(s_DrPepper.stopThumb().andThen(s_DrPepper.stopLoader()));
-        xboxController.rightTrigger(0.3).and(xboxController.leftTrigger(0.3).negate()).onTrue(Commands.runOnce(() -> s_DrPepper.removeDefaultCommand()).andThen(Commands.either(s_DrPepper.runThumbBackward(), s_DrPepper.runThumbForward(), () -> s_Swerve.isBackwards())).andThen(s_DrPepper.runLoaderSlowly()).alongWith(setRumble(RumbleType.kBothRumble, 1))).onFalse(Commands.runOnce(() -> s_DrPepper.setDefaultCommand(s_DrPepper.center())).andThen(s_DrPepper.stopThumb()).andThen(s_DrPepper.stopLoader()).alongWith(setRumble(RumbleType.kBothRumble, 0)));
+        xboxController.rightTrigger(0.3).and(xboxController.leftTrigger(0.3).negate()).onTrue(Commands.runOnce(() -> s_DrPepper.removeDefaultCommand()).andThen(Commands.either(s_DrPepper.runThumbBackward(), Commands.either(s_DrPepper.runThumbForwardL2L3(), s_DrPepper.runThumbForward(), isL2L3()), () -> s_Swerve.isBackwards())).andThen(s_DrPepper.runLoaderSlowly()).alongWith(setRumble(RumbleType.kBothRumble, 1))).onFalse(Commands.runOnce(() -> s_DrPepper.setDefaultCommand(s_DrPepper.center())).andThen(s_DrPepper.stopThumb()).andThen(s_DrPepper.stopLoader()).alongWith(setRumble(RumbleType.kBothRumble, 0)));
         xboxController.povLeft().onTrue(s_SuperSubsystem.groundCoralState());
         xboxController.povRight().onTrue(s_SuperSubsystem.groundAlgaeState());
         
@@ -215,6 +215,10 @@ public class RobotContainer {
 
     public BooleanSupplier isAlgae() {
         return () -> s_ClimbAvator.getState().equals(ClimbAvatorStates.UPPER_ALGAE) || s_ClimbAvator.getState().equals(ClimbAvatorStates.LOWER_ALGAE) || s_ClimbAvator.getState().equals(ClimbAvatorStates.GROUND_ALGAE) || s_ClimbAvator.getState().equals(ClimbAvatorStates.PROCESSOR) || s_ClimbAvator.getState().equals(ClimbAvatorStates.BARGE);
+    }
+
+    public BooleanSupplier isL2L3() {
+        return () -> s_ClimbAvator.getState().equals(ClimbAvatorStates.L2) || s_ClimbAvator.getState().equals(ClimbAvatorStates.L3);
     }
 
     public Command rotateToCoral() {

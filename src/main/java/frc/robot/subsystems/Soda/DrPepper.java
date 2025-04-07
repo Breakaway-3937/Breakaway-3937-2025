@@ -75,6 +75,10 @@ public class DrPepper extends SubsystemBase {
     return runOnce(() -> thumb.set(0.8));
   }
 
+  public Command runThumbForwardL2L3() {
+    return runOnce(() -> thumb.set(0.5));
+  }
+
   public Command runThumbBackward() {
     return runOnce(() -> thumb.set(-0.8));
   }

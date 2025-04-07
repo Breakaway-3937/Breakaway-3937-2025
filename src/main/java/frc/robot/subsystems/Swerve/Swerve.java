@@ -14,6 +14,7 @@ import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -88,6 +89,13 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         2.5, 2.5,
         Units.degreesToRadians(720.0), Units.degreesToRadians(720.0));
 
+    private final SwerveRequest.RobotCentricFacingAngle align = new SwerveRequest.RobotCentricFacingAngle()
+        .withDeadband(Constants.Swerve.MAX_SPEED * Constants.Controllers.STICK_DEADBAND)
+        .withRotationalDeadband(Constants.Swerve.MAX_ANGULAR_RATE * Constants.Controllers.STICK_DEADBAND)
+        .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+        .withMaxAbsRotationalRate(Constants.Swerve.MAX_ANGULAR_RATE)
+        .withHeadingPID(4, 0, 0);
+
     public Swerve(
         SwerveDrivetrainConstants drivetrainConstants,
         SwerveModuleConstants<?, ?, ?>... modules
@@ -101,6 +109,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         alignRot = getState().Pose.getRotation();
         driveController = new PPHolonomicDriveController(new PIDConstants(8, 0, 0), new PIDConstants(7, 0, 0));
         this.setStateStdDevs(VecBuilder.fill(0.05, 0.05, 0.05));
+        align.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
+        align.HeadingController.setTolerance(0.01);
     }
 
     /**
@@ -160,10 +170,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         Translation2d offset;
         switch (side) {
             //x is left/right,y is forward/backwards
-            case LEFT -> offset = new Translation2d(Centimeters.of(17), Centimeters.of(-50));
-            case RIGHT -> offset = new Translation2d(Centimeters.of(-17), Centimeters.of(-50));
+            case LEFT -> offset = new Translation2d(Centimeters.of(17), Centimeters.of(-77));
+            case RIGHT -> offset = new Translation2d(Centimeters.of(-17), Centimeters.of(-77));
             case CENTER -> offset = new Translation2d(Centimeters.of(0), Centimeters.of(-63));
-            default -> offset = new Translation2d(Centimeters.of(0), Centimeters.of(-15));
+            default -> offset = new Translation2d(Centimeters.of(0), Centimeters.of(-77));
         }
 
         var translation = goTo.getTranslation().plus(new Translation2d(offset.getY(), offset.getX()).rotateBy(goTo.getRotation()));
@@ -186,8 +196,18 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         PathPlannerPath path = new PathPlannerPath(waypoints, constraints, new IdealStartingState(currentSpeed, directionOfTravel), new GoalEndState(0, goTo.getRotation()));
         path.preventFlipping = true;
 
-        alignRot = goTo.getRotation();
-        return AutoBuilder.followPath(path).andThen(finalAdjustment(goTo));
+
+        var allianceColor = DriverStation.getAlliance();
+        if(allianceColor.isPresent()) {
+            if(allianceColor.get().equals(Alliance.Red)) {
+                alignRot = goTo.getRotation().rotateBy(Rotation2d.k180deg);
+            }
+            else {
+                alignRot = goTo.getRotation();
+            }
+        }
+
+        return AutoBuilder.followPath(path).andThen(finalAdjustment(goTo).until(() -> wheelSpeeds() < 0.05)).andThen(hitReefTeleop());
     }
 
     public Command autoAlign(BranchSide side) {
@@ -378,6 +398,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return new Translation2d(robotState.Speeds.vxMetersPerSecond, robotState.Speeds.vyMetersPerSecond).getNorm();
     }
 
+    public Command hitReefTeleop() {
+        return applyRequest(() -> align.withVelocityX(1).withTargetDirection(alignRot));
+    }
+
     public Command hitReef() {
         return applyRequest(() -> auto.withVelocityX(1).withVelocityY(0)).withName("Hit Reef");
     }
@@ -434,6 +458,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             SmartDashboard.putString("Alliance Color", DriverStation.getAlliance().orElse(Alliance.Blue).toString());
             SmartDashboard.putString("Past Color", pastColor.toString());
             SmartDashboard.putString("Current Auto Debug", autoSub.get());
+            SmartDashboard.putNumber("Align Rot", alignRot.getDegrees());
+            SmartDashboard.putNumber("Wheel Speed", wheelSpeeds());
         }
     }
 
