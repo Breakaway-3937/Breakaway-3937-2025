@@ -178,10 +178,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         Translation2d offset;
         switch (side) {
             //x is left/right,y is forward/backwards
-            case LEFT -> offset = new Translation2d(Centimeters.of(17), Feet.of(-3).plus(robotCenterLength));
-            case RIGHT -> offset = new Translation2d(Centimeters.of(-17), Feet.of(-3).plus(robotCenterLength));
-            case CENTER -> offset = new Translation2d(Centimeters.of(0), Centimeters.of(-63).plus(robotCenterLength));
-            default -> offset = new Translation2d(Centimeters.of(0), Feet.of(-3).plus(robotCenterLength));
+            case LEFT -> offset = new Translation2d(Centimeters.of(17.0), Feet.of(-3.0).plus(robotCenterLength));
+            case RIGHT -> offset = new Translation2d(Centimeters.of(-17.0), Feet.of(-3.0).plus(robotCenterLength));
+            case CENTER -> offset = new Translation2d(Centimeters.of(0), Centimeters.of(-63.0).plus(robotCenterLength));
+            default -> offset = new Translation2d(Centimeters.of(0), Feet.of(-3.0).plus(robotCenterLength));
         }
 
         var translation = goTo.getTranslation().plus(new Translation2d(offset.getY(), offset.getX()).rotateBy(goTo.getRotation()));
