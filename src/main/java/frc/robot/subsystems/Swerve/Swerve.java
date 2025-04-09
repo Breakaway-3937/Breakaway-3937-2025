@@ -53,7 +53,6 @@ import static edu.wpi.first.math.MathUtil.isNear;
 import static edu.wpi.first.units.Units.Centimeters;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Kelvin;
 
 import frc.robot.Constants;
 import frc.robot.generated.PracticeTunerConstants.TunerSwerveDrivetrain;
@@ -186,8 +185,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
         var translation = goTo.getTranslation().plus(new Translation2d(offset.getY(), offset.getX()).rotateBy(goTo.getRotation()));
         goTo = new Pose2d(translation.getX(), translation.getY(), goTo.getRotation());
-
-        var test = goTo;
 
         Rotation2d directionOfTravel = new Rotation2d(robotState.Speeds.vxMetersPerSecond, robotState.Speeds.vyMetersPerSecond); 
         Pose2d robotPosition = new Pose2d(robotState.Pose.getTranslation(), directionOfTravel);
