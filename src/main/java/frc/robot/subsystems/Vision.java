@@ -36,8 +36,9 @@ import frc.robot.subsystems.Swerve.Swerve;
 public class Vision extends SubsystemBase {
   private AprilTagFieldLayout atfl;
   private final BreakaCamera frontCamera;
-  private final BreakaCamera backCamera;
-  private final LimeAway coralCamera;
+  private final BreakaCamera backLeftCamera;
+  private final BreakaCamera backRightCamera;
+  //private final LimeAway coralCamera;
   private final PhoenixPIDController rotationController;
   private final Swerve s_Swerve;
   private final double maxDistance = 5; // In meters
@@ -57,14 +58,15 @@ public class Vision extends SubsystemBase {
     }
 
     frontCamera = new BreakaCamera(Constants.Vision.FRONT_CAMERA_NAME, new PhotonPoseEstimator(atfl, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.Vision.FRONT_CAMERA_TRANSFORM));
-    backCamera = new BreakaCamera(Constants.Vision.BACK_CAMERA_NAME, new PhotonPoseEstimator(atfl, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.Vision.BACK_CAMERA_TRANSFORM));
-    coralCamera = new LimeAway(Constants.Vision.CORAL_CAMERA_NAME);
+    backLeftCamera = new BreakaCamera(Constants.Vision.BACK_LEFT_CAMERA_NAME, new PhotonPoseEstimator(atfl, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.Vision.BACK_LEFT_CAMERA_TRANSFORM));
+    backRightCamera = new BreakaCamera(Constants.Vision.BACK_LEFT_CAMERA_NAME, new PhotonPoseEstimator(atfl, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.Vision.BACK_LEFT_CAMERA_TRANSFORM));
+    //coralCamera = new LimeAway(Constants.Vision.CORAL_CAMERA_NAME);
 
     rotationController = new PhoenixPIDController(4.5, 0, 0);
     rotationController.enableContinuousInput(-Math.PI, Math.PI);
     rotationController.setTolerance(0.1);
 
-    coralCamera.turnLedsOff();
+    //coralCamera.turnLedsOff();
   }
 
   public boolean hasFrontTargets() {
@@ -75,7 +77,7 @@ public class Vision extends SubsystemBase {
     return frontCamera.getLatest();
   }
 
-  public double getCoralTargetSpeed() {
+  /*public double getCoralTargetSpeed() {
     if(coralCamera.hasTarget()) {
       //If setpoint changes needs to be in radians
       double speed = rotationController.calculate(coralCamera.getTX().in(Radians), 0, Utils.getCurrentTimeSeconds());
@@ -92,7 +94,7 @@ public class Vision extends SubsystemBase {
     else {
       return 0;
     }
-  }
+  }*/
 
   public double getAverageTagDistanceX(Optional<EstimatedRobotPose> result) {
     if(!result.isEmpty()) {
@@ -160,7 +162,7 @@ public class Vision extends SubsystemBase {
   }
 
   public BooleanSupplier funeral() {
-    return () -> frontCamera.isDead() || backCamera.isDead();
+    return () -> frontCamera.isDead() || backLeftCamera.isDead();
   }
 
   public Command refuseBack() {
@@ -174,7 +176,7 @@ public class Vision extends SubsystemBase {
   @Override
   public void periodic() {
     var frontResult = frontCamera.getEstimatedPose();
-    var backResult = backCamera.getEstimatedPose();
+    var backResult = backLeftCamera.getEstimatedPose();
 
     /* Front Camera */
     if(!frontResult.isEmpty()) {
@@ -215,22 +217,22 @@ public class Vision extends SubsystemBase {
       }
     }
 
-    Logger.recordOutput("Coral Rotation Speed", getCoralTargetSpeed());
+    //Logger.recordOutput("Coral Rotation Speed", getCoralTargetSpeed());
     Logger.recordOutput("Vision/X Distance Result Empty", xDistanceBad);
     Logger.recordOutput("Vision/Front Camera Dead", frontCamera.isDead());
-    Logger.recordOutput("Vision/Back Camera Dead", backCamera.isDead());
+    Logger.recordOutput("Vision/Back Camera Dead", backLeftCamera.isDead());
     Logger.recordOutput("Vision/Front Camera Bad", frontCameraBad);
     Logger.recordOutput("Vision/Back Camera Bad", backCameraBad);
 
     frontCameraBad = false;
     backCameraBad = false;
 
-    if(Constants.DEBUG) {
+    /*if(Constants.DEBUG) {
       SmartDashboard.putString("Detector Class", coralCamera.getDetectorClass());
       SmartDashboard.putNumber("Detector Index", coralCamera.getDetectorIndex());
       SmartDashboard.putNumber("Area Of Target", coralCamera.getAreaOfTarget());
       SmartDashboard.putNumber("TX", coralCamera.getTX().in(Degrees));
       SmartDashboard.putNumber("TY", coralCamera.getTY().in(Degrees));
-    }
+    }*/
   }
 }
