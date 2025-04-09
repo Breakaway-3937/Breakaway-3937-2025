@@ -25,7 +25,7 @@ public final class Constants {
     public static final String COMP_SERIAL_NUM = "032D2164";
     public static final boolean PRACTICE_BOT = !RobotController.getSerialNumber().equals(COMP_SERIAL_NUM);
     public static final boolean USE_LOGGER = true;
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
 
     public static final class Controllers {
         public static final GenericHID TRANSLATION_CONTROLLER = new GenericHID(0);
@@ -42,10 +42,12 @@ public final class Constants {
 
     public static final class Vision {
         public static final String FRONT_CAMERA_NAME = "FrontCamera";
-        public static final String BACK_CAMERA_NAME = "BackCamera";
+        public static final String BACK_LEFT_CAMERA_NAME = "BackLeftCamera";
+        public static final String BACK_RIGHT_CAMERA_NAME = "BackRightCamera";
         public static final String CORAL_CAMERA_NAME = "CoralCamera";
-        public static final Transform3d FRONT_CAMERA_TRANSFORM = new Transform3d(new Translation3d(-0.022582, Inches.of((3.0/16.0)).in(Meters), 0.138568), new Rotation3d(0, -1.74533, 0));
-        public static final Transform3d BACK_CAMERA_TRANSFORM = new Transform3d(new Translation3d(-0.264378, 0.235461, 0.187954), new Rotation3d(0, 2.491458, Math.PI));
+        public static final Transform3d FRONT_CAMERA_TRANSFORM = new Transform3d(new Translation3d(-0.022582, Inches.of(-(3.0/8.0)).in(Meters), 0.138568), new Rotation3d(0, -1.74533, 0));
+        public static final Transform3d BACK_LEFT_CAMERA_TRANSFORM = new Transform3d(new Translation3d(-0.43945, 0.3477, 0.188698), new Rotation3d(0, -0.174533, 3.6909));
+        public static final Transform3d BACK_RIGHT_CAMERA_TRANSFORM = new Transform3d(new Translation3d(-0.43945, -0.3477, 0.188698), new Rotation3d(0, -0.174533, 2.59225));
         public static final Vector<N3> TAG_VISION_STDS = VecBuilder.fill(0.846, 0.364, 9999999);
     }
 
