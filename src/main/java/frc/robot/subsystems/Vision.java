@@ -4,9 +4,6 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Radians;
-
 import java.io.IOException;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
