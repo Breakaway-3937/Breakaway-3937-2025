@@ -26,16 +26,17 @@ public class SuperSubsystem extends SubsystemBase {
   private final MrPibb s_MrPibb;
   private final DrPepper s_DrPepper;
   private final LED s_LED;
-  private final BooleanSupplier funeral, isBackwards;
+  private final BooleanSupplier funeral, isBackwards, isBargeBackwards;
 
   /** Creates a new SuperSubsystem. */
-  public SuperSubsystem(ClimbAvator s_ClimbAvator, MrPibb s_MrPibb, DrPepper s_DrPepper, LED s_LED, BooleanSupplier funeral, BooleanSupplier isBackwards) {
+  public SuperSubsystem(ClimbAvator s_ClimbAvator, MrPibb s_MrPibb, DrPepper s_DrPepper, LED s_LED, BooleanSupplier funeral, BooleanSupplier isBackwards, BooleanSupplier isBargeBackwards) {
     this.s_ClimbAvator = s_ClimbAvator; 
     this.s_MrPibb = s_MrPibb;
     this.s_DrPepper = s_DrPepper;
     this.s_LED = s_LED;
     this.funeral = funeral;
     this.isBackwards = isBackwards;
+    this.isBargeBackwards = isBargeBackwards;
   }
 
   public Command saveMrPibb() {
@@ -98,9 +99,13 @@ public class SuperSubsystem extends SubsystemBase {
   }
 
   public Command bargeState() {
-    return saveMrPibb().andThen(runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.BARGE)))
-               .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.BARGE)))
-               .andThen(runSubsystems());
+    return saveMrPibb().andThen(
+           Commands.either(
+                    runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.BARGE))
+                    .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.BACKWARDS_BARGE))), 
+                    runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.BARGE))
+                    .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.BARGE))), isBargeBackwards))
+                .andThen(runSubsystems());
   }
 
   public Command processorState() {

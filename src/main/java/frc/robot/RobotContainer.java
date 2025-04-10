@@ -68,7 +68,7 @@ public class RobotContainer {
     private final ClimbAvator s_ClimbAvator = new ClimbAvator();
     private final DrPepper s_DrPepper = new DrPepper(isAlgae());
     private final LED s_LED = new LED();
-    private final SuperSubsystem s_SuperSubsystem = new SuperSubsystem(s_ClimbAvator, s_MrPibb, s_DrPepper, s_LED, s_Vision.funeral(), () -> s_Swerve.isBackwards());
+    private final SuperSubsystem s_SuperSubsystem = new SuperSubsystem(s_ClimbAvator, s_MrPibb, s_DrPepper, s_LED, s_Vision.funeral(), () -> s_Swerve.isBackwards(), s_Swerve.isBargeBackwards());
 
     private double multiplier = 1;
 

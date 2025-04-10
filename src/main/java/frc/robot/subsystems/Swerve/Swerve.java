@@ -111,7 +111,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         makePoseList();
         configPathplanner();
         alignRot = getState().Pose.getRotation();
-        driveController = new PPHolonomicDriveController(new PIDConstants(6, 0, 0.1), new PIDConstants(7, 0, 0));
+        driveController = new PPHolonomicDriveController(new PIDConstants(5.5, 0, 0.1), new PIDConstants(7, 0, 0));
         this.setStateStdDevs(VecBuilder.fill(0.05, 0.05, 0.05));
         align.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
         align.HeadingController.setTolerance(0.01);
@@ -178,8 +178,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         Translation2d offset;
         switch (side) {
             //x is left/right,y is forward/backwards
-            case LEFT -> offset = new Translation2d(Centimeters.of(17.0), Feet.of(-3.0).plus(robotCenterLength));
-            case RIGHT -> offset = new Translation2d(Centimeters.of(-17.0), Feet.of(-3.0).plus(robotCenterLength));
+            case LEFT -> offset = new Translation2d(Centimeters.of(17.0), Feet.of(-1.5).plus(robotCenterLength));
+            case RIGHT -> offset = new Translation2d(Centimeters.of(-17.0), Feet.of(-1.5).plus(robotCenterLength));
             case CENTER -> offset = new Translation2d(Centimeters.of(0), Centimeters.of(-63.0).plus(robotCenterLength));
             default -> offset = new Translation2d(Centimeters.of(0), Feet.of(-3.0).plus(robotCenterLength));
         }
@@ -207,8 +207,15 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         path.preventFlipping = true;
         
         alignRot = goTo.getRotation();
-        var finalTranslation = dontChange.getTranslation().plus(new Translation2d(Inches.of(-20), offset.getMeasureX()).rotateBy(dontChange.getRotation()));
-        var finalMovement = new Pose2d(finalTranslation.getX(), finalTranslation.getY(), dontChange.getRotation());
+        var finalTranslation = dontChange.getTranslation().plus(new Translation2d(Inches.of(-18), offset.getMeasureX()).rotateBy(dontChange.getRotation()));
+        Pose2d finalMovement;
+        if(isBackwards()) {
+            finalMovement = new Pose2d(finalTranslation.getX(), finalTranslation.getY(), dontChange.getRotation().rotateBy(Rotation2d.k180deg));
+        }
+        else {
+            finalMovement = new Pose2d(finalTranslation.getX(), finalTranslation.getY(), dontChange.getRotation());
+        }
+        SmartDashboard.putNumberArray("Final move pose", new Double[] {finalMovement.getX(), finalMovement.getY(), finalMovement.getRotation().getDegrees()});
         return AutoBuilder.followPath(path).andThen(finalAdjustment(finalMovement));
         //return finalAdjustment(finalMovement);
     }
@@ -447,7 +454,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public BooleanSupplier isBargeBackwards() {
-        return () -> isNear(180, getState().Pose.getRotation().getDegrees(), 60); //TODO check red
+        return () -> isNear(180, Math.abs(getState().Pose.getRotation().getDegrees()), 60); //TODO check red
     }
 
     @Override

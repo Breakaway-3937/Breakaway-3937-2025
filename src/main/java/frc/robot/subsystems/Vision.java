@@ -115,7 +115,7 @@ public class Vision extends SubsystemBase {
     if(!result.isEmpty()) {
       for(int i = 0; i < result.get().targetsUsed.size(); i++) {
         int tagUsed = result.get().targetsUsed.get(i).fiducialId;
-        if(tagUsed == 14 || tagUsed == 15 || tagUsed == 4 || tagUsed == 5 || tagUsed == 16 || tagUsed == 3) {
+        if(tagUsed == 14 || tagUsed == 15 || tagUsed == 4 || tagUsed == 5 || tagUsed == 16 || tagUsed == 3 || tagUsed == 13 || tagUsed == 12 || tagUsed == 2 || tagUsed == 1) {
           bad = true;
         }
       }
