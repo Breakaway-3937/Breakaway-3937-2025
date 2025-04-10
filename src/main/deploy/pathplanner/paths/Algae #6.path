@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.77890251808214,
-        "y": 5.574691561558061
+        "x": 5.420157291388972,
+        "y": 5.666575415682506
       },
       "isLocked": false,
       "linkedName": "Algae "
     },
     {
       "anchor": {
-        "x": 7.2372435897435885,
-        "y": 6.69801282051282
+        "x": 5.735921717171717,
+        "y": 6.240782828282828
       },
       "prevControl": {
-        "x": 6.202863702634742,
-        "y": 5.931524413131434
+        "x": 5.36594866367305,
+        "y": 5.620245619339447
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Score Algae 2"
+      "linkedName": "Other Algae"
     }
   ],
   "rotationTargets": [],
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -112.96377305985457
   },
   "reversed": false,
   "folder": null,

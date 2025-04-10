@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.2372435897435885,
-        "y": 6.69801282051282
-      },
-      "prevControl": null,
-      "nextControl": {
-        "x": 7.84902714844392,
-        "y": 6.517866763647476
-      },
-      "isLocked": false,
-      "linkedName": "Score Algae 2"
-    },
-    {
-      "anchor": {
         "x": 7.9,
         "y": 6.5
       },
+      "prevControl": null,
+      "nextControl": {
+        "x": 8.165010994821108,
+        "y": 6.493289393418805
+      },
+      "isLocked": false,
+      "linkedName": "Finish Algae Part 1"
+    },
+    {
+      "anchor": {
+        "x": 7.453974358974358,
+        "y": 6.512243589743589
+      },
       "prevControl": {
-        "x": 7.553009082482992,
-        "y": 6.600752908290596
+        "x": 7.161937232031584,
+        "y": 6.512140008989824
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Finish Algae Part 1"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],

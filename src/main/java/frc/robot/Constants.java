@@ -46,8 +46,8 @@ public final class Constants {
         public static final String BACK_RIGHT_CAMERA_NAME = "BackRightCamera";
         public static final String CORAL_CAMERA_NAME = "CoralCamera";
         public static final Transform3d FRONT_CAMERA_TRANSFORM = new Transform3d(new Translation3d(-0.022582, Inches.of((3.0/16.0)).in(Meters), 0.185/*0.138568*/), new Rotation3d(0, -0.174533, 0));
-        public static final Transform3d BACK_LEFT_CAMERA_TRANSFORM = new Transform3d(new Translation3d(-0.43945, 0.3477, 0.188698), new Rotation3d(0, -0.174533, 3.6909));
-        public static final Transform3d BACK_RIGHT_CAMERA_TRANSFORM = new Transform3d(new Translation3d(-0.43945, -0.3477, 0.188698), new Rotation3d(0, -0.174533, 2.59225));
+        public static final Transform3d BACK_LEFT_CAMERA_TRANSFORM = new Transform3d(new Translation3d(-0.36279, 0.3477, 0.188698), new Rotation3d(0, -0.174533, 3.6909));
+        public static final Transform3d BACK_RIGHT_CAMERA_TRANSFORM = new Transform3d(new Translation3d(-0.36279, -0.3477, 0.188698), new Rotation3d(0, -0.174533, 2.59225));
         public static final Vector<N3> TAG_VISION_STDS =  VecBuilder.fill(0.001, 0.001, 9999999);//VecBuilder.fill(0.846, 0.364, 9999999);
     }
 

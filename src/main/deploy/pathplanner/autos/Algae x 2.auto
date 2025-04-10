@@ -111,47 +111,27 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Algae #5"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "PickupUpper"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "MakeCoachTHappy"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Algae #6"
-                }
-              }
-            ]
+            "pathName": "Algae #5"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Barge"
+            "name": "UpperAlgae"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Algae #6"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "MakeCoachTHappy"
           }
         },
         {
@@ -163,13 +143,25 @@
         {
           "type": "named",
           "data": {
-            "name": "ScoreAlgae"
+            "name": "Barge"
           }
         },
         {
           "type": "path",
           "data": {
             "pathName": "Algae #8"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ScoreAlgae"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Algae #9"
           }
         },
         {
