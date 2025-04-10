@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 8.172239906961545,
-        "y": 6.499153306126784
+        "x": 8.165010994821108,
+        "y": 6.493289393418805
       },
       "isLocked": false,
       "linkedName": "Finish Algae Part 1"
@@ -20,8 +20,8 @@
         "y": 6.512243589743589
       },
       "prevControl": {
-        "x": 7.120916800232252,
-        "y": 6.508487842993229
+        "x": 7.161937232031584,
+        "y": 6.512140008989824
       },
       "nextControl": null,
       "isLocked": false,
