@@ -196,8 +196,12 @@ public class SuperSubsystem extends SubsystemBase {
     return new ParallelDeadlineGroup(Commands.waitSeconds(0.45), hit).andThen(Commands.waitSeconds(0.01).raceWith(stop)).andThen(() -> stop.cancel());
   }
 
-  public Command pickup(Command hit, Command stop) {
+  public Command pickupLower(Command hit, Command stop) {
     return hitReef(hit, stop).andThen(lowerAlgaeState()).andThen(s_DrPepper.runLoader()).andThen(Commands.waitUntil(botFullAlgae()));
+  }
+
+  public Command pickupUpper(Command hit, Command stop) {
+    return hitReef(hit, stop).andThen(upperAlgaeState()).andThen(s_DrPepper.runLoader()).andThen(Commands.waitUntil(botFullAlgae()));
   }
 
   public Command scoreAlgae() {
