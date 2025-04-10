@@ -176,7 +176,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
         Translation2d offset;
         switch (side) {
-            //x is left/right,y is forward/backwards
+            //x is left/right, y is forward/backwards
             case LEFT -> offset = new Translation2d(Centimeters.of(17.0), Feet.of(-1.5).plus(robotCenterLength));
             case RIGHT -> offset = new Translation2d(Centimeters.of(-17.0), Feet.of(-1.5).plus(robotCenterLength));
             case CENTER -> offset = new Translation2d(Centimeters.of(0), Centimeters.of(-63.0).plus(robotCenterLength));
@@ -214,7 +214,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         }
         SmartDashboard.putNumberArray("Final move pose", new Double[] {finalMovement.getX(), finalMovement.getY(), finalMovement.getRotation().getDegrees()});
         return AutoBuilder.followPath(path).andThen(finalAdjustment(finalMovement));
-        //return finalAdjustment(finalMovement);
     }
 
     public Command autoAlign(BranchSide side) {
