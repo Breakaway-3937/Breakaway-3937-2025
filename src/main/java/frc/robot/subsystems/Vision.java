@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Feet;
+import static edu.wpi.first.units.Units.Meters;
+
 import java.io.IOException;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
@@ -53,7 +56,7 @@ public class Vision extends SubsystemBase {
 
     frontCamera = new BreakaCamera(Constants.Vision.FRONT_CAMERA_NAME, new PhotonPoseEstimator(atfl, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.Vision.FRONT_CAMERA_TRANSFORM));
     backLeftCamera = new BreakaCamera(Constants.Vision.BACK_LEFT_CAMERA_NAME, new PhotonPoseEstimator(atfl, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.Vision.BACK_LEFT_CAMERA_TRANSFORM));
-    backRightCamera = new BreakaCamera(Constants.Vision.BACK_LEFT_CAMERA_NAME, new PhotonPoseEstimator(atfl, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.Vision.BACK_LEFT_CAMERA_TRANSFORM));
+    backRightCamera = new BreakaCamera(Constants.Vision.BACK_RIGHT_CAMERA_NAME, new PhotonPoseEstimator(atfl, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.Vision.BACK_RIGHT_CAMERA_TRANSFORM));
 
     rotationController = new PhoenixPIDController(4.5, 0, 0);
     rotationController.enableContinuousInput(-Math.PI, Math.PI);
@@ -181,7 +184,7 @@ public class Vision extends SubsystemBase {
         backLeftCameraBad = true;
       }
 
-      if(badTags(backLeftResult)) {
+      if(badTags(backLeftResult) || averageDistanceX < Feet.of(1).in(Meters)) {
         backLeftCameraBad = true;
       }
 
@@ -195,7 +198,7 @@ public class Vision extends SubsystemBase {
     if(!backRightResult.isEmpty() && (frontCameraBad || frontResult.isEmpty() || backLeftCameraBad || backLeftResult.isEmpty()) && !noBack) {
       double averageDistanceX = getAverageTagDistanceX(backRightResult);
 
-      if(averageDistanceX > maxDistance) {
+      if(averageDistanceX > maxDistance || averageDistanceX < Feet.of(1).in(Meters)) {
         backRightCameraBad = true;
       }
 
