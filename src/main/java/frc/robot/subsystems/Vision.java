@@ -4,9 +4,6 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Radians;
-
 import java.io.IOException;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
@@ -27,21 +24,19 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.lib.Vision.BreakaCamera;
-import frc.robot.lib.Vision.LimeAway;
 import frc.robot.subsystems.Swerve.Swerve;
 
 public class Vision extends SubsystemBase {
   private AprilTagFieldLayout atfl;
   private final BreakaCamera frontCamera;
-  private final BreakaCamera backCamera;
-  private final LimeAway coralCamera;
+  private final BreakaCamera backLeftCamera;
+  private final BreakaCamera backRightCamera;
   private final PhoenixPIDController rotationController;
   private final Swerve s_Swerve;
   private final double maxDistance = 5; // In meters
-  private boolean frontCameraBad, backCameraBad;
+  private boolean frontCameraBad, backLeftCameraBad, backRightCameraBad;
   private boolean xDistanceBad = false, noBack = false;
   private int[] blueTags = {17, 18, 19, 20, 21, 22};
   private int[] redTags = {6, 7, 8, 9, 10, 11}; 
@@ -57,14 +52,13 @@ public class Vision extends SubsystemBase {
     }
 
     frontCamera = new BreakaCamera(Constants.Vision.FRONT_CAMERA_NAME, new PhotonPoseEstimator(atfl, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.Vision.FRONT_CAMERA_TRANSFORM));
-    backCamera = new BreakaCamera(Constants.Vision.BACK_CAMERA_NAME, new PhotonPoseEstimator(atfl, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.Vision.BACK_CAMERA_TRANSFORM));
-    coralCamera = new LimeAway(Constants.Vision.CORAL_CAMERA_NAME);
+    backLeftCamera = new BreakaCamera(Constants.Vision.BACK_LEFT_CAMERA_NAME, new PhotonPoseEstimator(atfl, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.Vision.BACK_LEFT_CAMERA_TRANSFORM));
+    backRightCamera = new BreakaCamera(Constants.Vision.BACK_LEFT_CAMERA_NAME, new PhotonPoseEstimator(atfl, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.Vision.BACK_LEFT_CAMERA_TRANSFORM));
 
     rotationController = new PhoenixPIDController(4.5, 0, 0);
     rotationController.enableContinuousInput(-Math.PI, Math.PI);
     rotationController.setTolerance(0.1);
 
-    coralCamera.turnLedsOff();
   }
 
   public boolean hasFrontTargets() {
@@ -73,25 +67,6 @@ public class Vision extends SubsystemBase {
 
   public PhotonPipelineResult getLatestFront() {
     return frontCamera.getLatest();
-  }
-
-  public double getCoralTargetSpeed() {
-    if(coralCamera.hasTarget()) {
-      //If setpoint changes needs to be in radians
-      double speed = rotationController.calculate(coralCamera.getTX().in(Radians), 0, Utils.getCurrentTimeSeconds());
-
-      if (speed > Constants.Swerve.MAX_ANGULAR_RATE) {
-        speed = Constants.Swerve.MAX_ANGULAR_RATE;
-      } 
-      else if (speed < -Constants.Swerve.MAX_ANGULAR_RATE) {
-        speed = -Constants.Swerve.MAX_ANGULAR_RATE;
-      }
-
-      return speed;
-    }
-    else {
-      return 0;
-    }
   }
 
   public double getAverageTagDistanceX(Optional<EstimatedRobotPose> result) {
@@ -160,7 +135,7 @@ public class Vision extends SubsystemBase {
   }
 
   public BooleanSupplier funeral() {
-    return () -> frontCamera.isDead() || backCamera.isDead();
+    return () -> frontCamera.isDead() || backLeftCamera.isDead() || backRightCamera.isDead();
   }
 
   public Command refuseBack() {
@@ -174,7 +149,8 @@ public class Vision extends SubsystemBase {
   @Override
   public void periodic() {
     var frontResult = frontCamera.getEstimatedPose();
-    var backResult = backCamera.getEstimatedPose();
+    var backLeftResult = backLeftCamera.getEstimatedPose();
+    var backRightResult = backRightCamera.getEstimatedPose();
 
     /* Front Camera */
     if(!frontResult.isEmpty()) {
@@ -189,6 +165,13 @@ public class Vision extends SubsystemBase {
         frontCameraBad = true;
       }
 
+      for(int i = 0; i < frontResult.get().targetsUsed.size(); i++) {
+        var tagsUsed = new int[frontResult.get().targetsUsed.size()];
+        int tagUsed = frontResult.get().targetsUsed.get(i).fiducialId;
+        tagsUsed[i] = tagUsed;
+        Logger.recordOutput("Vision/Front Camera Tags Used", tagsUsed);
+      }
+        
       if(!frontCameraBad) {
         Pose2d pose = new Pose2d(frontResult.get().estimatedPose.getX(), frontResult.get().estimatedPose.getY(), s_Swerve.getState().Pose.getRotation());
         if(!(DriverStation.isAutonomousEnabled() && (s_Swerve.getState().Pose.getX() < 1.7 || s_Swerve.getState().Pose.getX() > 14.8))) {
@@ -196,41 +179,76 @@ public class Vision extends SubsystemBase {
         }
       }
     }
+    else {
+      Logger.recordOutput("Vision/Front Camera Tags Used", 0);
+    }
     
-    /* Back Camera */
-    if(!backResult.isEmpty() && (frontCameraBad || frontResult.isEmpty()) && !noBack) {
-      double averageDistanceX = getAverageTagDistanceX(backResult);
+    /* Back Left Camera */
+    if(!backLeftResult.isEmpty() && (frontCameraBad || frontResult.isEmpty()) && !noBack) {
+      double averageDistanceX = getAverageTagDistanceX(backLeftResult);
 
       if(averageDistanceX > maxDistance) {
-        backCameraBad = true;
+        backLeftCameraBad = true;
       }
 
-      if(badTags(backResult)) {
-        backCameraBad = true;
+      if(badTags(backLeftResult)) {
+        backLeftCameraBad = true;
       }
 
-      if(!backCameraBad && DriverStation.isTeleopEnabled()) {
-        Pose2d pose = new Pose2d(backResult.get().estimatedPose.getX(), backResult.get().estimatedPose.getY(), s_Swerve.getState().Pose.getRotation());
-        s_Swerve.addVisionMeasurement(pose, Utils.fpgaToCurrentTime(backResult.get().timestampSeconds), Constants.Vision.TAG_VISION_STDS);
+      for(int i = 0; i < frontResult.get().targetsUsed.size(); i++) {
+        var tagsUsed = new int[frontResult.get().targetsUsed.size()];
+        int tagUsed = frontResult.get().targetsUsed.get(i).fiducialId;
+        tagsUsed[i] = tagUsed;
+        Logger.recordOutput("Vision/Back Camera Left Tags Used", tagsUsed);
+      }
+
+      if(!backLeftCameraBad && DriverStation.isTeleopEnabled()) {
+        Pose2d pose = new Pose2d(backLeftResult.get().estimatedPose.getX(), backLeftResult.get().estimatedPose.getY(), s_Swerve.getState().Pose.getRotation());
+        s_Swerve.addVisionMeasurement(pose, Utils.fpgaToCurrentTime(backLeftResult.get().timestampSeconds), Constants.Vision.TAG_VISION_STDS);
       }
     }
+    else {
+      Logger.recordOutput("Vision/Back Camera Left Tags Used", 0);
+    }
 
-    Logger.recordOutput("Coral Rotation Speed", getCoralTargetSpeed());
+    /* Back Right Camera */
+    if(!backRightResult.isEmpty() && (frontCameraBad || frontResult.isEmpty() || backLeftCameraBad || backLeftResult.isEmpty()) && !noBack) {
+      double averageDistanceX = getAverageTagDistanceX(backRightResult);
+
+      if(averageDistanceX > maxDistance) {
+        backRightCameraBad = true;
+      }
+
+      if(badTags(backRightResult)) {
+        backRightCameraBad = true;
+      }
+
+      for(int i = 0; i < backRightResult.get().targetsUsed.size(); i++) {
+        var tagsUsed = new int[backRightResult.get().targetsUsed.size()];
+        int tagUsed = backRightResult.get().targetsUsed.get(i).fiducialId;
+        tagsUsed[i] = tagUsed;
+        Logger.recordOutput("Vision/Back Camera Right Tags Used", tagsUsed);
+      }
+
+      if(!backRightCameraBad && DriverStation.isTeleopEnabled()) {
+        Pose2d pose = new Pose2d(backRightResult.get().estimatedPose.getX(), backRightResult.get().estimatedPose.getY(), s_Swerve.getState().Pose.getRotation());
+        s_Swerve.addVisionMeasurement(pose, Utils.fpgaToCurrentTime(backRightResult.get().timestampSeconds), Constants.Vision.TAG_VISION_STDS);
+      }
+    }
+    else {
+      Logger.recordOutput("Vision/Back Camera Right Tags Used", 0);
+    }
+
     Logger.recordOutput("Vision/X Distance Result Empty", xDistanceBad);
     Logger.recordOutput("Vision/Front Camera Dead", frontCamera.isDead());
-    Logger.recordOutput("Vision/Back Camera Dead", backCamera.isDead());
+    Logger.recordOutput("Vision/Back Left Camera Dead", backLeftCamera.isDead());
+    Logger.recordOutput("Vision/Back Right Camera Dead", backRightCamera.isDead());
     Logger.recordOutput("Vision/Front Camera Bad", frontCameraBad);
-    Logger.recordOutput("Vision/Back Camera Bad", backCameraBad);
+    Logger.recordOutput("Vision/Back Left Camera Bad", backLeftCameraBad);
+    Logger.recordOutput("Vision/Back Right Camera Bad", backRightCameraBad);
 
     frontCameraBad = false;
-    backCameraBad = false;
-
-    if(Constants.DEBUG) {
-      SmartDashboard.putString("Detector Class", coralCamera.getDetectorClass());
-      SmartDashboard.putNumber("Detector Index", coralCamera.getDetectorIndex());
-      SmartDashboard.putNumber("Area Of Target", coralCamera.getAreaOfTarget());
-      SmartDashboard.putNumber("TX", coralCamera.getTX().in(Degrees));
-      SmartDashboard.putNumber("TY", coralCamera.getTY().in(Degrees));
-    }
+    backLeftCameraBad = false;
+    backRightCameraBad = false;
   }
 }

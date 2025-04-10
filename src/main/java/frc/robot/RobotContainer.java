@@ -221,14 +221,6 @@ public class RobotContainer {
         return () -> s_ClimbAvator.getState().equals(ClimbAvatorStates.L2) || s_ClimbAvator.getState().equals(ClimbAvatorStates.L3);
     }
 
-    public Command rotateToCoral() {
-        return s_Swerve.applyRequest(() ->
-                drive.withVelocityX(translationController.getRawAxis(translationAxis) * multiplier * Constants.Swerve.MAX_SPEED)
-                    .withVelocityY(translationController.getRawAxis(strafeAxis) * multiplier * Constants.Swerve.MAX_SPEED) 
-                    .withRotationalRate(s_Vision.getCoralTargetSpeed())
-            );
-    }
-
     public Command robotCentricDrive() {
         return s_Swerve.applyRequest(() ->
                 align.withVelocityX(translationController.getRawAxis(translationAxis) * multiplier * Constants.Swerve.MAX_SPEED)
