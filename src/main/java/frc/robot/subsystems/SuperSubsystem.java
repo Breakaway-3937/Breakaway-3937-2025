@@ -149,7 +149,15 @@ public class SuperSubsystem extends SubsystemBase {
                     .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.BACKWARDS_L4))), 
                     runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.L4))
                     .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.L4))), isBackwards))
-               .andThen(runSubsystems());
+               .andThen(Commands.either(
+                    s_ClimbAvator.setShoulder().andThen(s_ClimbAvator.waitUntilShoulderSafe())
+                    .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.POOPY_BACKWARDS_L4)))
+                    .andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.waitUntilWristSafe())
+                    .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.BACKWARDS_L4)))
+                    .andThen(s_ClimbAvator.setElevator()).andThen(s_MrPibb.setTurret())
+                    .andThen(s_MrPibb.waitUntilTurretSafe()).andThen(s_ClimbAvator.waitUntilElevatorSafe())
+                    .andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.waitUntilWristSafe()),
+                    runSubsystems(), isBackwards));
   }
 
   /* Other States */

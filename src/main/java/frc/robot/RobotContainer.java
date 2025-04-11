@@ -59,7 +59,7 @@ public class RobotContainer {
     private final JoystickButton rightTrack = new JoystickButton(buttons, 8);
 
     /* Triggers */
-    private final Trigger slowDownTrigger;
+    private final Trigger slowDownTrigger, protectTrigger;
 
     /* Subsystems */
     private final Swerve s_Swerve = createSwerve();
@@ -116,10 +116,12 @@ public class RobotContainer {
         xboxController.y().onTrue(Commands.either(s_SuperSubsystem.l4State(), s_SuperSubsystem.stationState(), xboxController.back()));
 
         /* Intake States */
+        protectTrigger.onTrue(s_SuperSubsystem.protectState());
+
         xboxController.rightBumper().onTrue(s_SuperSubsystem.preStageState());
         xboxController.leftTrigger(0.3).and(xboxController.rightTrigger(0.3).negate()).onTrue(s_DrPepper.runLoader().alongWith(setRumble(RumbleType.kBothRumble, 1)))
                                                                                                                                     .onFalse(s_DrPepper.stopLoader().alongWith(setRumble(RumbleType.kBothRumble, 0))
-                                                                                                                                             .andThen(Commands.either(Commands.either(s_DrPepper.runLoaderReverse(), s_DrPepper.runLoaderReverseTrough(), () -> !s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.PROCESSOR)).andThen(Commands.waitUntil(() -> !s_DrPepper.botFullAlgae().getAsBoolean())).andThen(s_DrPepper.stopLoader()), 
+                                                                                                                                             .andThen(Commands.either(Commands.either(s_DrPepper.runLoaderReverseBarge(), s_DrPepper.runLoaderReverseTrough(), () -> !s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.PROCESSOR)).andThen(Commands.waitUntil(() -> !s_DrPepper.botFullAlgae().getAsBoolean())).andThen(s_DrPepper.stopLoader()), 
                                                                                                                                              Commands.none(), 
                                                                                                                                              () -> s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.PROCESSOR) || s_SuperSubsystem.getClimbAvatorState().equals(ClimbAvatorStates.BARGE))));
                                                                                                                                              
@@ -167,6 +169,7 @@ public class RobotContainer {
         Shuffleboard.getTab("Auto").add(autoChooser).withPosition(0, 0).withSize(2, 1);
 
         slowDownTrigger = new Trigger(() -> DriverStation.isTeleop() && (s_ClimbAvator.getState().equals(ClimbAvatorStates.L4) || s_ClimbAvator.getState().equals(ClimbAvatorStates.BARGE)));
+        protectTrigger = new Trigger(() -> (s_ClimbAvator.getState().equals(ClimbAvatorStates.GROUND_ALGAE) || s_ClimbAvator.getState().equals(ClimbAvatorStates.GROUND_CORAL)) && (s_DrPepper.botFullAlgae().getAsBoolean() || s_DrPepper.botFullCoral().getAsBoolean()));
 
         align.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
         align.HeadingController.setTolerance(0.1);
