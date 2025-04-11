@@ -12,6 +12,7 @@ import java.util.function.Supplier;
 
 import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.Logger;
+import org.photonvision.EstimatedRobotPose;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
@@ -34,9 +35,11 @@ import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringSubscriber;
@@ -445,6 +448,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     public BooleanSupplier isBargeBackwards() {
         return () -> isNear(180, getState().Pose.getRotation().getDegrees(), 60); //TODO check red
+    }
+
+    public void updatePose(EstimatedRobotPose pose, Vector<N3> std) {
+        this.addVisionMeasurement(pose.estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(pose.timestampSeconds), std);
     }
 
     @Override
