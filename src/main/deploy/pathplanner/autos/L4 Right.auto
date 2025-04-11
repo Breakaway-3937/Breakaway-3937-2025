@@ -65,9 +65,22 @@
           "data": {
             "commands": [
               {
-                "type": "named",
+                "type": "sequential",
                 "data": {
-                  "name": "Center"
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "loadBriefly"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Center"
+                      }
+                    }
+                  ]
                 }
               },
               {
@@ -121,9 +134,22 @@
           "data": {
             "commands": [
               {
-                "type": "named",
+                "type": "sequential",
                 "data": {
-                  "name": "Center"
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "loadBriefly"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Center"
+                      }
+                    }
+                  ]
                 }
               },
               {

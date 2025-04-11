@@ -221,9 +221,12 @@ public class SuperSubsystem extends SubsystemBase {
   }
 
   public Command load(Command hit) {
-    return (s_DrPepper.runLoader().andThen(Commands.waitUntil(botFullCoral())).andThen(s_DrPepper.stopLoader())).raceWith(hit);
+    return (s_DrPepper.runLoader().andThen(Commands.waitUntil(botFullCoral()))).raceWith(hit);
   }
 
+  public Command loadBriefly() {
+    return Commands.waitSeconds(0.5).andThen(s_DrPepper.stopLoader());
+  }
   public Command center() {
     return s_DrPepper.autoCenter().andThen(s_DrPepper.stopThumb());
   }

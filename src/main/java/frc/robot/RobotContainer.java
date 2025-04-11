@@ -142,7 +142,7 @@ public class RobotContainer {
     }
 
     public RobotContainer() {
-         NamedCommands.registerCommand("ScoreCoralNoAlign", s_SuperSubsystem.scoreCoral(s_Swerve.hitReef(), s_Swerve.stop()));
+        NamedCommands.registerCommand("ScoreCoralNoAlign", s_SuperSubsystem.scoreCoral(s_Swerve.hitReef(), s_Swerve.stop()));
         NamedCommands.registerCommand("ScoreCoral", s_SuperSubsystem.scoreCoralAlign(s_Swerve.autoReefCorrection()));
         NamedCommands.registerCommand("ScoreCoralL1", s_SuperSubsystem.scoreCoralL1(s_Swerve.hitReef(), s_Swerve.stop()));
         NamedCommands.registerCommand("Load", s_SuperSubsystem.load(s_Swerve.hitStation()));
@@ -158,6 +158,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("LowerAlgae", s_SuperSubsystem.lowerAlgaeState());
         NamedCommands.registerCommand("UpperAlgae", s_SuperSubsystem.upperAlgaeState());
         NamedCommands.registerCommand("StationAlign", s_Swerve.autoReefCorrection()); 
+        NamedCommands.registerCommand("loadBriefly", s_SuperSubsystem.loadBriefly());
         autoChooser = AutoBuilder.buildAutoChooser();
         autoChooser.setDefaultOption("DO NOTHING", Commands.none());
         autoChooser.addOption("Tush Push L4 Left", new PathPlannerAuto("Tush Push L4 Right", true).withName("Tush Push L4 Left"));
