@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.9,
-        "y": 6.5
+        "x": 7.778914141414141,
+        "y": 6.505050505050504
       },
       "prevControl": null,
       "nextControl": {
-        "x": 8.165010994821108,
-        "y": 6.493289393418805
+        "x": 8.043925136235249,
+        "y": 6.498339898469309
       },
       "isLocked": false,
       "linkedName": "Finish Algae Part 1"

@@ -109,6 +109,12 @@
               }
             ]
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Algae #5"
+          }
         }
       ]
     }

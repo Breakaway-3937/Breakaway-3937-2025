@@ -157,7 +157,8 @@ public class Vision extends SubsystemBase {
   }
 
   public Vector<N3> calcStd(double distance) {
-    return VecBuilder.fill(tagsStds.get(distance), tagsStds.get(distance), 99999);
+    double xy = tagsStds.get(distance) * 2.25;
+    return VecBuilder.fill(xy, xy, 99999);
   }
 
   public BooleanSupplier funeral() {

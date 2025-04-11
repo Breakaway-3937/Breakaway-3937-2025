@@ -152,8 +152,8 @@ public class RobotContainer {
         NamedCommands.registerCommand("Condense", s_SuperSubsystem.condenseAuto());
         NamedCommands.registerCommand("TushPush", s_SuperSubsystem.tushPush(s_Swerve.hitRobot(), s_Swerve.stop()));
         NamedCommands.registerCommand("MakeCoachTHappy", getInitialPrestageCommand());
-        NamedCommands.registerCommand("PickupLower", s_SuperSubsystem.pickupLower(s_Swerve.autoReefCorrection(), s_Swerve.stop()));
-        NamedCommands.registerCommand("PickupUpper", s_SuperSubsystem.pickupUpper(s_Swerve.autoReefCorrection(), s_Swerve.stop()));
+        NamedCommands.registerCommand("PickupLower", s_SuperSubsystem.pickupLower(s_Swerve.hitReef(), s_Swerve.stop()));
+        NamedCommands.registerCommand("PickupUpper", s_SuperSubsystem.pickupUpper(s_Swerve.hitReef(), s_Swerve.stop()));
         NamedCommands.registerCommand("ScoreAlgae", s_SuperSubsystem.scoreAlgae());
         NamedCommands.registerCommand("Barge", s_SuperSubsystem.bargeState());
         NamedCommands.registerCommand("L1", s_SuperSubsystem.l1State());

@@ -111,15 +111,28 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Algae #5"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "UpperAlgae"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Algae #5"
+                }
+              }
+            ]
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "UpperAlgae"
+            "name": "PickupUpper"
           }
         },
         {
