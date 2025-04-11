@@ -24,9 +24,14 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.lib.Vision.BreakaCamera;
 import frc.robot.subsystems.Swerve.Swerve;
@@ -42,7 +47,8 @@ public class Vision extends SubsystemBase {
   private boolean frontCameraBad, backLeftCameraBad, backRightCameraBad;
   private boolean xDistanceBad = false, noBack = false;
   private int[] blueTags = {17, 18, 19, 20, 21, 22};
-  private int[] redTags = {6, 7, 8, 9, 10, 11}; 
+  private int[] redTags = {6, 7, 8, 9, 10, 11};
+  private final InterpolatingDoubleTreeMap tagsStds;
 
   /** Creates a new Vision. */
   public Vision(Swerve s_Swerve) {
@@ -61,6 +67,19 @@ public class Vision extends SubsystemBase {
     rotationController = new PhoenixPIDController(4.5, 0, 0);
     rotationController.enableContinuousInput(-Math.PI, Math.PI);
     rotationController.setTolerance(0.1);
+
+    tagsStds = new InterpolatingDoubleTreeMap();
+    tagsStds.put(0.752358, 0.005);
+    tagsStds.put(1.016358, 0.0135);
+    tagsStds.put(1.296358, 0.016);
+    tagsStds.put(1.574358, 0.038);
+    tagsStds.put(1.913358, 0.0515);
+    tagsStds.put(2.184358, 0.0925);
+    tagsStds.put(2.493358, 0.12);
+    tagsStds.put(2.758358, 0.14);
+    tagsStds.put(3.223358, 0.17);
+    tagsStds.put(4.093358, 0.27);
+    tagsStds.put(4.726358, 0.38);
 
   }
 
@@ -137,6 +156,10 @@ public class Vision extends SubsystemBase {
     };
   }
 
+  public Vector<N3> calcStd(double distance) {
+    return VecBuilder.fill(tagsStds.get(distance), tagsStds.get(distance), 99999);
+  }
+
   public BooleanSupplier funeral() {
     return () -> frontCamera.isDead() || backLeftCamera.isDead() || backRightCamera.isDead();
   }
@@ -171,7 +194,8 @@ public class Vision extends SubsystemBase {
       if(!frontCameraBad) {
         Pose2d pose = new Pose2d(frontResult.get().estimatedPose.getX(), frontResult.get().estimatedPose.getY(), s_Swerve.getState().Pose.getRotation());
         if(!(DriverStation.isAutonomousEnabled() && (s_Swerve.getState().Pose.getX() < 1.7 || s_Swerve.getState().Pose.getX() > 14.8))) {
-          s_Swerve.addVisionMeasurement(pose, Utils.fpgaToCurrentTime(frontResult.get().timestampSeconds), Constants.Vision.TAG_VISION_STDS);
+          SmartDashboard.putNumberArray("F Tag std", calcStd(averageDistanceX).getData());
+          s_Swerve.addVisionMeasurement(pose, Utils.fpgaToCurrentTime(frontResult.get().timestampSeconds), calcStd(averageDistanceX));
         }
       }
     }
@@ -190,7 +214,8 @@ public class Vision extends SubsystemBase {
 
       if(!backLeftCameraBad && DriverStation.isTeleopEnabled()) {
         Pose2d pose = new Pose2d(backLeftResult.get().estimatedPose.getX(), backLeftResult.get().estimatedPose.getY(), s_Swerve.getState().Pose.getRotation());
-        s_Swerve.addVisionMeasurement(pose, Utils.fpgaToCurrentTime(backLeftResult.get().timestampSeconds), Constants.Vision.TAG_VISION_STDS);
+        SmartDashboard.putNumberArray(" BF Tag std", calcStd(averageDistanceX).getData());
+        s_Swerve.addVisionMeasurement(pose, Utils.fpgaToCurrentTime(backLeftResult.get().timestampSeconds), calcStd(averageDistanceX));
       }
     }
 
@@ -208,7 +233,8 @@ public class Vision extends SubsystemBase {
 
       if(!backRightCameraBad && DriverStation.isTeleopEnabled()) {
         Pose2d pose = new Pose2d(backRightResult.get().estimatedPose.getX(), backRightResult.get().estimatedPose.getY(), s_Swerve.getState().Pose.getRotation());
-        s_Swerve.addVisionMeasurement(pose, Utils.fpgaToCurrentTime(backRightResult.get().timestampSeconds), Constants.Vision.TAG_VISION_STDS);
+        SmartDashboard.putNumberArray("BR Tag std", calcStd(averageDistanceX).getData());
+        s_Swerve.addVisionMeasurement(pose, Utils.fpgaToCurrentTime(backRightResult.get().timestampSeconds), calcStd(averageDistanceX));
       }
     }
 
