@@ -10,7 +10,7 @@ public enum ClimbAvatorStates {
     PROCESSOR(1, 0.25),
     BARGE(73.5, 50),
     CLIMB(12.5, 51.3),
-    STATION(1, 44),
+    STATION(1, 42),
     L1(1, 11),
     L2(2.88, 33.2),
     L3(22, 41.5),
