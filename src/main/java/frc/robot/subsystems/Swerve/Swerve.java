@@ -212,7 +212,11 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         else {
             finalMovement = new Pose2d(finalTranslation.getX(), finalTranslation.getY(), dontChange.getRotation());
         }
-        SmartDashboard.putNumberArray("Final move pose", new Double[] {finalMovement.getX(), finalMovement.getY(), finalMovement.getRotation().getDegrees()});
+
+        if(Constants.DEBUG) {
+            SmartDashboard.putNumberArray("Final move pose", new Double[] {finalMovement.getX(), finalMovement.getY(), finalMovement.getRotation().getDegrees()});
+        }
+
         return AutoBuilder.followPath(path).andThen(finalAdjustment(finalMovement));
     }
 
@@ -269,8 +273,9 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         int[] pointsToPull;
         Pose2d goTo;
         boolean rightSideAuto = false;
+        boolean backside = false;
         Translation2d offset;
-        Translation2d leftOffset = new Translation2d(Centimeters.of(-17), Inches.of(-18));
+        Translation2d leftOffset = new Translation2d(Centimeters.of(17), Inches.of(-18));
         Translation2d rightOffset = new Translation2d(Centimeters.of(-17), Inches.of(-18));
         
 
@@ -286,8 +291,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         switch (currentAuto) {
             case "L4 Right","Tush Push L4 Right", "L4 Right Fast": pointsToPull = new int[] {22, 17}; rightSideAuto = true; break; //Blue Right side: left right, left
             case "L4 Left","Tush Push L4 Left", "L4 Left Fast": pointsToPull = new int[] {20, 19}; rightSideAuto = false; break;
-            case "L4 Back": pointsToPull = new int[] {21, 21}; rightSideAuto = true; break;
-            case "L4 Back Left": pointsToPull = new int[] {21, 21}; rightSideAuto = false; break;
+            case "L4 Back Right": pointsToPull = new int[] {21, 21}; rightSideAuto = true; backside = true; break;
+            case "L4 Back Left": pointsToPull = new int[] {21, 21}; rightSideAuto = false; backside = true; break;
             default: pointsToPull = new int[] {22, 17};
         }
 
@@ -348,9 +353,15 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             default -> offset = new Translation2d();
         }
 
+        if(backside) {
+            offset = (rightSideAuto) ?  rightOffset : leftOffset;
+        }
+
         if(Constants.DEBUG) {
             SmartDashboard.putNumberArray("Non moved goto", new double[] {goTo.getX(), goTo.getY(), goTo.getRotation().getDegrees()});
         }
+
+        goTo = new Pose2d(goTo.getTranslation(), goTo.getRotation().rotateBy(Rotation2d.k180deg));
 
         var translation = goTo.getTranslation().plus(new Translation2d(offset.getY(), offset.getX()).rotateBy(goTo.getRotation()));
         goTo = new Pose2d(translation, goTo.getRotation());
@@ -397,7 +408,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public Command jack() {
-        return Commands.waitSeconds(0.16);
+        return Commands.waitSeconds(0.2);
     }
 
     public double wheelSpeeds() {
@@ -417,41 +428,12 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return applyRequest(() -> auto.withVelocityX(-1).withVelocityY(0));
     }
 
-    public Command hitStation() {
-        return applyRequest(() -> auto.withVelocityX(-1).withVelocityY(0));
-    }
-
     public Command stop() {
         return applyRequest(() -> auto.withVelocityX(0).withVelocityY(0));
     }
-    
-    public boolean isAtBarge() {
-        var allianceColor = DriverStation.getAlliance();
-        var pose = getState().Pose;
-        boolean atBarge = false;
-        double blueBargeX = 0, redBargeX = 0; //TODO get x cord
-
-        if(allianceColor.isPresent()) {
-            if(allianceColor.get().equals(Alliance.Red)) {
-                if(isNear(redBargeX, pose.getX(), 0.2) && pose.getY() < 4) { //(expected Y pose, current Y)
-                    atBarge = true;
-                }
-            }
-            else {
-                if(isNear(blueBargeX, pose.getX(), 0.2) && pose.getY() > 4) { //(expected Y pose, current Y)
-                    atBarge = true;
-                }
-            }
-        }
-        else {
-            atBarge = false;
-        }
-
-        return atBarge;
-    }
 
     public BooleanSupplier isBargeBackwards() {
-        return () -> isNear(180, Math.abs(getState().Pose.getRotation().getDegrees()), 60); //TODO check red
+        return () -> isNear(180, Math.abs(getState().Pose.getRotation().getDegrees()), 60);
     }
 
     @Override
@@ -494,7 +476,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             SmartDashboard.putString("Alliance Color", DriverStation.getAlliance().orElse(Alliance.Blue).toString());
             SmartDashboard.putString("Past Color", pastColor.toString());
             SmartDashboard.putString("Current Auto Debug", autoSub.get());
-            SmartDashboard.putBoolean("At Barge", isAtBarge());
             SmartDashboard.putBoolean("Is Barge Backwards", isBargeBackwards().getAsBoolean());
         }
     }
