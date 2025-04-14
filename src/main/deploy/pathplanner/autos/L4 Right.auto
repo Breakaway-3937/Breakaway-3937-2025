@@ -71,7 +71,7 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "loadBriefly"
+                        "name": "LoadBriefly"
                       }
                     },
                     {
@@ -140,7 +140,7 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "loadBriefly"
+                        "name": "LoadBriefly"
                       }
                     },
                     {

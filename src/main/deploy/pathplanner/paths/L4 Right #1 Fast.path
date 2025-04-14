@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 5.059615384615384,
-        "y": 2.6936538461538464
+        "x": 5.22474358974359,
+        "y": 2.270512820512821
       },
       "prevControl": {
-        "x": 5.433044102493749,
-        "y": 2.6538632546849854
+        "x": 5.598172307621955,
+        "y": 2.23072222904396
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "E"
+      "linkedName": "Fast E"
     }
   ],
   "rotationTargets": [],
@@ -34,7 +34,7 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 5.0,
-    "maxAcceleration": 4.5,
+    "maxAcceleration": 4.25,
     "maxAngularVelocity": 720.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,

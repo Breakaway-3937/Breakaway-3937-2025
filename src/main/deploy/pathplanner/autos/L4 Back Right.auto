@@ -65,9 +65,22 @@
           "data": {
             "commands": [
               {
-                "type": "named",
+                "type": "sequential",
                 "data": {
-                  "name": "Center"
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "LoadBriefly"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Center"
+                      }
+                    }
+                  ]
                 }
               },
               {
@@ -82,7 +95,7 @@
         {
           "type": "named",
           "data": {
-            "name": "ScoreCoralNoAlign"
+            "name": "ScoreCoral"
           }
         },
         {

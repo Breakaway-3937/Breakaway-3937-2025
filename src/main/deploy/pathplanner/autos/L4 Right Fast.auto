@@ -24,9 +24,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "ScoreCoral"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "L4"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ScoreCoralFast"
+                }
+              }
+            ]
           }
         },
         {
@@ -49,15 +62,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "deadline",
           "data": {
-            "name": "StationAlign"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Load"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Load"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "StationAlign"
+                }
+              }
+            ]
           }
         },
         {
@@ -71,7 +91,7 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "loadBriefly"
+                        "name": "LoadBriefly"
                       }
                     },
                     {
@@ -93,9 +113,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "ScoreCoral"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "L4"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ScoreCoralFast"
+                }
+              }
+            ]
           }
         },
         {
@@ -118,15 +151,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "deadline",
           "data": {
-            "name": "StationAlign"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Load"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Load"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "StationAlign"
+                }
+              }
+            ]
           }
         },
         {
@@ -140,7 +180,7 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "loadBriefly"
+                        "name": "LoadBriefly"
                       }
                     },
                     {
@@ -162,9 +202,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "ScoreCoral"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "L4"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ScoreCoralFast"
+                }
+              }
+            ]
           }
         },
         {
