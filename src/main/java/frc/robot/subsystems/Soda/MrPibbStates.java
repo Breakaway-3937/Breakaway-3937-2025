@@ -13,7 +13,7 @@ public enum MrPibbStates {
     BACKWARDS_BARGE(7.71, 0),
     CLIMB(0, 0),
     STATION(0.6, 0),
-    L1(10.10, 0),//9, 0),
+    L1(10.10, 0),
     L2(12.85, 1.83),
     L3(13.7 + 0.1, 1.83),
     L4(19.4 + 0.4, 1.83),
