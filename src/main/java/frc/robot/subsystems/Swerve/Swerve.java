@@ -270,8 +270,9 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         Pose2d goTo;
         boolean rightSideAuto = false;
         Translation2d offset;
-        Translation2d leftOffset = new Translation2d(Centimeters.of(17), Centimeters.of(-50));
-        Translation2d rightOffset = new Translation2d(Centimeters.of(-17), Centimeters.of(-50));
+        var robotCenterLength = Inches.of(-18);
+        Translation2d leftOffset = new Translation2d(Inches.of(-18), Feet.of(-1.5).plus(robotCenterLength));
+        Translation2d rightOffset = new Translation2d(Inches.of(-18), Feet.of(-1.5).plus(robotCenterLength));
 
         //blue left path: right, left, right
         //blue right path: left, right, left
@@ -281,8 +282,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         SmartDashboard.putString("Current Auto in method", currentAuto);
 
         switch (currentAuto) {
-            case "L4 Right","Tush Push L4 Right": pointsToPull = new int[] {22, 17}; rightSideAuto = true; break; //Blue Right side: left right, left
-            case "L4 Left","Tush Push L4 Left": pointsToPull = new int[] {20, 19}; rightSideAuto = false; break;
+            case "L4 Right","Tush Push L4 Right", "L4 Right Fast": pointsToPull = new int[] {22, 17}; rightSideAuto = true; break; //Blue Right side: left right, left
+            case "L4 Left","Tush Push L4 Left", "L4 Left Fast": pointsToPull = new int[] {20, 19}; rightSideAuto = false; break;
             case "L4 Back": pointsToPull = new int[] {21, 21}; rightSideAuto = true; break;
             case "L4 Back Left": pointsToPull = new int[] {21, 21}; rightSideAuto = false; break;
             default: pointsToPull = new int[] {22, 17};
@@ -349,9 +350,11 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             SmartDashboard.putNumberArray("Non moved goto", new double[] {goTo.getX(), goTo.getY(), goTo.getRotation().getDegrees()});
         }
 
+        var dontChange = goTo;
+
         goTo = new Pose2d(goTo.getTranslation(), goTo.getRotation().rotateBy(Rotation2d.k180deg));
 
-        var translation = goTo.getTranslation().plus(new Translation2d(offset.getY(), offset.getX()).rotateBy(goTo.getRotation()));
+        var translation = dontChange.getTranslation().plus(new Translation2d(offset.getY(), offset.getX()).rotateBy(goTo.getRotation()));
         goTo = new Pose2d(translation, goTo.getRotation());
 
         if(Constants.DEBUG) {

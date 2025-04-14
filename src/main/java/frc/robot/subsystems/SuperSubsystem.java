@@ -79,6 +79,12 @@ public class SuperSubsystem extends SubsystemBase {
                 .andThen(runSubsystems());
   }
 
+  public Command lollipopState() {
+    return saveMrPibb().andThen(runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.LOLLIPOP)))
+                .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.LOLLIPOP)))
+                .andThen(runSubsystems());
+  }
+
   public Command groundAlgaeState() {
     return saveMrPibb().andThen(runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.GROUND_ALGAE)))
                 .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.GROUND_ALGAE)))
@@ -139,7 +145,12 @@ public class SuperSubsystem extends SubsystemBase {
                     .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.BACKWARDS_L3))), 
                     runOnce(() -> s_ClimbAvator.setClimbAvatorState(ClimbAvatorStates.L3))
                     .andThen(runOnce(() -> s_MrPibb.setMrPibbState(MrPibbStates.L3))), isBackwards))
-               .andThen(runSubsystems());
+                .andThen(Commands.either(
+                      s_ClimbAvator.setShoulder().andThen(s_ClimbAvator.waitUntilShoulderSafe())
+                      .andThen(s_ClimbAvator.setElevator()).andThen(s_MrPibb.setTurret())
+                      .andThen(s_MrPibb.waitUntilTurretSafe()).andThen(s_ClimbAvator.waitUntilElevatorSafe())
+                      .andThen(s_MrPibb.setWrist()).andThen(s_MrPibb.waitUntilWristSafe()),
+                      runSubsystems(), isBackwards));
   }
 
   public Command l4State() {

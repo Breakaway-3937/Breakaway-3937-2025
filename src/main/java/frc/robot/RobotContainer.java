@@ -132,7 +132,7 @@ public class RobotContainer {
         
         /* Climbing States */
         xboxController.povUp().onTrue(s_SuperSubsystem.climbState());
-        xboxController.povDown().onTrue(s_SuperSubsystem.climbPullState());
+        xboxController.povDown().onTrue(Commands.either(s_SuperSubsystem.climbPullState(), s_SuperSubsystem.lollipopState(), () -> s_ClimbAvator.getState().equals(ClimbAvatorStates.CLIMB)));
         xboxController.start().onTrue(s_ClimbAvator.bilboBagginsTheBackForward()).onFalse(s_ClimbAvator.bilboBagginsTheBackStop());
         xboxController.leftTrigger(0.3).and(xboxController.rightTrigger(0.3)).onTrue(s_ClimbAvator.bilboBagginsTheBackBackward()).onFalse(s_ClimbAvator.bilboBagginsTheBackStop());
         
@@ -165,6 +165,7 @@ public class RobotContainer {
         autoChooser.setDefaultOption("DO NOTHING", Commands.none());
         autoChooser.addOption("Tush Push L4 Left", new PathPlannerAuto("Tush Push L4 Right", true).withName("Tush Push L4 Left"));
         autoChooser.addOption("L4 Left", new PathPlannerAuto("L4 Right", true).withName("L4 Left"));
+        autoChooser.addOption("L4 Left Fast", new PathPlannerAuto("L4 Right Fast", true).withName("L4 Left Fast"));
         autoChooser.addOption("L4 Back Left", new PathPlannerAuto("L4 Back", true).withName("L4 Back Left"));
         Shuffleboard.getTab("Auto").add(autoChooser).withPosition(0, 0).withSize(2, 1);
 

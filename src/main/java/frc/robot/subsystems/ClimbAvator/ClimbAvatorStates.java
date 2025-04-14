@@ -6,12 +6,13 @@ package frc.robot.subsystems.ClimbAvator;
 
 public enum ClimbAvatorStates {
     GROUND_CORAL(7.9, 0.25),
+    LOLLIPOP(1, 12.85),
     GROUND_ALGAE(4.3, 12),
     PROCESSOR(1, 0.25),
     BARGE(73.5, 50),
     CLIMB(12.5, 51.3),
     STATION(1, 42),
-    L1(1, 11),
+    L1(1, 11.89),//1, 11),
     L2(2.88, 33.2),
     L3(22, 41.5),
     L4(73.5, 47.475),

@@ -68,7 +68,7 @@ public class DrPepper extends SubsystemBase {
   }
 
   public Command runLoaderReverseBarge() {
-    return runOnce(() -> loader.set(-0.7)).andThen(runOnce(() -> algaeFlag = false));
+    return runOnce(() -> loader.set(-0.5)).andThen(runOnce(() -> algaeFlag = false));
   }
 
   public Command stopLoader() {
