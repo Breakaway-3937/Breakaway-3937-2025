@@ -215,12 +215,8 @@ public class SuperSubsystem extends SubsystemBase {
     return new ParallelDeadlineGroup(Commands.waitSeconds(0.45), hit).andThen(Commands.waitSeconds(0.01).raceWith(stop)).andThen(() -> stop.cancel());
   }
 
-  public Command pickupLower(Command hit, Command stop) {
+  public Command pickup(Command hit, Command stop) {
     return hitReef(hit, stop).andThen(lowerAlgaeState()).andThen(s_DrPepper.runLoader()).andThen(Commands.waitUntil(botFullAlgae()));
-  }
-
-  public Command pickupUpper(Command hit, Command stop) {
-    return hitReef(hit, stop).andThen(upperAlgaeState()).andThen(s_DrPepper.runLoader()).andThen(Commands.waitUntil(botFullAlgae()));
   }
 
   public Command scoreAlgae() {
@@ -234,18 +230,23 @@ public class SuperSubsystem extends SubsystemBase {
   public Command scoreCoralAlign(Command hit) {
     return hit.andThen(l4State()).andThen(s_DrPepper.runThumbForward()).andThen(s_DrPepper.runLoaderSlowly()).andThen(Commands.waitSeconds(0.5).andThen(s_DrPepper.stopThumb()).andThen(s_DrPepper.stopLoader()));
   }
+
+  public Command scoreCoralAlignFast(Command hit) {
+    return hit.andThen(s_ClimbAvator.waitUntilElevatorSafe()).andThen(s_DrPepper.runThumbForward()).andThen(s_DrPepper.runLoaderSlowly()).andThen(Commands.waitSeconds(0.5).andThen(s_DrPepper.stopThumb()).andThen(s_DrPepper.stopLoader()));
+  }
   
   public Command scoreCoralL1(Command hit, Command stop) {
     return hitReef(hit, stop).andThen(l1State()).andThen(s_DrPepper.runLoaderReverseTrough()).andThen(Commands.waitSeconds(0.5).andThen(s_DrPepper.stopLoader()));
   }
 
-  public Command load(Command hit) {
-    return (s_DrPepper.runLoader().andThen(Commands.waitUntil(botFullCoral()))).raceWith(hit);
+  public Command load() {
+    return (s_DrPepper.runLoader().andThen(Commands.waitUntil(botFullCoral())));
   }
 
   public Command loadBriefly() {
     return Commands.waitSeconds(0.5).andThen(s_DrPepper.stopLoader());
   }
+
   public Command center() {
     return s_DrPepper.autoCenter().andThen(s_DrPepper.stopThumb());
   }
