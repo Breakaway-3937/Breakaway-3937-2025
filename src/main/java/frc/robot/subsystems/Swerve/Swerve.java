@@ -270,16 +270,18 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         Pose2d goTo;
         boolean rightSideAuto = false;
         Translation2d offset;
-        var robotCenterLength = Inches.of(-18);
-        Translation2d leftOffset = new Translation2d(Inches.of(-18), Feet.of(-1.5).plus(robotCenterLength));
-        Translation2d rightOffset = new Translation2d(Inches.of(-18), Feet.of(-1.5).plus(robotCenterLength));
+        Translation2d leftOffset = new Translation2d(Centimeters.of(-17), Inches.of(-18));
+        Translation2d rightOffset = new Translation2d(Centimeters.of(-17), Inches.of(-18));
+        
 
         //blue left path: right, left, right
         //blue right path: left, right, left
 
         String currentAuto = autoSub.get();
 
-        SmartDashboard.putString("Current Auto in method", currentAuto);
+        if(Constants.DEBUG) {
+            SmartDashboard.putString("Current Auto in method", currentAuto);
+        }
 
         switch (currentAuto) {
             case "L4 Right","Tush Push L4 Right", "L4 Right Fast": pointsToPull = new int[] {22, 17}; rightSideAuto = true; break; //Blue Right side: left right, left
@@ -332,7 +334,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             return Commands.none();
         }
 
-        //For blue right side nothing done is to bool it shoudl be set up so it does the order for a blue rightside auto.
+        //For blue right side nothing done is to bool it should be set up so it does the order for a blue rightside auto.
         //For left side it is configured to do the opisite of right, instead of left it does right.
         //this is not true: For red do the opsite but flipped? red leftside is blue rightside? red rightside is blue rightside?
 
@@ -350,11 +352,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             SmartDashboard.putNumberArray("Non moved goto", new double[] {goTo.getX(), goTo.getY(), goTo.getRotation().getDegrees()});
         }
 
-        var dontChange = goTo;
-
-        goTo = new Pose2d(goTo.getTranslation(), goTo.getRotation().rotateBy(Rotation2d.k180deg));
-
-        var translation = dontChange.getTranslation().plus(new Translation2d(offset.getY(), offset.getX()).rotateBy(goTo.getRotation()));
+        var translation = goTo.getTranslation().plus(new Translation2d(offset.getY(), offset.getX()).rotateBy(goTo.getRotation()));
         goTo = new Pose2d(translation, goTo.getRotation());
 
         if(Constants.DEBUG) {
