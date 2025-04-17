@@ -68,7 +68,7 @@ public class RobotContainer {
     private final ClimbAvator s_ClimbAvator = new ClimbAvator();
     private final DrPepper s_DrPepper = new DrPepper(isAlgae());
     private final LED s_LED = new LED();
-    private final SuperSubsystem s_SuperSubsystem = new SuperSubsystem(s_ClimbAvator, s_MrPibb, s_DrPepper, s_LED, s_Vision.funeral(), () -> s_Swerve.isBackwards(), s_Swerve.isBargeBackwards());
+    private final SuperSubsystem s_SuperSubsystem = new SuperSubsystem(s_ClimbAvator, s_MrPibb, s_DrPepper, s_LED, s_Vision.funeral(), () -> s_Swerve.isBackwards());
 
     private double multiplier = 1;
 
@@ -171,7 +171,7 @@ public class RobotContainer {
         Shuffleboard.getTab("Auto").add(autoChooser).withPosition(0, 0).withSize(2, 1);
 
         slowDownTrigger = new Trigger(() -> DriverStation.isTeleop() && (s_ClimbAvator.getState().equals(ClimbAvatorStates.L4) || s_ClimbAvator.getState().equals(ClimbAvatorStates.BARGE)));
-        protectTrigger = new Trigger(() -> (s_ClimbAvator.getState().equals(ClimbAvatorStates.GROUND_ALGAE) || s_ClimbAvator.getState().equals(ClimbAvatorStates.GROUND_CORAL)) && (s_DrPepper.botFullAlgae().getAsBoolean() || s_DrPepper.botFullCoral().getAsBoolean()));
+        protectTrigger = new Trigger(() -> s_ClimbAvator.getState().equals(ClimbAvatorStates.GROUND_CORAL) && (s_DrPepper.botFullAlgae().getAsBoolean() || s_DrPepper.botFullCoral().getAsBoolean()));
 
         align.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
         align.HeadingController.setTolerance(0.1);

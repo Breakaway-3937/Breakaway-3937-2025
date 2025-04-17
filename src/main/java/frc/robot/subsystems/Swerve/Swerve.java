@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import org.json.simple.parser.ParseException;
@@ -432,10 +431,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return applyRequest(() -> auto.withVelocityX(0).withVelocityY(0));
     }
 
-    public BooleanSupplier isBargeBackwards() {
-        return () -> isNear(180, Math.abs(getState().Pose.getRotation().getDegrees()), 60);
-    }
-
     @Override
     public void periodic() {
         /* Periodically try to apply the operator perspective */
@@ -476,7 +471,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             SmartDashboard.putString("Alliance Color", DriverStation.getAlliance().orElse(Alliance.Blue).toString());
             SmartDashboard.putString("Past Color", pastColor.toString());
             SmartDashboard.putString("Current Auto Debug", autoSub.get());
-            SmartDashboard.putBoolean("Is Barge Backwards", isBargeBackwards().getAsBoolean());
         }
     }
 
