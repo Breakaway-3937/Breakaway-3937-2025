@@ -15,7 +15,7 @@ public enum MrPibbStates {
     L1(10.10, 0),
     L2(12.85, 1.83),
     L3(13.7 + 0.1, 1.83),
-    L4(19.4 + 0.5, 1.83),
+    L4(21.25, 1.83),
     POOPY_BACKWARDS_L4(16.5, 0),
     BACKWARDS_L2(3.9, 1.83),
     BACKWARDS_L3(8, 1.83),

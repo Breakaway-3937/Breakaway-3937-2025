@@ -17,16 +17,29 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Poop #1"
+                  "pathName": "Algae #0"
                 }
               }
             ]
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "ScoreCoralNoAlign"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "L4"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ScoreCoralFast"
+                }
+              }
+            ]
           }
         },
         {

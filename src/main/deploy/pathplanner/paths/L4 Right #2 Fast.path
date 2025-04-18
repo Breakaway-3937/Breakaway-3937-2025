@@ -28,7 +28,12 @@
       "linkedName": "Station"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5433070866141745,
+      "rotationDegrees": 59.54740625453818
+    }
+  ],
   "constraintZones": [
     {
       "name": "Constraints Zone",

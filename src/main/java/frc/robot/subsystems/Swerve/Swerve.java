@@ -292,6 +292,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             case "L4 Left","Tush Push L4 Left", "L4 Left Fast": pointsToPull = new int[] {20, 19}; rightSideAuto = false; break;
             case "L4 Back Right": pointsToPull = new int[] {21, 21}; rightSideAuto = true; backside = true; break;
             case "L4 Back Left": pointsToPull = new int[] {21, 21}; rightSideAuto = false; backside = true; break;
+            case "Algae": pointsToPull = new int[] {21, 21}; rightSideAuto = true; backside = false; break;
             default: pointsToPull = new int[] {22, 17};
         }
 

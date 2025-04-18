@@ -68,7 +68,7 @@ public class DrPepper extends SubsystemBase {
   }
 
   public Command runLoaderReverseBarge() {
-    return runOnce(() -> loader.set(-0.7)).andThen(runOnce(() -> algaeFlag = false));
+    return runOnce(() -> loader.set(-0.5)).andThen(runOnce(() -> algaeFlag = false));
   }
 
   public Command stopLoader() {
@@ -149,10 +149,12 @@ public class DrPepper extends SubsystemBase {
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-    config.CurrentLimits.SupplyCurrentLimit = 80;
-    config.CurrentLimits.SupplyCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLowerLimit = 40;
-    config.CurrentLimits.SupplyCurrentLowerTime = 1;
+    config.CurrentLimits.SupplyCurrentLimit = 250;
+    config.CurrentLimits.SupplyCurrentLimitEnable = false;
+    config.CurrentLimits.StatorCurrentLimit = 250;
+    config.CurrentLimits.StatorCurrentLimitEnable = false;
+    //config.CurrentLimits.SupplyCurrentLowerLimit = 40;
+    //config.CurrentLimits.SupplyCurrentLowerTime = 1;
 
     loader.getConfigurator().apply(config);
   }
