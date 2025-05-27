@@ -68,7 +68,7 @@ public class DrPepper extends SubsystemBase {
   }
 
   public Command runLoaderReverseBarge() {
-    return runOnce(() -> loader.set(-0.5)).andThen(runOnce(() -> algaeFlag = false));
+    return runOnce(() -> loader.set(-0.45)).andThen(runOnce(() -> algaeFlag = false));
   }
 
   public Command stopLoader() {
@@ -164,7 +164,7 @@ public class DrPepper extends SubsystemBase {
     watson.getConfigurator().apply(new CANrangeConfiguration());
 
     CANrangeConfiguration config = new CANrangeConfiguration();
-    config.ProximityParams.ProximityThreshold = 0.05;
+    config.ProximityParams.ProximityThreshold = 0.06;
 
     sherlock.getConfigurator().apply(config);
     watson.getConfigurator().apply(config);
