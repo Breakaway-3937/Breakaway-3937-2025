@@ -28,8 +28,8 @@ public class QuestNavSubsystem extends SubsystemBase {
     this.s_Swerve = s_Swerve;
   }
 
-  public void setQuestPose(Pose2d pose) {
-    questNav.setPose(pose);
+  public void setRobotPose(Pose2d pose) {
+    robotPose = pose;
   }
 
   public Pose2d getPose() {
@@ -54,9 +54,6 @@ public class QuestNavSubsystem extends SubsystemBase {
         s_Swerve.addVisionMeasurement(pose, ctreTimestamp, QUESTNAV_STD_DEVS);
     }
   }
-
-
-
 
   @Override
   public void periodic() {

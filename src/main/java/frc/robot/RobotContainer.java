@@ -29,6 +29,7 @@ import frc.robot.commands.Music;
 import frc.robot.generated.CompTunerConstants;
 import frc.robot.generated.PracticeTunerConstants;
 import frc.robot.subsystems.LED;
+import frc.robot.subsystems.QuestNavSubsystem;
 import frc.robot.subsystems.SuperSubsystem;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.ClimbAvator.ClimbAvator;
@@ -63,6 +64,7 @@ public class RobotContainer {
 
     /* Subsystems */
     private final Swerve s_Swerve = createSwerve();
+    private final QuestNavSubsystem s_QuestNav = new QuestNavSubsystem(s_Swerve);
     private final Vision s_Vision = new Vision(s_Swerve);
     private final MrPibb s_MrPibb = new MrPibb();
     private final ClimbAvator s_ClimbAvator = new ClimbAvator();
@@ -175,6 +177,10 @@ public class RobotContainer {
 
         align.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
         align.HeadingController.setTolerance(0.1);
+
+        s_QuestNav.updateVisionMeasurement();
+        //Inisial Pose
+        s_QuestNav.setRobotPose(null);
 
         configureBindings();
     }
