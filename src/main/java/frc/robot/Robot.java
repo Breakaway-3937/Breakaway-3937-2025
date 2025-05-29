@@ -35,6 +35,7 @@ public class Robot extends LoggedRobot {
 
   public Robot() {
     robotContainer = new RobotContainer();
+    Epilogue.bind(this);
   }
 
   @Override
