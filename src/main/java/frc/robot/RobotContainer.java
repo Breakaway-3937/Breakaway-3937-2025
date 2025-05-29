@@ -179,7 +179,7 @@ public class RobotContainer {
         align.HeadingController.setTolerance(0.1);
 
         s_QuestNav.updateVisionMeasurement();
-        //Inisial Pose
+        //Initial Pose
         s_QuestNav.setRobotPose(null);
 
         configureBindings();
