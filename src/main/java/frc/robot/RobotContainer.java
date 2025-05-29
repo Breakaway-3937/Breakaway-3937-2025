@@ -65,12 +65,12 @@ public class RobotContainer {
     /* Subsystems */
     private final Swerve s_Swerve = createSwerve();
     private final QuestNavSubsystem s_QuestNav = new QuestNavSubsystem(s_Swerve);
-    private final Vision s_Vision = new Vision(s_Swerve);
+    //private final Vision s_Vision = new Vision(s_Swerve);
     private final MrPibb s_MrPibb = new MrPibb();
     private final ClimbAvator s_ClimbAvator = new ClimbAvator();
     private final DrPepper s_DrPepper = new DrPepper(isAlgae());
     private final LED s_LED = new LED();
-    private final SuperSubsystem s_SuperSubsystem = new SuperSubsystem(s_ClimbAvator, s_MrPibb, s_DrPepper, s_LED, s_Vision.funeral(), () -> s_Swerve.isBackwards());
+    private final SuperSubsystem s_SuperSubsystem = new SuperSubsystem(s_ClimbAvator, s_MrPibb, s_DrPepper, s_LED, /*s_Vision.funeral()*/false, () -> s_Swerve.isBackwards());
 
     private double multiplier = 1;
 
@@ -170,6 +170,7 @@ public class RobotContainer {
         autoChooser.addOption("L4 Left", new PathPlannerAuto("L4 Right", true).withName("L4 Left"));
         autoChooser.addOption("L4 Left Fast", new PathPlannerAuto("L4 Right Fast", true).withName("L4 Left Fast"));
         autoChooser.addOption("L4 Back Left", new PathPlannerAuto("L4 Back Right", true).withName("L4 Back Left"));
+        autoChooser.addOption("QuestNavAUTO", new PathPlannerAuto("QuestNavAuto", true).withName("QuestNavAuto"));
         Shuffleboard.getTab("Auto").add(autoChooser).withPosition(0, 0).withSize(2, 1);
 
         slowDownTrigger = new Trigger(() -> DriverStation.isTeleop() && (s_ClimbAvator.getState().equals(ClimbAvatorStates.L4) || s_ClimbAvator.getState().equals(ClimbAvatorStates.BARGE)));
@@ -191,9 +192,9 @@ public class RobotContainer {
         return autoChooser.getSelected();
     }
 
-    public Vision getVisionSystem() {
+    /*public Vision getVisionSystem() {
         return s_Vision;
-    }
+    }*/
 
     public Swerve getSwerveSystem() {
         return s_Swerve;

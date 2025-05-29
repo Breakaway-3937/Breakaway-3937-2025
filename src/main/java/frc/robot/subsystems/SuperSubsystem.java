@@ -26,10 +26,12 @@ public class SuperSubsystem extends SubsystemBase {
   private final MrPibb s_MrPibb;
   private final DrPepper s_DrPepper;
   private final LED s_LED;
-  private final BooleanSupplier funeral, isBackwards;
+  private final BooleanSupplier /*funeral,*/ isBackwards;
+  //Temp
+  boolean funeral = false;
 
   /** Creates a new SuperSubsystem. */
-  public SuperSubsystem(ClimbAvator s_ClimbAvator, MrPibb s_MrPibb, DrPepper s_DrPepper, LED s_LED, BooleanSupplier funeral, BooleanSupplier isBackwards) {
+  public SuperSubsystem(ClimbAvator s_ClimbAvator, MrPibb s_MrPibb, DrPepper s_DrPepper, LED s_LED, /*BooleanSupplier funeral*/ boolean funeral, BooleanSupplier isBackwards) {
     this.s_ClimbAvator = s_ClimbAvator; 
     this.s_MrPibb = s_MrPibb;
     this.s_DrPepper = s_DrPepper;
@@ -279,7 +281,7 @@ public class SuperSubsystem extends SubsystemBase {
       Logger.recordOutput("SuperSubsystem/Current Command", command.getName());
     }
 
-    if(DriverStation.isEnabled() && !funeral.getAsBoolean() && !s_ClimbAvator.getState().equals(ClimbAvatorStates.CLIMB_PULL) && !s_LED.getState().equals(LEDStates.BOT_ALIGNING)) {
+    if(DriverStation.isEnabled() && /*!funeral.getAsBoolean()*/ !funeral && !s_ClimbAvator.getState().equals(ClimbAvatorStates.CLIMB_PULL) && !s_LED.getState().equals(LEDStates.BOT_ALIGNING)) {
       if(botFullAlgae().getAsBoolean() && !s_LED.getState().equals(LEDStates.ALGAE_FULL)) {
         s_LED.setState(LEDStates.ALGAE_FULL);
       }
