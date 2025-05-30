@@ -14,6 +14,8 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -179,9 +181,8 @@ public class RobotContainer {
         align.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
         align.HeadingController.setTolerance(0.1);
 
-        s_QuestNav.updateVisionMeasurement();
         //TODO Initial Pose
-        s_QuestNav.setRobotPose(null);
+        s_QuestNav.setQuestNavPose(new Pose2d(7.5, 1.5,new Rotation2d(Math.PI)));
 
         configureBindings();
     }
