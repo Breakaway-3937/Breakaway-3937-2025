@@ -182,7 +182,7 @@ public class RobotContainer {
         align.HeadingController.setTolerance(0.1);
 
         //TODO Initial Pose
-        s_QuestNav.setQuestNavPose(new Pose2d(7.5, 1.5,new Rotation2d(Math.PI)));
+        s_QuestNav.setQuestNavPose(new Pose2d(7.5, 1.5,new Rotation2d(Math.PI))); //temp
 
         configureBindings();
     }
