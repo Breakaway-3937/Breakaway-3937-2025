@@ -35,6 +35,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.lib.Vision.BreakaCamera;
 import frc.robot.subsystems.Swerve.Swerve;
+import frc.robot.subsystems.QuestNavSubsystem; 
+ 
 
 public class Vision extends SubsystemBase {
   private AprilTagFieldLayout atfl;
@@ -49,10 +51,12 @@ public class Vision extends SubsystemBase {
   private int[] blueTags = {17, 18, 19, 20, 21, 22};
   private int[] redTags = {6, 7, 8, 9, 10, 11};
   private final InterpolatingDoubleTreeMap tagsStds;
+  private final QuestNavSubsystem s_QuestNav;
 
   /** Creates a new Vision. */
-  public Vision(Swerve s_Swerve) {
+  public Vision(Swerve s_Swerve, QuestNavSubsystem s_QuestNav) {
     this.s_Swerve = s_Swerve;
+    this.s_QuestNav = s_QuestNav;
     
     try {
       atfl = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025ReefscapeWelded.m_resourceFile);
@@ -89,6 +93,10 @@ public class Vision extends SubsystemBase {
 
   public PhotonPipelineResult getLatestFront() {
     return frontCamera.getLatest();
+  }
+
+  public Optional<EstimatedRobotPose> getEstimatedFrontPose() {
+    return frontCamera.getEstimatedPose();
   }
 
   public double getAverageTagDistanceX(Optional<EstimatedRobotPose> result) {
@@ -161,6 +169,17 @@ public class Vision extends SubsystemBase {
     return VecBuilder.fill(xy, xy, 99999);
   }
 
+  private Vector<N3> getPhotonVisionStdDevs(double averageDistanceX) {
+    // Start with PhotonVision's default standard deviations
+    Vector<N3> photonStdDevs = calcStd(averageDistanceX);
+
+    // If QuestNav is connected and tracking, increase PhotonVision std devs significantly
+    if (s_QuestNav.questNav.getConnected() && s_QuestNav.questNav.getTrackingStatus()) {
+      // Set very high standard deviations to effectively ignore PhotonVision when QuestNav is active
+      photonStdDevs = VecBuilder.fill(100.0, 100.0, 100.0); // Large values to reduce influence
+    }
+    return photonStdDevs;
+  }
   public BooleanSupplier funeral() {
     return () -> frontCamera.isDead() || backLeftCamera.isDead() || backRightCamera.isDead();
   }
@@ -195,49 +214,52 @@ public class Vision extends SubsystemBase {
       if(!frontCameraBad) {
         Pose2d pose = new Pose2d(frontResult.get().estimatedPose.getX(), frontResult.get().estimatedPose.getY(), s_Swerve.getState().Pose.getRotation());
         if(!(DriverStation.isAutonomousEnabled() && (s_Swerve.getState().Pose.getX() < 1.7 || s_Swerve.getState().Pose.getX() > 14.8))) {
-          SmartDashboard.putNumberArray("F Tag std", calcStd(averageDistanceX).getData());
-          s_Swerve.addVisionMeasurement(pose, Utils.fpgaToCurrentTime(frontResult.get().timestampSeconds), calcStd(averageDistanceX));
+          Vector<N3> photonStdDevs = getPhotonVisionStdDevs(averageDistanceX);
+          SmartDashboard.putNumberArray("F Tag std", photonStdDevs.getData());
+          s_Swerve.addVisionMeasurement(pose, Utils.fpgaToCurrentTime(frontResult.get().timestampSeconds), photonStdDevs);
         }
       }
     }
     
-    /* Back Left Camera */
-    if(!backLeftResult.isEmpty() && (frontCameraBad || frontResult.isEmpty()) && !noBack) {
-      double averageDistanceX = getAverageTagDistanceX(backLeftResult);
+        /* Back Left Camera */
+        if(!backLeftResult.isEmpty() && (frontCameraBad || frontResult.isEmpty()) && !noBack) {
+          double averageDistanceX = getAverageTagDistanceX(backLeftResult);
+    
+          if(averageDistanceX > maxDistance) {
+            backLeftCameraBad = true;
+          }
+    
+          if(badTags(backLeftResult) || averageDistanceX < Feet.of(1).in(Meters)) {
+            backLeftCameraBad = true;
+          }
+    
+          if(!backLeftCameraBad && DriverStation.isTeleopEnabled()) {
+            Pose2d pose = new Pose2d(backLeftResult.get().estimatedPose.getX(), backLeftResult.get().estimatedPose.getY(), s_Swerve.getState().Pose.getRotation());
+            Vector<N3> photonStdDevs = getPhotonVisionStdDevs(averageDistanceX);
+            SmartDashboard.putNumberArray(" BF Tag std", photonStdDevs.getData());
+            s_Swerve.addVisionMeasurement(pose, Utils.fpgaToCurrentTime(backLeftResult.get().timestampSeconds), photonStdDevs);
+          }
+        }
 
-      if(averageDistanceX > maxDistance) {
-        backLeftCameraBad = true;
-      }
-
-      if(badTags(backLeftResult) || averageDistanceX < Feet.of(1).in(Meters)) {
-        backLeftCameraBad = true;
-      }
-
-      if(!backLeftCameraBad && DriverStation.isTeleopEnabled()) {
-        Pose2d pose = new Pose2d(backLeftResult.get().estimatedPose.getX(), backLeftResult.get().estimatedPose.getY(), s_Swerve.getState().Pose.getRotation());
-        SmartDashboard.putNumberArray(" BF Tag std", calcStd(averageDistanceX).getData());
-        s_Swerve.addVisionMeasurement(pose, Utils.fpgaToCurrentTime(backLeftResult.get().timestampSeconds), calcStd(averageDistanceX));
-      }
-    }
-
-    /* Back Right Camera */
-    if(!backRightResult.isEmpty() && (frontCameraBad || frontResult.isEmpty() || backLeftCameraBad || backLeftResult.isEmpty()) && !noBack) {
-      double averageDistanceX = getAverageTagDistanceX(backRightResult);
-
-      if(averageDistanceX > maxDistance || averageDistanceX < Feet.of(1).in(Meters)) {
-        backRightCameraBad = true;
-      }
-
-      if(badTags(backRightResult)) {
-        backRightCameraBad = true;
-      }
-
-      if(!backRightCameraBad && DriverStation.isTeleopEnabled()) {
-        Pose2d pose = new Pose2d(backRightResult.get().estimatedPose.getX(), backRightResult.get().estimatedPose.getY(), s_Swerve.getState().Pose.getRotation());
-        SmartDashboard.putNumberArray("BR Tag std", calcStd(averageDistanceX).getData());
-        s_Swerve.addVisionMeasurement(pose, Utils.fpgaToCurrentTime(backRightResult.get().timestampSeconds), calcStd(averageDistanceX));
-      }
-    }
+        /* Back Right Camera */
+        if(!backRightResult.isEmpty() && (frontCameraBad || frontResult.isEmpty() || backLeftCameraBad || backLeftResult.isEmpty()) && !noBack) {
+          double averageDistanceX = getAverageTagDistanceX(backRightResult);
+    
+          if(averageDistanceX > maxDistance || averageDistanceX < Feet.of(1).in(Meters)) {
+            backRightCameraBad = true;
+          }
+    
+          if(badTags(backRightResult)) {
+            backRightCameraBad = true;
+          }
+    
+          if(!backRightCameraBad && DriverStation.isTeleopEnabled()) {
+            Pose2d pose = new Pose2d(backRightResult.get().estimatedPose.getX(), backRightResult.get().estimatedPose.getY(), s_Swerve.getState().Pose.getRotation());
+            Vector<N3> photonStdDevs = getPhotonVisionStdDevs(averageDistanceX);
+            SmartDashboard.putNumberArray("BR Tag std", photonStdDevs.getData());
+            s_Swerve.addVisionMeasurement(pose, Utils.fpgaToCurrentTime(backRightResult.get().timestampSeconds), photonStdDevs);
+          }
+        }
 
     Logger.recordOutput("Vision/X Distance Result Empty", xDistanceBad);
     Logger.recordOutput("Vision/Front Camera Dead", frontCamera.isDead());

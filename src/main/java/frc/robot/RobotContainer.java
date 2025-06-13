@@ -67,13 +67,12 @@ public class RobotContainer {
     /* Subsystems */
     private final Swerve s_Swerve = createSwerve();
     private final QuestNavSubsystem s_QuestNav = new QuestNavSubsystem(s_Swerve);
-    //private final Vision s_Vision = new Vision(s_Swerve);
+    private final Vision s_Vision = new Vision(s_Swerve, s_QuestNav); // Initialize Vision with Swerve and QuestNav
     private final MrPibb s_MrPibb = new MrPibb();
     private final ClimbAvator s_ClimbAvator = new ClimbAvator();
     private final DrPepper s_DrPepper = new DrPepper(isAlgae());
     private final LED s_LED = new LED();
-    private final SuperSubsystem s_SuperSubsystem = new SuperSubsystem(s_ClimbAvator, s_MrPibb, s_DrPepper, s_LED, /*s_Vision.funeral()*/false, () -> s_Swerve.isBackwards());
-
+    private final SuperSubsystem s_SuperSubsystem = new SuperSubsystem(s_ClimbAvator, s_MrPibb, s_DrPepper, s_LED, s_Vision.funeral().getAsBoolean(), () -> s_Swerve.isBackwards());
     private double multiplier = 1;
 
     /* Commands */
@@ -181,8 +180,21 @@ public class RobotContainer {
         align.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
         align.HeadingController.setTolerance(0.1);
 
-        //TODO Initial Pose
-        s_QuestNav.setQuestNavPose(new Pose2d(7.5, 1.5,new Rotation2d(Math.PI))); //temp
+        // --- Initial Pose Logic (PhotonVision Only) --- //
+        // Attempt to get initial pose from PhotonVision
+        var estimatedFrontPose = s_Vision.getEstimatedFrontPose(); // Use the new helper method
+        if (estimatedFrontPose.isPresent() && !s_Vision.badTags(estimatedFrontPose)) {
+            // If PhotonVision sees valid tags, use its estimated pose
+            Pose2d initialPose = estimatedFrontPose.get().estimatedPose.toPose2d();
+            s_Swerve.resetPose(initialPose);
+            s_QuestNav.setQuestNavPose(initialPose);
+        } else {
+            // If PhotonVision cannot see tags, the robot will start at its default odometry (0,0,0)
+            // QuestNav will take over once it becomes active and provides its own pose.
+            System.out.println("PhotonVision did not detect valid tags for initial pose. Starting at default odometry.");
+        }
+        // --- End Initial Pose Logic --- //
+
 
         configureBindings();
     }
@@ -248,5 +260,13 @@ public class RobotContainer {
     public Swerve createSwerve() {
         Logger.recordOutput("Is Practice Bot", Constants.PRACTICE_BOT);
         return (Constants.PRACTICE_BOT) ? PracticeTunerConstants.createDrivetrain() : CompTunerConstants.createDrivetrain();
+    }
+
+    public Vision getVisionSystem() {
+        return s_Vision;
+    }
+
+    public QuestNavSubsystem getQuestNavSubsystem() {
+        return s_QuestNav;
     }
 }

@@ -18,7 +18,7 @@ import frc.robot.subsystems.Swerve.Swerve;
 
 public class QuestNavSubsystem extends SubsystemBase {
 
-  private QuestNav questNav = new QuestNav();
+  public QuestNav questNav = new QuestNav();
   private Transform2d QUEST_TO_ROBOT = new Transform2d(/*TODO put in coordinates */);
   private Swerve s_Swerve;
   
