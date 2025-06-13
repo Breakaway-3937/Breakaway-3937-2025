@@ -27,16 +27,11 @@ public class QuestNavSubsystem extends SubsystemBase {
   }
 
   public void setQuestNavPose(Pose2d pose) {
-    pose = pose.transformBy(QUEST_TO_ROBOT);
-    questNav.setPose(pose);
+    questNav.setPose(pose.transformBy(QUEST_TO_ROBOT));
   }
 
   public Pose2d getPose() {
-    //QuestNav Pose
-    Pose2d pose = questNav.getPose();
-    //Robot Pose
-    pose = pose.transformBy(QUEST_TO_ROBOT.inverse());
-    return pose;
+    return questNav.getPose().transformBy(QUEST_TO_ROBOT.inverse());
   }
 
   public void updateVisionMeasurement() {
