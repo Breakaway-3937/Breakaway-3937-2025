@@ -198,9 +198,9 @@ public class RobotContainer {
         return autoChooser.getSelected();
     }
 
-    /*public Vision getVisionSystem() {
+    public Vision getVisionSystem() {
         return s_Vision;
-    }*/
+    }
 
     public Swerve getSwerveSystem() {
         return s_Swerve;
@@ -252,11 +252,8 @@ public class RobotContainer {
 
     public Swerve createSwerve() {
         Logger.recordOutput("Is Practice Bot", Constants.PRACTICE_BOT);
+        SmartDashboard.putBoolean("Is Practice Bot", Constants.PRACTICE_BOT);
         return (Constants.PRACTICE_BOT) ? PracticeTunerConstants.createDrivetrain() : CompTunerConstants.createDrivetrain();
-    }
-
-    public Vision getVisionSystem() {
-        return s_Vision;
     }
 
     public QuestNavSubsystem getQuestNavSubsystem() {

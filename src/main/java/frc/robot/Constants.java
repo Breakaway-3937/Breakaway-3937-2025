@@ -22,7 +22,7 @@ public final class Constants {
     public static final int PDH_ID = 27;
     public static final int NUM_LEDS = 8;
     public static final String CANIVORE_BUS = "CANivore";
-    public static final String COMP_SERIAL_NUM = "032D2164";
+    public static final String COMP_SERIAL_NUM = "32D2164"; //Old one 032D2164
     public static final boolean PRACTICE_BOT = !RobotController.getSerialNumber().equals(COMP_SERIAL_NUM);
     public static final boolean USE_LOGGER = true;
     public static final boolean DEBUG = false;
