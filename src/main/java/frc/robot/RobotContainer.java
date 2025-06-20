@@ -15,6 +15,8 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -179,7 +181,7 @@ public class RobotContainer {
         align.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
         align.HeadingController.setTolerance(0.1);
 
-        var estimatedFrontPose = s_Vision.getEstimatedFrontPose();
+        /*var estimatedFrontPose = s_Vision.getEstimatedFrontPose();
         if (estimatedFrontPose.isPresent() && !s_Vision.badTags(estimatedFrontPose)) {
             Pose2d initialPose = estimatedFrontPose.get().estimatedPose.toPose2d();
             s_Swerve.resetPose(initialPose);
@@ -187,7 +189,10 @@ public class RobotContainer {
         } else {
             System.out.println("PhotonVision did not detect valid tags for initial pose. Starting at default odometry.");
             s_QuestNav.setQuestNavPose(new Pose2d());
-        }
+        }*/
+        Pose2d pose = new Pose2d(1.22, 4.02, new Rotation2d());
+        s_Swerve.resetPose(pose);
+        s_QuestNav.setQuestNavPose(pose);
 
         configureBindings();
     }
