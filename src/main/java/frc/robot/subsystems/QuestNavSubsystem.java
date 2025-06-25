@@ -38,7 +38,7 @@ public class QuestNavSubsystem extends SubsystemBase {
   public void updateVisionMeasurement() {
     Matrix<N3, N1> QUESTNAV_STD_DEVS = VecBuilder.fill(0.02, 0.02, 0.035); //The suggested Standerd Deviations for QuestNav
 
-    if (questNav.getConnected() && questNav.getTrackingStatus()) {
+    if (questNav.isConnected() && questNav.isTracking()) {
 
         Pose2d pose = getPose();
 
@@ -55,8 +55,8 @@ public class QuestNavSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    questNav.cleanupResponses();
-    questNav.processHeartbeat();
+    // Call the unified periodic command for QuestNav 1.0 beta
+    questNav.commandPeriodic(); 
     updateVisionMeasurement();
   }
 }

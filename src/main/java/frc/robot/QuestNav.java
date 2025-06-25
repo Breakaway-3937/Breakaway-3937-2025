@@ -129,7 +129,7 @@ public class QuestNav {
    *
    * @return Boolean indicating if the Quest is currently tracking (true) or not (false)
    */
-  public Boolean getTrackingStatus() {
+  public Boolean isTracking() {
     return questIsTracking.get();
   }
 
@@ -157,7 +157,7 @@ public class QuestNav {
    *
    * @return Boolean indicating if the Quest is connected (true) or not (false)
    */
-  public Boolean getConnected() {
+  public Boolean isConnected() {
     return Seconds.of(Timer.getTimestamp())
             .minus(Microseconds.of(questTimestamp.getLastChange()))
             .lt(Seconds.of(0.25));
@@ -231,5 +231,11 @@ public class QuestNav {
    */
   public Pose2d getPose() {
     return new Pose2d(getTranslation(), getYaw());
+  }
+
+  public void commandPeriodic() {
+    processHeartbeat();
+    cleanupResponses();
+    
   }
 }
