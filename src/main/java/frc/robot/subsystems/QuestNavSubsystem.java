@@ -55,7 +55,6 @@ public class QuestNavSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // Call the unified periodic command for QuestNav 1.0 beta
     questNav.commandPeriodic(); 
     updateVisionMeasurement();
   }

@@ -174,7 +174,7 @@ public class Vision extends SubsystemBase {
     Vector<N3> photonStdDevs = calcStd(averageDistanceX);
 
     // If QuestNav is connected and tracking, increase PhotonVision std devs significantly
-    if (s_QuestNav.questNav.getConnected() && s_QuestNav.questNav.getTrackingStatus()) {
+    if (s_QuestNav.questNav.isConnected() && s_QuestNav.questNav.isTracking()) {
       // Set very high standard deviations to effectively ignore PhotonVision when QuestNav is active
       photonStdDevs = VecBuilder.fill(100.0, 100.0, 100.0); // Large values to reduce influence
     }
