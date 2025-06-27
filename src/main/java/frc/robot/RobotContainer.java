@@ -189,7 +189,7 @@ public class RobotContainer {
             System.out.println("PhotonVision did not detect valid tags for initial pose. Starting at default odometry.");
             s_QuestNav.setQuestNavPose(new Pose2d());
         }*/
-        Pose2d pose = new Pose2d(1.22, 4.02, new Rotation2d());
+        Pose2d pose = new Pose2d(3.165, 3.983, new Rotation2d());
         s_Swerve.resetPose(pose);
         s_QuestNav.setQuestNavPose(pose);
 

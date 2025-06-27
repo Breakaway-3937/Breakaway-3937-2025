@@ -236,6 +236,7 @@ public class QuestNav {
   public void commandPeriodic() {
     processHeartbeat();
     cleanupResponses();
-    
   }
+
+
 }
