@@ -14,8 +14,9 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.QuestNav;
+import gg.questnav.questnav.QuestNav;
 import frc.robot.subsystems.Swerve.Swerve;
+
 
 public class QuestNavSubsystem extends SubsystemBase {
 
@@ -43,7 +44,7 @@ public class QuestNavSubsystem extends SubsystemBase {
         Pose2d pose = getPose();
 
         // Get timestamp from the QuestNav instance
-        double timestamp = questNav.getTimestamp();
+        double timestamp = questNav.getDataTimestamp();
 
         // Convert FPGA timestamp to CTRE's time domain using Phoenix 6 utility
         double ctreTimestamp = Utils.fpgaToCurrentTime(timestamp);
