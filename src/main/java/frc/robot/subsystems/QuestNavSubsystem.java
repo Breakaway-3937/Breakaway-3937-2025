@@ -59,6 +59,10 @@ public class QuestNavSubsystem extends SubsystemBase {
   public void periodic() {
     questNav.commandPeriodic(); 
     updateVisionMeasurement();
+    System.out.print("Is Quest Connected:");
+    System.out.println(questNav.isConnected());
+    System.out.print("Is Quest Tracking");
+    System.out.println(questNav.isTracking());
   }
 }
 //34.25
