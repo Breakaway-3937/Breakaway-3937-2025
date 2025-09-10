@@ -152,6 +152,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("ScoreCoralFast", s_SuperSubsystem.scoreCoralAlignFast(s_Swerve.autoReefCorrection()));
         NamedCommands.registerCommand("ScoreCoralL1", s_SuperSubsystem.scoreCoralL1(s_Swerve.hitReef(), s_Swerve.stop()));
         NamedCommands.registerCommand("Load", s_SuperSubsystem.load());
+        NamedCommands.registerCommand("ScoreL1", s_SuperSubsystem.scoreAlgae());
         NamedCommands.registerCommand("Center", s_SuperSubsystem.center());
         NamedCommands.registerCommand("Condense", s_SuperSubsystem.condenseAuto());
         NamedCommands.registerCommand("TushPush", s_SuperSubsystem.tushPush(s_Swerve.hitRobot(), s_Swerve.stop()));
@@ -172,6 +173,7 @@ public class RobotContainer {
         autoChooser.addOption("L4 Left Fast", new PathPlannerAuto("L4 Right Fast", true).withName("L4 Left Fast"));
         autoChooser.addOption("L4 Back Left", new PathPlannerAuto("L4 Back Right", true).withName("L4 Back Left"));
         autoChooser.addOption("QuestNavAUTO", new PathPlannerAuto("QuestNavAuto", true).withName("QuestNavAuto"));
+        autoChooser.addOption("PracticeBotAuto", new PathPlannerAuto("PracticeBotAuto", true).withName("PracticeBotAuto"));
         Shuffleboard.getTab("Auto").add(autoChooser).withPosition(0, 0).withSize(2, 1);
 
         slowDownTrigger = new Trigger(() -> DriverStation.isTeleop() && (s_ClimbAvator.getState().equals(ClimbAvatorStates.L4) || s_ClimbAvator.getState().equals(ClimbAvatorStates.BARGE)));
