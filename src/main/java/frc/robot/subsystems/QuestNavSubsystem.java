@@ -57,12 +57,12 @@ public class QuestNavSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    questNav.commandPeriodic(); 
+    /*questNav.commandPeriodic(); 
     updateVisionMeasurement();
     System.out.print("Is Quest Connected:");
     System.out.println(questNav.isConnected());
     System.out.print("Is Quest Tracking");
-    System.out.println(questNav.isTracking());
+    System.out.println(questNav.isTracking());*/
   }
 }
 //34.25

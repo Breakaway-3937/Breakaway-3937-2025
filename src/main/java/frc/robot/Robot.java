@@ -87,9 +87,9 @@ public class Robot extends LoggedRobot {
       auto = true;
     }
 
-    if(robotContainer.getVisionSystem().funeral().getAsBoolean()) {
+    /*if(robotContainer.getVisionSystem().funeral().getAsBoolean()) {
       robotContainer.getLEDSystem().setState(LEDStates.FUNERAL);
-    }
+    }*/
   }
 
   @Override
@@ -103,9 +103,9 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void disabledPeriodic() {
-    if(!robotContainer.getVisionSystem().funeral().getAsBoolean()) {
+    /*if(!robotContainer.getVisionSystem().funeral().getAsBoolean()) {
       robotContainer.getLEDSystem().setState(LEDStates.NOT_TELEOP);
-    }
+    }*/
   }
 
   @Override
@@ -121,9 +121,9 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousPeriodic() {
-    if(!robotContainer.getVisionSystem().funeral().getAsBoolean()) {
+    /*if(!robotContainer.getVisionSystem().funeral().getAsBoolean()) {
       robotContainer.getLEDSystem().setState(LEDStates.NOT_TELEOP);
-    }
+    }*/
   }
 
   @Override
@@ -142,7 +142,9 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    robotContainer.PrintMyAxis();
+  }
 
   @Override
   public void testInit() {

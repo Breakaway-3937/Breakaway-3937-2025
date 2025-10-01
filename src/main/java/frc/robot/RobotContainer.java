@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -45,9 +46,9 @@ import frc.robot.subsystems.Swerve.Swerve.BranchSide;
 
 public class RobotContainer {
     /* Controllers */
-    private final Joystick translationController = new Joystick(Constants.Controllers.TRANSLATION_CONTROLLER.getPort());
-    private final Joystick rotationController = new Joystick(Constants.Controllers.ROTATION_CONTROLLER.getPort());
-    private final CommandXboxController xboxController = new CommandXboxController(Constants.Controllers.XBOX_CONTROLLER.getPort());
+    //private final Joystick translationController = new Joystick(Constants.Controllers.TRANSLATION_CONTROLLER.getPort());
+    private final CommandXboxController drivController = new CommandXboxController(1);
+    private final CommandXboxController xboxController = new CommandXboxController(2);
     private final Joystick buttons = new Joystick(Constants.Controllers.BUTTONS.getPort());
 
     /* Drive Controls */
@@ -56,10 +57,10 @@ public class RobotContainer {
     private final int rotationAxis = Constants.Controllers.ROTATION_AXIS;
 
     /* Driver Buttons */
-    private final JoystickButton translationButton = new JoystickButton(translationController, Constants.Controllers.TRANSLATION_BUTTON);
+    //private final JoystickButton translationButton = new JoystickButton(translationController, Constants.Controllers.TRANSLATION_BUTTON);
     private final JoystickButton robotCentric = new JoystickButton(buttons, 1);
-    private final JoystickButton leftTrack = new JoystickButton(buttons, 7);
-    private final JoystickButton rightTrack = new JoystickButton(buttons, 8);
+    //private final JoystickButton leftTrack = new JoystickButton(buttons, 7);
+    //private final JoystickButton rightTrack = new JoystickButton(buttons, 8);
 
     /* Triggers */
     private final Trigger slowDownTrigger, protectTrigger;
@@ -67,13 +68,14 @@ public class RobotContainer {
     /* Subsystems */
     private final Swerve s_Swerve = createSwerve();
     private final QuestNavSubsystem s_QuestNav = new QuestNavSubsystem(s_Swerve);
-    private final Vision s_Vision = new Vision(s_Swerve, s_QuestNav); // Initialize Vision with Swerve and QuestNav
+    //private final Vision s_Vision = new Vision(s_Swerve, s_QuestNav); // Initialize Vision with Swerve and QuestNav
     private final MrPibb s_MrPibb = new MrPibb();
     private final ClimbAvator s_ClimbAvator = new ClimbAvator();
     private final DrPepper s_DrPepper = new DrPepper(isAlgae());
     private final LED s_LED = new LED();
-    private final SuperSubsystem s_SuperSubsystem = new SuperSubsystem(s_ClimbAvator, s_MrPibb, s_DrPepper, s_LED, s_Vision.funeral().getAsBoolean(), () -> s_Swerve.isBackwards());
-    private double multiplier = 1;
+    private final SuperSubsystem s_SuperSubsystem = new SuperSubsystem(s_ClimbAvator, s_MrPibb, s_DrPepper, s_LED, /*s_Vision.funeral().getAsBoolean()*/false, () -> s_Swerve.isBackwards());
+    private double multiplier = -1;
+    private double rotMultiplier = -1;
 
     /* Commands */
     private final Music c_Music = new Music(s_Swerve, s_MrPibb, s_DrPepper, s_ClimbAvator);
@@ -99,18 +101,19 @@ public class RobotContainer {
 
         s_Swerve.setDefaultCommand(
             s_Swerve.applyRequest(() ->
-                drive.withVelocityX(translationController.getRawAxis(translationAxis) * multiplier * Constants.Swerve.MAX_SPEED)
-                    .withVelocityY(translationController.getRawAxis(strafeAxis) * multiplier * Constants.Swerve.MAX_SPEED) 
-                    .withRotationalRate(rotationController.getRawAxis(rotationAxis) * Constants.Swerve.MAX_ANGULAR_RATE)
+                drive.withVelocityX(drivController.getLeftY() * multiplier * Constants.Swerve.MAX_SPEED)
+                    .withVelocityY(drivController.getLeftX() * multiplier * Constants.Swerve.MAX_SPEED) 
+                    .withRotationalRate(drivController.getRightX() * rotMultiplier * Constants.Swerve.MAX_ANGULAR_RATE)
             )
         );
 
         /* Driver Buttons */
-        translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
+        drivController.a().onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric() ));
+        //translationButton.onTrue(Commands.runOnce(() -> s_Swerve.seedFieldCentric(), s_Swerve));
         slowDownTrigger.whileTrue(Commands.runOnce(() -> multiplier = 0.4)).whileFalse(Commands.runOnce(() -> multiplier = 1));
         robotCentric.whileTrue(robotCentricDrive());
-        leftTrack.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_ALIGNING)).alongWith(setRumble(RumbleType.kLeftRumble, 1))).whileTrue(Commands.either(s_Swerve.autoAlign(BranchSide.CENTER), s_Swerve.autoAlign(BranchSide.LEFT), isAlgae())).onFalse(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED).alongWith(setRumble(RumbleType.kBothRumble, 0)));
-        rightTrack.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_ALIGNING)).alongWith(setRumble(RumbleType.kRightRumble, 1))).whileTrue(Commands.either(s_Swerve.autoAlign(BranchSide.CENTER), s_Swerve.autoAlign(BranchSide.RIGHT), isAlgae())).onFalse(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED).alongWith(setRumble(RumbleType.kBothRumble, 0)));
+        //leftTrack.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_ALIGNING)).alongWith(setRumble(RumbleType.kLeftRumble, 1))).whileTrue(Commands.either(s_Swerve.autoAlign(BranchSide.CENTER), s_Swerve.autoAlign(BranchSide.LEFT), isAlgae())).onFalse(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED).alongWith(setRumble(RumbleType.kBothRumble, 0)));
+        //rightTrack.onTrue(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_ALIGNING)).alongWith(setRumble(RumbleType.kRightRumble, 1))).whileTrue(Commands.either(s_Swerve.autoAlign(BranchSide.CENTER), s_Swerve.autoAlign(BranchSide.RIGHT), isAlgae())).onFalse(Commands.runOnce(() -> s_LED.setState(LEDStates.BOT_EMPTY), s_LED).alongWith(setRumble(RumbleType.kBothRumble, 0)));
 
         /* Weird Button States */
         xboxController.a().onTrue(Commands.either(s_SuperSubsystem.l1State(), s_SuperSubsystem.processorState(), xboxController.back()));
@@ -191,9 +194,9 @@ public class RobotContainer {
             System.out.println("PhotonVision did not detect valid tags for initial pose. Starting at default odometry.");
             s_QuestNav.setQuestNavPose(new Pose2d());
         }*/
-        Pose2d pose = new Pose2d(7.120, 0.490, new Rotation2d());
+        /*Pose2d pose = new Pose2d(7.120, 0.490, new Rotation2d());
         s_Swerve.resetPose(pose);
-        s_QuestNav.setQuestNavPose(pose);
+        s_QuestNav.setQuestNavPose(pose);*/
 
         configureBindings();
     }
@@ -204,8 +207,12 @@ public class RobotContainer {
         return autoChooser.getSelected();
     }
 
-    public Vision getVisionSystem() {
+    /*public Vision getVisionSystem() {
         return s_Vision;
+    }*/
+
+    public void PrintMyAxis() {
+        System.out.println(drivController.getLeftX() + " LOOOOOOOOOOK!!!!!!");
     }
 
     public Swerve getSwerveSystem() {
@@ -250,10 +257,10 @@ public class RobotContainer {
 
     public Command robotCentricDrive() {
         return s_Swerve.applyRequest(() ->
-                align.withVelocityX(translationController.getRawAxis(translationAxis) * multiplier * Constants.Swerve.MAX_SPEED)
-                    .withVelocityY(translationController.getRawAxis(strafeAxis) * multiplier * Constants.Swerve.MAX_SPEED)
+                align.withVelocityX(drivController.getLeftX() * multiplier * Constants.Swerve.MAX_SPEED)
+                    .withVelocityY(drivController.getLeftY() * multiplier * Constants.Swerve.MAX_SPEED)
                     .withTargetDirection(s_Swerve.alignRot)
-            );       
+            );
     }
 
     public Swerve createSwerve() {
